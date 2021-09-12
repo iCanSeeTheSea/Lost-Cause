@@ -40,9 +40,7 @@ while len(spanning_tree) < total_nodes:
                 pass
         except:
             pass
-    
-    print('current:', current_node)
-    print('possible:', possible_nodes)
+
 
     # randomly choosing the next node, unless there is only 1 option
     if len(possible_nodes) > 1:
@@ -78,9 +76,11 @@ while len(spanning_tree) < total_nodes:
 
                 
             
-
-    print('next:', next_node, '\n')
+    print('current:', current_node)
+    print('possible:', possible_nodes)
+    print('next:', next_node)
     spanning_tree.append([next_node, current_node])
+    print('tree:', spanning_tree, '\n')
 
     current_node = next_node
 
