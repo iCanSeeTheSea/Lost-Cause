@@ -15,14 +15,11 @@ current_node = [1,1]
 
 
 
-# creates the maze untill all nodes are visited
+# creates the maze until all nodes are visited
 while len(spanning_tree) < total_nodes:
 
     # removes current node from stack
-    for node in nodes:
-        print('\n', node, current_node, '\n')
-        if node == current_node:
-            nodes.remove(node); break
+    nodes.remove(current_node)
 
     print('nodes:', nodes)
     
