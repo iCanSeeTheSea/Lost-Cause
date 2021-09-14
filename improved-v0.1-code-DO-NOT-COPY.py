@@ -1,4 +1,4 @@
-# proof of concept 1: 3x3 grid, no visualisation | 21.08.21
+# peer checked and improved code | DO NOT USE DIRECTLY
 
 import random
 
@@ -22,15 +22,17 @@ while nodes:
     print(current_node)
     try:
         nodes.remove(current_node)
-    except ValueError:
+    except ValueError: # only passes on the expected error
         pass
     
     possible_nodes = []
 
+    # checking nodes with a different in x by 1 and/or a difference in y by 1
     for dx, dy in adjacent_nodes:
         if (current_node[0] + dx, current_node[1] + dy) in nodes:
             possible_nodes.append((current_node[0] + dx, current_node[1] + dy))
 
+    # choosing a random next node 
     if possible_nodes:
         next_node = random.choice(possible_nodes)
         spanning_tree.append((next_node, current_node))

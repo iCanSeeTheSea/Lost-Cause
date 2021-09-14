@@ -50,12 +50,6 @@ while len(spanning_tree) < total_nodes:
             check_node = item[1]
             for node in nodes:
                 try:
-                    '''
-                    if (node[0]+1 == check_node[0] or node[0]-1 == check_node[0]) and node[1] == check_node[1]:
-                        next_node = check_node; print(check_node, next_node, node); break
-                    elif (node[1]+1 == check_node[1] or node[1]-1 == check_node[1]) and node[0] == check_node[0]:
-                        next_node = check_node; print(check_node, next_node, node); break
-                    '''
                     if node[0]+1 == check_node[0] and node[1] == check_node[1]:
                         check_node[0] -= 1
                         next_node = check_node
