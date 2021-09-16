@@ -69,4 +69,5 @@ if maxX*maxY == len(spanning_tree)+1:
 else:
     print('a sad feeling :(')
 
-print(time.time()-start_time)
+end_time = time.time()-start_time
+print((str(end_time)[:-(len(str(end_time).split('.')[1])-2)]) + 's')
