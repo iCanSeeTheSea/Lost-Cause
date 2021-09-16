@@ -1,5 +1,7 @@
 # proof of concept 1: 3x3 grid, no visualisation | 21.08.21 -> 16/09/21
 
+# drunkards walk algorithm
+
 from random import randint
 
 # each "point" in the maze
@@ -40,7 +42,7 @@ while len(nodes) > 0:
         spanning_tree.append((next_node, current_node))
     else:
         print('new branch')
-        # when branch meets a dead end, backtrack through the spanning tree to find an available node
+        # when branch meets a dead end, look through the spanning tree to find an available node
         for item in spanning_tree:
             check_node = item[1]
             for x, y in adjacent_nodes:
