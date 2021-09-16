@@ -15,7 +15,7 @@ spanning_tree = []
 # node to start on
 current_node = (1,1)
 
-# creates the maze untill all nodes are visited
+# creates the maze until all nodes are visited
 while nodes:
 
     # removes current node from stack

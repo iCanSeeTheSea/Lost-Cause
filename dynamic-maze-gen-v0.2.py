@@ -2,7 +2,9 @@
 
 # closer to a recursive backtracker
 
-import random
+import random, time
+
+start_time = time.time()
 
 # each "point" in the maze
 nodes = []
@@ -66,3 +68,5 @@ if maxX*maxY == len(spanning_tree)+1:
     print('YAY')
 else:
     print('a sad feeling :(')
+
+print(time.time()-start_time)
