@@ -40,7 +40,7 @@ def generate_maze_coords():
     while nodes:
 
         # removes current node from stack
-        print(current_node)
+        # print(current_node)
         try:
             nodes.remove(current_node)
         except ValueError:
@@ -58,14 +58,17 @@ def generate_maze_coords():
             next_node = random.choice(possible_nodes)
             spanning_tree.append((next_node, current_node))
         else:
-            print('new branch')
+            # print('new branch')
             # when branch meets a dead end, backtrack through the spanning tree to find an available node
             for index in range(len(spanning_tree) -1, -1, -1): # (going from the end of spanning tree backwards)
                 item = spanning_tree[index]
                 check_node = item[1]
                 for x, y in adjacent_nodes:
                     if (check_node[0] +x, check_node[1] + y) in nodes:
-                        next_node = check_node
+                        next_node = check_node; break
+                else:
+                    continue
+                break
         
         current_node = next_node
 
@@ -76,49 +79,21 @@ def generate_maze_coords():
     return spanning_tree
 
 spanning_tree = generate_maze_coords()
-print(spanning_tree)
+# print(spanning_tree)
 
-screen = pygame.display.set_mode([(maxX*40)-20,(maxY*40)-20])
+'''
+screen = pygame.display.set_mode([(maxX*4)-2,(maxY*4)-2])
 
 screen.fill((0,0,0))
-pygame.draw.rect(screen, (255,255,255), pygame.Rect(0, 0, 20, 20))
+pygame.draw.rect(screen, (255,255,255), pygame.Rect(0, 0, 2, 2))
 
-for index, coord_set in enumerate(spanning_tree):
-    ''' EXPLAINING THE MATHS
-    (for future me who will most definately forget how this works and will not be able to understand it ^w^ )
-    
-    each sqaure is 20px X 20px
-
-    sequence:
-
-    coord (n):  1   2   3    4   5
-    pixel:      0   40  80  120 160  -> for x and y
-
-    nth term = 20(n-1)
-    uses this to calulate corresponding pixel coordinates to coordinates from the tuple
-
-    for which wall to 'remove':
-         
-        find mid point between corresponding x and y coords using formula : diff/2 + 1st coord
-
-        e.g. if the coordinate set was ((2,3), (3,3))
-
-        the calculation would be:
-            
-            (3-2)/2 + 2 , to give 2.5 for x
-
-            and (3-3)/2 + 3, to give 3 for y
-        
-        using the nth term from above, this gives pixel coordinates of (60, 80), perfectly inbetween (40, 80) and (80, 80)
-
-    '''
-
-    pygame.draw.rect(screen, (255, 255, 255), pygame.Rect((coord_set[0][0]-1)*40, (coord_set[0][1]-1)*40, 20, 20))
+for coord_set in spanning_tree:
+    pygame.draw.rect(screen, (255, 255, 255), pygame.Rect((coord_set[0][0]-1)*4, (coord_set[0][1]-1)*4, 2, 2))
     # finding mid-points between current and previous nodes to remove wall
     join_x = ((coord_set[1][0] - coord_set[0][0])/2) + coord_set[0][0] 
     join_y = ((coord_set[1][1] - coord_set[0][1])/2) + coord_set[0][1]
-    pygame.draw.rect(screen, (255, 255, 255), pygame.Rect((join_x-1)*40, (join_y-1)*40, 20, 20))
-
+    pygame.draw.rect(screen, (255, 255, 255), pygame.Rect((join_x-1)*4, (join_y-1)*4, 2, 2))
+    
 
 # pygame stuff
 running = True
@@ -130,4 +105,4 @@ while running:
 
     pygame.display.flip()
 
-pygame.quit()
+pygame.quit()'''
