@@ -18,8 +18,8 @@ adjacent_nodes = ((-1, 0), (1,0), (0,1), (0, -1))
 stack = []
 spanning_tree = []
 
+# initialising pygame window
 screen = pygame.display.set_mode([(maxX*20)-10,(maxY*20)-10])
-
 screen.fill((0,0,0))
 pygame.draw.rect(screen, (255,255,255), pygame.Rect(0, 0, 10, 10))
 
