@@ -1,4 +1,4 @@
-# comparing different algorithms
+# comparing different algorithms | 19/09/21
 
 import random, time, pygame
 pygame.init()
@@ -71,9 +71,9 @@ def original_algorithm():
 
     # calculating time taken to run 
     end_time = time.time()-start_time
-    print((str(end_time)[:-(len(str(end_time).split('.')[1])-2)]) + 's')
+    total_time = (str(end_time)[:-(len(str(end_time).split('.')[1])-8)]) + 's'
 
-    return spanning_tree
+    return total_time
 
 
 def recursive_backtacking():
@@ -132,32 +132,10 @@ def recursive_backtacking():
         
         if len(stack) == 0:
             end_time = time.time()-start_time
-            print((str(end_time)[:-(len(str(end_time).split('.')[1])-2)]) + 's')
-            return spanning_tree
+            total_time = (str(end_time)[:-(len(str(end_time).split('.')[1])-8)]) + 's'
+            return total_time
 
-spanning_tree = recursive_backtacking()
-    
-screen = pygame.display.set_mode([(maxX*20)-10,(maxY*20)-10])
 
-screen.fill((0,0,0))
-pygame.draw.rect(screen, (255,255,255), pygame.Rect(0, 0, 10, 10))
 
-for coord_set in spanning_tree:
-    pygame.draw.rect(screen, (255, 255, 255), pygame.Rect((coord_set[0][0]-1)*20, (coord_set[0][1]-1)*20, 10, 10))
-    # finding mid-points between current and previous nodes to remove wall
-    join_x = ((coord_set[1][0] - coord_set[0][0])/2) + coord_set[0][0] 
-    join_y = ((coord_set[1][1] - coord_set[0][1])/2) + coord_set[0][1]
-    pygame.draw.rect(screen, (255, 255, 255), pygame.Rect((join_x-1)*20, (join_y-1)*20, 10, 10))
-    
-
-# pygame stuff
-running = True
-while running:
-
-    for  event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-
-    pygame.display.flip()
-
-pygame.quit()
+print(original_algorithm())
+print(recursive_backtacking())
