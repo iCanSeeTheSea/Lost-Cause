@@ -3,8 +3,6 @@
 import random, time, pygame
 pygame.init()
 
-
-
 # generating nodes based on chosen size
 maxX = 50
 maxY = 50
@@ -64,6 +62,7 @@ while True:
         pygame.draw.rect(screen, (255, 255, 255), pygame.Rect((join_x-1)*20, (join_y-1)*20, 10, 10))
 
     else:
+        # checking each node from the stack for possible nodes, if there are none, removing it
         for index in range(len(stack)-1, -1, -1):
             check_node = stack[index]
             for dx, dy in adjacent_nodes:
