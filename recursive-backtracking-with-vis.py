@@ -19,9 +19,9 @@ stack = []
 spanning_tree = []
 
 # initialising pygame window
-screen = pygame.display.set_mode([(maxX*20)-10,(maxY*20)-10])
+screen = pygame.display.set_mode([(maxX*16)-8,(maxY*16)-8])
 screen.fill((0,0,0))
-pygame.draw.rect(screen, (255,255,255), pygame.Rect(0, 0, 10, 10))
+pygame.draw.rect(screen, (255,255,255), pygame.Rect(0, 0, 8, 8))
 
 start_time = time.time()
 
@@ -55,11 +55,11 @@ while True:
         # choosing a random (adjacent) node to go next
         next_node = random.choice(possible_nodes)
         spanning_tree.append((next_node, current_node))
-        pygame.draw.rect(screen, (255, 255, 255), pygame.Rect((next_node[0]-1)*20, (next_node[1]-1)*20, 10, 10))
+        pygame.draw.rect(screen, (255, 255, 255), pygame.Rect((next_node[0]-1)*16, (next_node[1]-1)*16, 8, 8))
         # finding mid-points between current and previous nodes to remove wall
         join_x = ((current_node[0] - next_node[0])/2) + next_node[0] 
         join_y = ((current_node[1] - next_node[1])/2) + next_node[1]
-        pygame.draw.rect(screen, (255, 255, 255), pygame.Rect((join_x-1)*20, (join_y-1)*20, 10, 10))
+        pygame.draw.rect(screen, (255, 255, 255), pygame.Rect((join_x-1)*16, (join_y-1)*16, 8, 8))
 
     else:
         # checking each node from the stack for possible nodes, if there are none, removing it
