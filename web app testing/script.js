@@ -9,17 +9,19 @@ function startGame() {
 var myGameArea = {
     canvas : document.createElement("canvas"),
     start : function() {
-        this.canvas.width = 750;
-        this.canvas.height = 750;
+        this.canvas.width = 480;
+        this.canvas.height = 500;
         this.context = this.canvas.getContext("2d");
         document.body.insertBefore(this.canvas, document.body.childNodes[0]);
         this.interval = setInterval(updateGameArea, 20);
         window.addEventListener('keydown', function (event) {
             myGameArea.keys = (myGameArea.keys || []);
-            myGameArea.keys[event.keyCode] = (event.type == "keydown");
+            myGameArea.keys[event.keyCode] = true;
+            console.log(event.keyCode)
+            console.log(myGameArea.keys)
         })
         window.addEventListener('keyup', function (event) {
-            myGameArea.keys[event.keyCode] = (e.type == "keydown");            
+            myGameArea.keys[event.keyCode] = false;            
         })
     }, 
     clear : function(){
@@ -55,6 +57,7 @@ function updateGameArea() {
     if (myGameArea.keys && myGameArea.keys == 65) {myGamePiece.speedX = -1; } // a
     if (myGameArea.keys && myGameArea.keys == 83) {myGamePiece.speedY = 1; } // s
     if (myGameArea.keys && myGameArea.keys == 68) {myGamePiece.speedX = 1; } // d
+    console.log(myGamePiece.speedX, myGamePiece.speedY)
     myGamePiece.newPos();
     myGamePiece.update();
 }
