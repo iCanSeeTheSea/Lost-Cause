@@ -1,6 +1,7 @@
 
 var myGamePiece;
 var myObstacles = [];
+var myMaze = [];
 
 function startGame() {
     myGameArea.start();
@@ -64,19 +65,18 @@ function component(width, height, color, x, y) {
         var otherright = otherobj.x + (otherobj.width);
         var othertop = otherobj.y;
         var otherbottom = otherobj.y + (otherobj.height);
-        var crash = false;
-        if ((mybottom > otherbottom) ||
-        (mytop < othertop) ||
-        (myright > otherright) ||
-        (myleft < otherleft)) {
-          crash = true;
+        var crash = true;
+        if ((mybottom < othertop) ||
+        (mytop > otherbottom) ||
+        (myright < otherleft) ||
+        (myleft > otherright)) {
+          crash = false;
         }
         return crash;
     }    
 }
 
 function updateGameArea() {
-    myGameArea.clear();
     var x, y;
     for (i = 0; i < myObstacles.length; i += 1) {
       if (myGamePiece.crashWith(myObstacles[i])) {
@@ -87,12 +87,21 @@ function updateGameArea() {
     myGameArea.clear();
     myGameArea.frameNo += 1;
     if (myGameArea.frameNo == 1 || everyinterval(150)) {
-      x = 0;
+      x = 50;
       y = 0;
-      myObstacles.push(new component(50, 50, "white", x, y));
+      myObstacles.push(new component(50, 50, "black", x, y));
     }
     for (i = 0; i < myObstacles.length; i += 1) {
       myObstacles[i].update();
+    }
+
+    if (myGameArea.frameNo == 1 || everyinterval(150)) {
+        x = 0;
+        y = 0;
+        myMaze.push(new component(50, 50, "white", x, y))
+    }
+    for (m =0; m < myMaze.length; m += 1){
+        myMaze[m].update()
     }
 
     myGamePiece.speedX = 0;
