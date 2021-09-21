@@ -62,5 +62,8 @@ while True:
 end_time = time.time()-start_time
 print((str(end_time)[:-(len(str(end_time).split('.')[1])-2)]) + 's')
 
-print(spanning_tree)
-        
+file = open('spanning-tree.txt', 'a')
+file.truncate(0) # empties the file before writing new tree
+for item in spanning_tree:
+    #            {      coordinate going to        } {       coordinate coming from    }
+    file.write(f'{str(item[0][0])},{str(item[0][1])},{str(item[1][0])},{str(item[1][1])}\n')
