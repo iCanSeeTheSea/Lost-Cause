@@ -86,7 +86,7 @@ function updateGameArea() {
     }
     myGameArea.clear();
     myGameArea.frameNo += 1;
-    if (myGameArea.frameNo == 1 || everyinterval(150)) {
+    if (myGameArea.frameNo == 1 || everyinterval(150)) { // change to working out where obstacles go
       x = 50;
       y = 0;
       myObstacles.push(new component(50, 50, "black", x, y));
@@ -95,7 +95,7 @@ function updateGameArea() {
       myObstacles[i].update();
     }
 
-    if (myGameArea.frameNo == 1 || everyinterval(150)) {
+    if (myGameArea.frameNo == 1 || everyinterval(150)) { // change to working out where maze goes
         x = 0;
         y = 0;
         myMaze.push(new component(50, 50, "white", x, y))
