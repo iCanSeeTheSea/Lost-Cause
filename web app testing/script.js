@@ -2,10 +2,26 @@
 var myGamePiece;
 var myObstacles = [];
 var myMaze = [];
+var spanningTree = [];
+myMaze.push(new component(10, 10, "white", 0, 0))
+
+const xhttp = new XMLHttpRequest();
+
+xhttp.onload = function(){
+    spanningTree = (xhttp.responseText).split("\r\n")
+    for (i = 0; i < spanningTree.length; i++){
+        spanningTree[i] = spanningTree[i].split(",")
+    }
+}
+xhttp.open("GET", "spanning-tree.txt");
+xhttp.send()
+
+
 
 function startGame() {
     myGameArea.start();
     myGamePiece = new component(10, 10, "red", 2, 2);
+
 }
 
 var myGameArea = {
@@ -78,29 +94,37 @@ function component(width, height, color, x, y) {
 
 function updateGameArea() {
     var x, y;
-    for (i = 0; i < myObstacles.length; i += 1) {
+    for (i = 0; i < myObstacles.length; i ++) {
       if (myGamePiece.crashWith(myObstacles[i])) {
         myGameArea.stop();
         return;
       }
     }
     myGameArea.clear();
-    myGameArea.frameNo += 1;
+    myGameArea.frameNo ++;
     if (myGameArea.frameNo == 1 || everyinterval(150)) { // change to working out where obstacles go
       x = 50;
       y = 0;
       myObstacles.push(new component(50, 50, "black", x, y));
     }
-    for (i = 0; i < myObstacles.length; i += 1) {
+    for (i = 0; i < myObstacles.length; i ++) {
       myObstacles[i].update();
     }
 
     if (myGameArea.frameNo == 1 || everyinterval(150)) { // change to working out where maze goes
-        x = 0;
-        y = 0;
-        myMaze.push(new component(50, 50, "white", x, y))
+        for (i = 0; i < spanningTree.length; i++){
+            coordSet = spanningTree[i];
+            x = (coordSet[0]-1)*20;
+            y = (coordSet[1]-1)*20;
+            myMaze.push(new component(10, 10, "white", x, y));
+            x = ((((coordSet[2] - coordSet[0])/2) + coordSet[0])-1)*20;
+            y = ((((coordSet[3] - coordSet[1])/2) + coordSet[1])-1)*20;
+            myMaze.push(new component(10, 10, "white", x, y));
+            console.log(x,y)
+        }
+
     }
-    for (m =0; m < myMaze.length; m += 1){
+    for (m =0; m < myMaze.length; m ++){
         myMaze[m].update()
     }
 
