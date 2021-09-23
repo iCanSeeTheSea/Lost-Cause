@@ -27,7 +27,35 @@ xhttp.send()
 function startGame() {
     myGameArea.start();
     myGamePiece = new component(10, 10, "red", 2, 2);
+    var x, y;
+    for (i = 0; i < myObstacles.length; i ++) {
+      if (myGamePiece.crashWith(myObstacles[i])) {
+        myGameArea.stop();
+        return;
+      }
+    }
+    
+    // obstacles
+    x = 50;
+    y = 0;
+    //myObstacles.push(new component(50, 50, "black", x, y));
+    for (i = 0; i < myObstacles.length; i ++) {
+        myObstacles[i].update();
+    }
 
+    // maze
+    for (i = 0; i < spanningTree.length; i++){
+        coordSet = spanningTree[i];
+        x = (coordSet[0]-1)*30;
+        y = (coordSet[1]-1)*30;
+        myMaze.push(new component(15, 15, "white", x, y));
+        x = ((coordSet[2] - coordSet[0]) / 2 + coordSet[0])-1;
+        y = ((coordSet[3] - coordSet[1]) / 2 + coordSet[1])-1;
+        myMaze.push(new component(15, 15, "white", x*30, y*30));
+    }
+    for (m =0; m < myMaze.length; m ++){
+        myMaze[m].update();
+    }
 }
 
 var myGameArea = {
@@ -47,9 +75,6 @@ var myGameArea = {
             myGameArea.keys[event.keyCode] = (event.type == "keydown");            
         })
     }, 
-    clear : function(){
-        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    },
     stop : function(){
         clearInterval(this.interval)
         console.log("stopped")
@@ -99,50 +124,17 @@ function component(width, height, color, x, y) {
 }
 
 function updateGameArea() {
-    var x, y;
-    for (i = 0; i < myObstacles.length; i ++) {
-      if (myGamePiece.crashWith(myObstacles[i])) {
-        myGameArea.stop();
-        return;
-      }
-    }
-    myGameArea.clear();
     myGameArea.frameNo ++;
-    if (myGameArea.frameNo == 1 || everyinterval(150)) { // change to working out where obstacles go
-      x = 50;
-      y = 0;
-      myObstacles.push(new component(50, 50, "black", x, y));
-    }
-    for (i = 0; i < myObstacles.length; i ++) {
-      myObstacles[i].update();
-    }
-
-    if (myGameArea.frameNo == 1 || everyinterval(150)) { // change to working out where maze goes
-        for (i = 0; i < spanningTree.length; i++){
-            coordSet = spanningTree[i];
-            x = (coordSet[0]-1)*30;
-            y = (coordSet[1]-1)*30;
-            myMaze.push(new component(15, 15, "white", x, y));
-            x = ((coordSet[2] - coordSet[0]) / 2 + coordSet[0])-1;
-            y = ((coordSet[3] - coordSet[1]) / 2 + coordSet[1])-1;
-            myMaze.push(new component(15, 15, "white", x*30, y*30));
-        }
-
-    }
-    for (m =0; m < myMaze.length; m ++){
-        myMaze[m].update()
-    }
-
     myGamePiece.speedX = 0;
     myGamePiece.speedY = 0;
     if (myGameArea.keys && myGameArea.keys[87] && 
-        !(myGamePiece.y <= 0)) {myGamePiece.speedY = -1; } // w
+        !(myGamePiece.y <= 0)) {myGamePiece.speedY = -2; } // w
     if (myGameArea.keys && myGameArea.keys[65] && 
-        !(myGamePiece.x <= 0)) {myGamePiece.speedX = -1; } // a
+        !(myGamePiece.x <= 0)) {myGamePiece.speedX = -2; } // a
     if (myGameArea.keys && myGameArea.keys[83] && 
-        !(myGamePiece.y >= myGameArea.canvas.height - 10)) {myGamePiece.speedY = 1; } // s
+        !(myGamePiece.y >= myGameArea.canvas.height - 10)) {myGamePiece.speedY = 2; } // s
     if (myGameArea.keys && myGameArea.keys[68] && 
-        !(myGamePiece.x >= myGameArea.canvas.height - 10)) {myGamePiece.speedX = 1; } // d
+        !(myGamePiece.x >= myGameArea.canvas.height - 10)) {myGamePiece.speedX = 2; } // d
     myGamePiece.newPos();
     myGamePiece.update();
 }
