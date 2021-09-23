@@ -137,4 +137,11 @@ function updateGameArea() {
         !(myGamePiece.x >= myGameArea.canvas.height - 10)) {myGamePiece.speedX = 2; } // d
     myGamePiece.newPos();
     myGamePiece.update();
+    if (myGamePiece.x >= 585 && myGamePiece.y >= 570 && myGamePiece.y <= 585){
+        element = document.getElementById("wellDone");
+        element.style.visibility = 'visible';
+    } else {
+        element = document.getElementById("wellDone");
+        element.style.visibility = 'hidden'
+    }
 }
