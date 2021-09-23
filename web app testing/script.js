@@ -12,6 +12,11 @@ xhttp.onload = function(){
     for (i = 0; i < spanningTree.length; i++){
         spanningTree[i] = spanningTree[i].split(",")
     }
+    for (i = 0; i < spanningTree.length; i++){
+        for (n = 0; n<4; n++){
+            spanningTree[i][n] = parseInt(spanningTree[i][n])
+        }
+    }
 }
 xhttp.open("GET", "spanning-tree.txt");
 xhttp.send()
@@ -117,10 +122,9 @@ function updateGameArea() {
             x = (coordSet[0]-1)*20;
             y = (coordSet[1]-1)*20;
             myMaze.push(new component(10, 10, "white", x, y));
-            x = ((((coordSet[2] - coordSet[0])/2) + coordSet[0])-1)*20;
-            y = ((((coordSet[3] - coordSet[1])/2) + coordSet[1])-1)*20;
-            myMaze.push(new component(10, 10, "white", x, y));
-            console.log(x,y)
+            x = ((coordSet[2] - coordSet[0]) / 2 + coordSet[0])-1;
+            y = ((coordSet[3] - coordSet[1]) / 2 + coordSet[1])-1;
+            myMaze.push(new component(10, 10, "white", x*20, y*20));
         }
 
     }
