@@ -3,7 +3,8 @@ var myGamePiece;
 var myObstacles = [];
 var myMaze = [];
 var spanningTree = [];
-myMaze.push(new component(10, 10, "white", 0, 0))
+myMaze.push(new component(15, 15, "red", 0, 0))
+myMaze.push(new component(15, 15, "green", 585, 570))
 
 const xhttp = new XMLHttpRequest();
 
@@ -32,8 +33,8 @@ function startGame() {
 var myGameArea = {
     canvas : document.createElement("canvas"),
     start : function() {
-        this.canvas.width = 500;
-        this.canvas.height = 500;
+        this.canvas.width = 600;
+        this.canvas.height = 600;
         this.context = this.canvas.getContext("2d");
         document.body.insertBefore(this.canvas, document.body.childNodes[0]);
         this.frameNo = 0;        
@@ -119,12 +120,12 @@ function updateGameArea() {
     if (myGameArea.frameNo == 1 || everyinterval(150)) { // change to working out where maze goes
         for (i = 0; i < spanningTree.length; i++){
             coordSet = spanningTree[i];
-            x = (coordSet[0]-1)*20;
-            y = (coordSet[1]-1)*20;
-            myMaze.push(new component(10, 10, "white", x, y));
+            x = (coordSet[0]-1)*30;
+            y = (coordSet[1]-1)*30;
+            myMaze.push(new component(15, 15, "white", x, y));
             x = ((coordSet[2] - coordSet[0]) / 2 + coordSet[0])-1;
             y = ((coordSet[3] - coordSet[1]) / 2 + coordSet[1])-1;
-            myMaze.push(new component(10, 10, "white", x*20, y*20));
+            myMaze.push(new component(15, 15, "white", x*30, y*30));
         }
 
     }
@@ -135,13 +136,13 @@ function updateGameArea() {
     myGamePiece.speedX = 0;
     myGamePiece.speedY = 0;
     if (myGameArea.keys && myGameArea.keys[87] && 
-        !(myGamePiece.y <= 0)) {myGamePiece.speedY = -2; } // w
+        !(myGamePiece.y <= 0)) {myGamePiece.speedY = -1; } // w
     if (myGameArea.keys && myGameArea.keys[65] && 
-        !(myGamePiece.x <= 0)) {myGamePiece.speedX = -2; } // a
+        !(myGamePiece.x <= 0)) {myGamePiece.speedX = -1; } // a
     if (myGameArea.keys && myGameArea.keys[83] && 
-        !(myGamePiece.y >= myGameArea.canvas.height - 10)) {myGamePiece.speedY = 2; } // s
+        !(myGamePiece.y >= myGameArea.canvas.height - 10)) {myGamePiece.speedY = 1; } // s
     if (myGameArea.keys && myGameArea.keys[68] && 
-        !(myGamePiece.x >= myGameArea.canvas.height - 10)) {myGamePiece.speedX = 2; } // d
+        !(myGamePiece.x >= myGameArea.canvas.height - 10)) {myGamePiece.speedX = 1; } // d
     myGamePiece.newPos();
     myGamePiece.update();
 }
