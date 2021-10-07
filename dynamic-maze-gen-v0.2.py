@@ -83,6 +83,34 @@ screen.fill((0,0,0))
 pygame.draw.rect(screen, (255,255,255), pygame.Rect(0, 0, 10, 10))
 
 for coord_set in spanning_tree:
+    ''' EXPLAINING THE MATHS
+    (for future me who will most definately forget how this works and will not be able to understand it ^w^ )
+    
+    each sqaure is 20px X 20px
+
+    sequence:
+
+    coord (n):  1   2   3    4   5
+    pixel:      0   40  80  120 160  -> for x and y
+
+    nth term = 20(n-1)
+    uses this to calulate corresponding pixel coordinates to coordinates from the tuple
+
+    for which wall to 'remove':
+         
+        find mid point between corresponding x and y coords using formula : diff/2 + 1st coord
+
+        e.g. if the coordinate set was ((2,3), (3,3))
+
+        the calculation would be:
+            
+            (3-2)/2 + 2 , to give 2.5 for x
+
+            and (3-3)/2 + 3, to give 3 for y
+        
+        using the nth term from above, this gives pixel coordinates of (60, 80), perfectly inbetween (40, 80) and (80, 80)
+
+    '''
     pygame.draw.rect(screen, (255, 255, 255), pygame.Rect((coord_set[0][0]-1)*20, (coord_set[0][1]-1)*20, 10, 10))
     # finding mid-points between current and previous nodes to remove wall
     join_x = ((coord_set[1][0] - coord_set[0][0])/2) + coord_set[0][0] 
