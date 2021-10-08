@@ -1,0 +1,66 @@
+// maze layout testing
+
+■ □ 
+
+□■□■□
+■■■■■
+□■□■□
+■■■■■
+□■□■□
+
+□■□■□
+■■■■■
+□■□■□
+■■■■■
+□■□■□
+
+''' EXPLAINING THE MATHS
+    (for future me who will most definately forget how this works and will not be able to understand it ^w^ )
+    
+    each sqaure is 20px X 20px
+
+    sequence:
+
+    coord (n):  1   2   3    4   5
+    pixel:      0   40  80  120 160  -> for x and y
+
+    nth term = 20(n-1)
+    uses this to calulate corresponding pixel coordinates to coordinates from the tuple
+
+    for which wall to 'remove':
+         
+        find mid point between corresponding x and y coords using formula : diff/2 + 1st coord
+
+        e.g. if the coordinate set was ((2,3), (3,3))
+
+        the calculation would be:
+            
+            (3-2)/2 + 2 , to give 2.5 for x
+
+            and (3-3)/2 + 3, to give 3 for y
+        
+        using the nth term from above, this gives pixel coordinates of (60, 80), perfectly inbetween (40, 80) and (80, 80)
+
+    '''
+
+// the algorithm of meeeee
+
+begin with a set of all possible nodes
+
+start at 1,1
+
+- take the current node, find all adjacent nodes that are in the set of nodes
+
+        -> if there are none, go back through the spanning tree and find a node which has available adjacent nodes [THIS IS THE CURRENT PROBLEM, TAKES TOO LONG TO CHECK]
+
+- pick one at random
+
+- add the current node and chosen next node to spanning tree
+
+- set the chosen next node to be the current node
+
+- remove the chosen node from the set of nodes
+
+repeat until node set is empty
+
+
