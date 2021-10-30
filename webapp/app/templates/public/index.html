@@ -1,0 +1,21 @@
+{% extends "public/templates/public_template.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block main %}
+
+<div class="title">
+  <h1>Lost Cause</h1>
+</div>
+<div class="container">
+  <button onclick="window.location.href='/play'">Play?</button>
+</div>
+<!-- <img src="{{ url_for('static', filename='img/testimg.png') }}" alt=""> -->
+
+{% endblock %}
+
+{% block script %}
+<script>
+  // alert("Template inheritance is awesome");
+</script>
+{% endblock %}

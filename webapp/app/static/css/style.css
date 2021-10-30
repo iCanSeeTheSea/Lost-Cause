@@ -1,0 +1,25 @@
+body {
+    background-color:#5e1605;
+    color: mintcream;
+}
+
+.title {
+    color: #c9a95d;
+    font-family: fantasy;
+    font-size: 250%;
+    padding-left: 45%;
+    padding-top: 10%;
+}
+
+.container {
+    margin: auto;
+    width: 3%;
+    padding: 10px;
+  }
+
+button {
+    background-color: #822510;
+    border-color: #8c3a27;
+    color: #c9a95d;
+    font-family: fantasy;
+}
