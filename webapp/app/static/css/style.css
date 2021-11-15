@@ -1,3 +1,21 @@
+:root {
+    --pixel-size: 2px;
+    --grid-cell: calc( var(--pixel-size) * 16);
+    --map_multiplier :
+ }
+
+@media( min-width: 700px ) {
+    :root {
+       --pixel-size: 3px;
+    }
+ }
+
+@media( min-width: 1000px ) {
+    :root {
+       --pixel-size: 4px;
+    }
+}
+
 body {
     background-color:#5e1605;
     color: #c9a95d;
@@ -23,4 +41,31 @@ button {
     border-color: #8c3a27;
     color: #c9a95d;
     font-family: fantasy;
+}
+
+.camera {
+    width: calc(var(--pixel-size) * 144);
+    height: calc(var(--pixel-size) * 144);
+    overflow: hidden;
+    background: #502102;
+    position:relative;
+    margin: auto;
+ }
+
+.map {
+    image-rendering: pixelated;
+    background-image: url("/static/img/levelbackground.png");
+    background-size: 100%;
+    /* TODO use variable in place of 10 */
+    width: calc(10 * var(--grid-cell));
+    height: calc(10 * var(--grid-cell));
+    position: relative;
+}
+ 
+
+.character{
+    background: url('/static/img/testsprite.png');
+    height: 20px;
+    width: 20px;
+    position: absolute;
 }
