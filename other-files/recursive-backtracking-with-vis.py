@@ -1,32 +1,35 @@
 # recursive backtracking | 19/09/21
 
-import random, time, pygame
+import random
+import time
+import pygame
 pygame.init()
+
 
 def mazeGen(m, maxX, maxY):
     nodes = []
 
-    for x in range(1,maxX+1):
-        for y in range(1,maxY+1):
+    for x in range(1, maxX+1):
+        for y in range(1, maxY+1):
             nodes.append((x, y))
 
-    adjacent_nodes = ((-1, 0), (1,0), (0,1), (0, -1))
+    adjacent_nodes = ((-1, 0), (1, 0), (0, 1), (0, -1))
 
     stack = []
     spanning_tree = []
 
     # initialising pygame window
-    screen = pygame.display.set_mode([(maxX*(m*2))-m,(maxY*(m*2))-m])
-    screen.fill((0,0,0))
-    pygame.draw.rect(screen, (255,255,255), pygame.Rect(0, 0, m, m))
+    screen = pygame.display.set_mode([(maxX*(m*2))-m, (maxY*(m*2))-m])
+    screen.fill((0, 0, 0))
+    pygame.draw.rect(screen, (255, 255, 255), pygame.Rect(0, 0, m, m))
 
     start_time = time.time()
 
-    next_node = (1,1)
+    next_node = (1, 1)
 
     while True:
 
-        for  event in pygame.event.get():
+        for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
 
@@ -35,7 +38,7 @@ def mazeGen(m, maxX, maxY):
         current_node = next_node
         stack.append(current_node)
 
-        #print(current_node)
+        # print(current_node)
         try:
             nodes.remove(current_node)
         except ValueError:
@@ -46,17 +49,20 @@ def mazeGen(m, maxX, maxY):
         # finding possible next nodes by comparing each position adjacent to the current node to the unused nodes
         for dx, dy in adjacent_nodes:
             if (current_node[0] + dx, current_node[1] + dy) in nodes:
-                possible_nodes.append((current_node[0] + dx, current_node[1] + dy))
+                possible_nodes.append(
+                    (current_node[0] + dx, current_node[1] + dy))
 
         if possible_nodes:
             # choosing a random (adjacent) node to go next
             next_node = random.choice(possible_nodes)
             spanning_tree.append((next_node, current_node))
-            pygame.draw.rect(screen, (255, 255, 255), pygame.Rect((next_node[0]-1)*(m*2), (next_node[1]-1)*(m*2), m, m))
+            pygame.draw.rect(screen, (255, 255, 255), pygame.Rect(
+                (next_node[0]-1)*(m*2), (next_node[1]-1)*(m*2), m, m))
             # finding mid-points between current and previous nodes to remove wall
-            join_x = ((current_node[0] - next_node[0])/2) + next_node[0] 
+            join_x = ((current_node[0] - next_node[0])/2) + next_node[0]
             join_y = ((current_node[1] - next_node[1])/2) + next_node[1]
-            pygame.draw.rect(screen, (255, 255, 255), pygame.Rect((join_x-1)*(m*2), (join_y-1)*(m*2), m, m))
+            pygame.draw.rect(screen, (255, 255, 255), pygame.Rect(
+                (join_x-1)*(m*2), (join_y-1)*(m*2), m, m))
 
         else:
             # checking each node from the stack for possible nodes, if there are none, removing it
@@ -64,24 +70,33 @@ def mazeGen(m, maxX, maxY):
                 check_node = stack[index]
                 for dx, dy in adjacent_nodes:
                     if (check_node[0] + dx, check_node[1] + dy) in nodes:
-                        next_node = check_node; break
+                        next_node = check_node
+                        break
                 else:
                     try:
-                        stack.remove(check_node) # using stack to keep track of which nodes to/ not to visit again
+                        # using stack to keep track of which nodes to/ not to visit again
+                        stack.remove(check_node)
                     except ValueError:
                         pass
                     continue
                 break
-        
+
         if len(stack) == 0:
             end_time = time.time()-start_time
-            print((str(end_time)[:-(len(str(end_time).split('.')[1])-2)]) + 's')
+            print(
+                (str(end_time)[:-(len(str(end_time).split('.')[1])-2)]) + 's')
             break
 
-    
-    pygame.display.flip()
-    time.sleep(0.5)
-    pygame.display.quit()
+    running = True
+    while running:
 
-while True:
-    mazeGen(m=5, maxX=100, maxY=100)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
+        pygame.display.flip()
+
+    pygame.quit()
+
+
+mazeGen(m=10, maxX=50, maxY=50)
