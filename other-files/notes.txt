@@ -52,7 +52,7 @@
 
     '''
 
-// the algorithm of meeeee
+// the algorithm of meeeee (aka recursive backtracking)
 
 begin with a set of all possible nodes
 
