@@ -41,9 +41,18 @@
         
         using the nth term from above, this gives pixel coordinates of (60, 80), perfectly inbetween (40, 80) and (80, 80)
 
+    FOR THE OBSTACLES:
+
+    start with a list of all the midpoints between coordinate: the coordinates of every wall.
+        list of all points
+        mid point between it and next point in the list -> list of points would be in order of row then column
+
+    when walls are removed, take these out from the list
+    generate a set of coordinates that the player cannot enter from the remaining walls.
+
     '''
 
-// the algorithm of meeeee
+// the algorithm of meeeee (aka recursive backtracking)
 
 begin with a set of all possible nodes
 
