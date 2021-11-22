@@ -50,6 +50,8 @@
     when walls are removed, take these out from the list
     generate a set of coordinates that the player cannot enter from the remaining walls.
 
+    walls are part of each tile -> will need to calculate where on each tile walls are.
+
     '''
 
 // the algorithm of meeeee (aka recursive backtracking)
