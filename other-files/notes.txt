@@ -8,11 +8,11 @@
 ■■■■■
 □■□■□
 
-□■□■□
-■■■■■
-□■□■□
-■■■■■
-□■□■□
+□■□□□
+□■■■□
+□□□■□
+■■□■□
+□□□□□
 
 ''' EXPLAINING THE MATHS
     (for future me who will most definately forget how this works and will not be able to understand it ^w^ )
@@ -43,14 +43,17 @@
 
     FOR THE OBSTACLES:
 
+    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     start with a list of all the midpoints between coordinate: the coordinates of every wall.
         list of all points
         mid point between it and next point in the list -> list of points would be in order of row then column
 
     when walls are removed, take these out from the list
     generate a set of coordinates that the player cannot enter from the remaining walls.
+    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
     walls are part of each tile -> will need to calculate where on each tile walls are.
+    -> will have to know which tile to place, have a list containing 
 
     '''
 
