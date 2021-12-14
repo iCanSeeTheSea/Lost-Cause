@@ -68,7 +68,7 @@ def mazeGen(maxX, maxY):
     return adjacencyListGen(spanning_tree, save_nodes)
 
 def adjacencyListGen(spanning_tree, nodes):
-    adjacencyList = []
+    adjacencyDict = {}
     for node in nodes:
         adjacentNodes = []
         for pair in spanning_tree:
@@ -76,6 +76,6 @@ def adjacencyListGen(spanning_tree, nodes):
                 adjacentNodes.append(pair[0])
             elif pair[0] == node:
                 adjacentNodes.append(pair[1])
-        adjacencyList.append((node, adjacentNodes))
+        adjacencyDict[node] = adjacentNodes
     
-    return adjacencyList
+    return adjacencyDict
