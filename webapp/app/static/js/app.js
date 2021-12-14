@@ -1,6 +1,6 @@
 
 function displayMaze(spanningTree) {
-    //     console.log(spanningTree)
+    console.log(spanningTree)
 }
 
 let held_directions = [];

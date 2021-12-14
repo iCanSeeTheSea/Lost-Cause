@@ -13,6 +13,7 @@ def mazeGen(maxX, maxY):
     for x in range(1,maxX+1):
         for y in range(1,maxY+1):
             nodes.append((x, y))
+    save_nodes = nodes.copy()
 
     adjacent_nodes = ((-1, 0), (1,0), (0,1), (0, -1))
 
@@ -64,11 +65,17 @@ def mazeGen(maxX, maxY):
     # end_time = time.time()-start_time
     # print((str(end_time)[:-(len(str(end_time).split('.')[1])-2)]) + 's')
 
-    return spanning_tree
+    return adjacencyListGen(spanning_tree, save_nodes)
 
-'''
-file = open('web-app-testing/spanning-tree.txt', 'a')
-file.truncate(0) # empties the file before writing new tree
-for item in spanning_tree:
-    #            {      coordinate going to        } {       coordinate coming from    }
-    file.write(f'{str(item[0][0])},{str(item[0][1])},{str(item[1][0])},{str(item[1][1])}\n')'''
+def adjacencyListGen(spanning_tree, nodes):
+    adjacencyList = []
+    for node in nodes:
+        adjacentNodes = []
+        for pair in spanning_tree:
+            if pair[1] == node:
+                adjacentNodes.append(pair[0])
+            elif pair[0] == node:
+                adjacentNodes.append(pair[1])
+        adjacencyList.append((node, adjacentNodes))
+    
+    return adjacencyList

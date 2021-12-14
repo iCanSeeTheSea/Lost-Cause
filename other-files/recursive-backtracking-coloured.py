@@ -110,4 +110,4 @@ def mazeGen(m, maxX, maxY):
     pygame.quit()
 
 
-mazeGen(m=10, maxX=30, maxY=30)
+mazeGen(m=2, maxX=150, maxY=150)

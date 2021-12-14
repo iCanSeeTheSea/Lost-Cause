@@ -25,4 +25,4 @@ for node in spanning_tree:
     # join_y = ((node[1][1] - node[0][1])/2) + node[0][1]
     # img.paste(tileImg, (join_x-1*32, join_y-1*32))
 
-img.open()
+img.show()
