@@ -54,7 +54,7 @@ button {
 
 .map {
     image-rendering: pixelated;
-    background-image: url("/static/img/levelbackground.png");
+    background-image: url("/static/img/maze/fullmaze.png");
     background-size: 100%;
     /* TODO use variable in place of 10 */
     width: calc(10 * var(--grid-cell));
