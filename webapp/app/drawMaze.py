@@ -24,4 +24,5 @@ def mazeImgGen(SIDELEN, spanning_tree):
             join_y = ((adjNode[1] - node[1])/2) + node[1]
             img.paste(tileImg, (int((join_x-1)*64), int((join_y-1)*64)))
 
+
     img.save(mazePath / "fullmaze.png")
