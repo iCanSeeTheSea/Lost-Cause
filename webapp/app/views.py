@@ -1,7 +1,5 @@
-from app import app
+from app import app, generateMaze, drawMaze
 from flask import render_template
-from app import generateMaze
-from app import drawMaze
 
 
 @app.route('/')

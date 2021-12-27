@@ -6,7 +6,6 @@ import pygame
 pygame.init()
 
 
-
 def mazeGen(m, maxX, maxY):
     nodes = []
     colour = [255, 255, 255]
@@ -57,10 +56,10 @@ def mazeGen(m, maxX, maxY):
 
         if possible_nodes:
             # choosing a random (adjacent) node to go next
-        
+
             next_node = random.choice(possible_nodes)
             spanning_tree.append((next_node, current_node))
-            
+
             # visualisation
             rColour = tuple(colour)
             pygame.draw.rect(screen, rColour, pygame.Rect(
@@ -78,10 +77,16 @@ def mazeGen(m, maxX, maxY):
                 for dx, dy in adjacent_nodes:
                     if (check_node[0] + dx, check_node[1] + dy) in nodes:
                         next_node = check_node
-                        colour[step] = 0; colour[step-1] = 0; colour[step-2] = 255
-                        if colour[step] < 50: colour[step] = 250; step += 1
-                        if colour[step-1] < 50: colour[step-1] = 250
-                        if step > 2: step = 0
+                        colour[step] = 0
+                        colour[step-1] = 0
+                        colour[step-2] = 255
+                        if colour[step] < 50:
+                            colour[step] = 250
+                            step += 1
+                        if colour[step-1] < 50:
+                            colour[step-1] = 250
+                        if step > 2:
+                            step = 0
                         break
                 else:
                     try:
@@ -106,11 +111,11 @@ def mazeGen(m, maxX, maxY):
     #             running = False
 
     pygame.display.flip()
-    
+
     time.sleep(0.5)
 
     pygame.quit()
 
+
 while True:
     mazeGen(m=5, maxX=75, maxY=75)
-
