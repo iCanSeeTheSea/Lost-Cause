@@ -1,13 +1,19 @@
 
 function displayMaze(spanningTree) {
-    console.log(spanningTree)
+    console.log(spanningTree);
 }
+
+var mapSize;
+function getMapSize(map_size) {
+    mapSize = map_size;
+}
+
 
 let held_directions = [];
 let character = document.querySelector('.character');
 var map = document.querySelector(".map");
-let x = 15;
-let y = 15;
+let x = 1;
+let y = 1;
 let speed = 1;
 
 const placeCharacter = function () {
@@ -28,19 +34,20 @@ const placeCharacter = function () {
     let charY = y;
     let mapX = x;
     let mapY = y;
-    let mapMulti = 10;
+    var mapMulti = 40;
 
-    if (charX < 0 + 5) { charX = 0 + 5; } // left
-    if (charX > 15.5 * mapMulti - 5) { charX = 15.5 * mapMulti - 5; } // right
-    if (charY < 0 + 5) { charY = 0 + 5; } // top
-    if (charY > 15.5 * mapMulti - 5) { charY = 15.5 * mapMulti - 5; } // bottom
+    //! here, the mulitplier is 16x whatever the grid size is multiplied by in the css, -5
+    if (charX < 0) { charX = 0; } // left
+    if (charX > 16 * mapMulti - 5) { charX = 16 * mapMulti - 5; } // right
+    if (charY < 0) { charY = 0; } // top
+    if (charY > 16 * mapMulti - 5) { charY = 16 * mapMulti - 5; } // bottom
 
-    if (mapX < 6.2 * mapMulti) { mapX = 6.2 * mapMulti; } // left
-    if (mapX > 7.8 * mapMulti) { mapX = 7.8 * mapMulti; } // right
-    if (mapY < 6.2 * mapMulti) { mapY = 6.2 * mapMulti; } // top
-    if (mapY > 7.8 * mapMulti) { mapY = 7.8 * mapMulti; } // bottom
-    var camera_top = pixelSize * mapMulti * 6.2;
-    let camera_left = pixelSize * mapMulti * 6.2;
+    if (mapX < 100) { mapX = 100; } // left
+    if (mapX > (16 * mapMulti) - 100) { mapX = (16 * mapMulti) - 100; } // right
+    if (mapY < 100) { mapY = 100; } // top
+    if (mapY > (16 * mapMulti) - 100) { mapY = (16 * mapMulti) - 100; } // bottom
+    var camera_top = pixelSize * 100;
+    let camera_left = pixelSize * 100;
     map.style.transform = `translate3d( ${-mapX * pixelSize + camera_left}px, ${-mapY * pixelSize + camera_top}px, 0 )`;
     character.style.transform = `translate3d( ${charX * pixelSize}px, ${charY * pixelSize}px, 0 )`;
 

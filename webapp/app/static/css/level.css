@@ -1,7 +1,7 @@
 :root {
     --pixel-size: 2px;
     --grid-cell: calc( var(--pixel-size) * 16);
-    --map_multiplier :
+    --map_multiplier: 40
  }
 
 @media( min-width: 700px ) {
@@ -44,8 +44,8 @@ button {
 }
 
 .camera {
-    width: calc(var(--pixel-size) * 144);
-    height: calc(var(--pixel-size) * 144);
+    width: calc(var(--pixel-size) * 200);
+    height: calc(var(--pixel-size) * 200);
     overflow: hidden;
     background: #502102;
     position:relative;
@@ -56,9 +56,9 @@ button {
     image-rendering: pixelated;
     background-image: url("/static/img/maze/fullmaze.png");
     background-size: 100%;
-    /* TODO use variable in place of 10 */
-    width: calc(10 * var(--grid-cell));
-    height: calc(10 * var(--grid-cell));
+    /* TODO use variable in place of number */
+    width: calc(var(--map_multiplier) * var(--grid-cell));
+    height: calc(var(--map_multiplier) * var(--grid-cell));
     position: relative;
 }
  
