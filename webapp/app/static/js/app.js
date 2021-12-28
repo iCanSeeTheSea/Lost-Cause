@@ -12,8 +12,8 @@ function getMapSize(map_size) {
 let held_directions = [];
 let character = document.querySelector('.character');
 var map = document.querySelector(".map");
-let x = 1;
-let y = 1;
+let x = 14;
+let y = 14;
 let speed = 1;
 
 const placeCharacter = function () {
@@ -34,7 +34,7 @@ const placeCharacter = function () {
     let charY = y;
     let mapX = x;
     let mapY = y;
-    var mapMulti = 40;
+    var mapMulti = 100;
 
     //! here, the mulitplier is 16x whatever the grid size is multiplied by in the css, -5
     if (charX < 0) { charX = 0; } // left

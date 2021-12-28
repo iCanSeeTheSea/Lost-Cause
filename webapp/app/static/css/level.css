@@ -1,7 +1,7 @@
 :root {
     --pixel-size: 2px;
     --grid-cell: calc( var(--pixel-size) * 16);
-    --map_multiplier: 40
+    --map_multiplier: 100
  }
 
 @media( min-width: 700px ) {
