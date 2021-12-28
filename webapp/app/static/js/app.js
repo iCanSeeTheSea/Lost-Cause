@@ -34,7 +34,7 @@ const placeCharacter = function () {
     let charY = y;
     let mapX = x;
     let mapY = y;
-    var mapMulti = 100;
+    var mapMulti = 150;
 
     //! here, the mulitplier is 16x whatever the grid size is multiplied by in the css, -5
     if (charX < 0) { charX = 0; } // left
@@ -42,12 +42,12 @@ const placeCharacter = function () {
     if (charY < 0) { charY = 0; } // top
     if (charY > 16 * mapMulti - 5) { charY = 16 * mapMulti - 5; } // bottom
 
-    if (mapX < 100) { mapX = 100; } // left
-    if (mapX > (16 * mapMulti) - 100) { mapX = (16 * mapMulti) - 100; } // right
-    if (mapY < 100) { mapY = 100; } // top
-    if (mapY > (16 * mapMulti) - 100) { mapY = (16 * mapMulti) - 100; } // bottom
-    var camera_top = pixelSize * 100;
-    let camera_left = pixelSize * 100;
+    if (mapX < 125) { mapX = 125; } // left
+    if (mapX > (16 * mapMulti) - 125) { mapX = (16 * mapMulti) - 125; } // right
+    if (mapY < 125) { mapY = 125; } // top
+    if (mapY > (16 * mapMulti) - 125) { mapY = (16 * mapMulti) - 125; } // bottom
+    var camera_top = pixelSize * 125;
+    let camera_left = pixelSize * 125;
     map.style.transform = `translate3d( ${-mapX * pixelSize + camera_left}px, ${-mapY * pixelSize + camera_top}px, 0 )`;
     character.style.transform = `translate3d( ${charX * pixelSize}px, ${charY * pixelSize}px, 0 )`;
 
@@ -69,10 +69,10 @@ const directions = {
     right: "right",
 }
 const keys = {
-    'w': directions.up,
-    'a': directions.left,
-    'd': directions.right,
-    's': directions.down,
+    'ArrowUp': directions.up,
+    'ArrowLeft': directions.left,
+    'ArrowRight': directions.right,
+    'ArrowDown': directions.down,
 }
 
 document.addEventListener('keydown', function (e) {

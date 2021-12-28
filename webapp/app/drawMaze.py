@@ -30,7 +30,7 @@ def mazeImgGen(SIDELEN, spanning_tree):
             if join_y-int(join_y) != 0:
                 tile = mazePath / 'left-right-wall.png'
             elif join_x-int(join_x) != 0:
-                tile = mazePath / 'left-right-wall.png'
+                tile = mazePath / 'top-bottom-wall.png'
             tileImg = Image.open(tile)
             img.paste(tileImg, (int((join_x-1)*64), int((join_y-1)*64)))
 
