@@ -51,6 +51,7 @@ body {
         background: #502102;
         position:relative;
         margin: auto;
+        cursor: none;
     }
     
     .map {

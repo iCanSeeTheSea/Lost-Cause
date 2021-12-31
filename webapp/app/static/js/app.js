@@ -40,15 +40,14 @@ const placeCharacter = function () {
     let mapY = y;
     mapMulti = 150;
 
-    //! here, the limit is 16x the map multiplier, -5
     if (x < 0) { x = 0; } // left
-    if (x > 16 * mapMulti - 5) { x = 16 * mapMulti - 5; } // right
+    if (x > 16 * mapMulti - 32) { x = 16 * mapMulti - 32; } // right
     if (y < 0) { y = 0; } // top
-    if (y > 16 * mapMulti - 5) { y = 16 * mapMulti - 5; } // bottom
+    if (y > 16 * mapMulti - 24) { y = 16 * mapMulti - 24; } // bottom
 
     if (mapX < 125) { mapX = 125; } // left
     if (mapX > (16 * mapMulti) - 125) { mapX = (16 * mapMulti) - 125; } // right
-    if (mapY < 125) { mapY = 125; } // top
+    if (mapY < 125) { mapY = 125; } // tops
     if (mapY > (16 * mapMulti) - 125) { mapY = (16 * mapMulti) - 125; } // bottom
     let camera_top = pixelSize * 125;
     let camera_left = pixelSize * 125;
