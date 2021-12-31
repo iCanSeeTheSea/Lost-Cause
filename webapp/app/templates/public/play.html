@@ -8,7 +8,9 @@
 <div class='level'>
   <div class='camera'>
     <div class='map'>
-      <div class='character'></div>
+      <div class='character' facing='down' walking='false'>
+        <div class="character_spritesheet pixel-art"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -18,8 +20,7 @@
 {% block script %}
 <script>
   // use with function from external js
-  displayMaze("{{spanningTree}}")
-  getMapSize("{{mapSize}}")
+  getMazeData("{{spanningTree}}, {{mapSize}}")
 
 </script>
 {% endblock %}

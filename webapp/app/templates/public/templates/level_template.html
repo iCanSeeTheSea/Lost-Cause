@@ -8,7 +8,7 @@
 
     <!-- Import the Bootstrap stylesheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
-    <!-- Import our custom stylesheet -->
+    <!-- Import custom stylesheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/level.css') }}">
 
     <title>{% block title %}{% endblock %}</title>
@@ -24,7 +24,7 @@
     <script src="{{ url_for('static', filename='js/jquery.slim.min.js') }}"></script>
     <!-- Import Bootstrap bundle -->
     <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
-    <!-- Import our custom JavaScript -->
+    <!-- Import custom JavaScript -->
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
     {% block script %}{% endblock %}
 </body>

@@ -1,20 +1,24 @@
 
-function displayMaze(spanningTree) {
-    console.log(spanningTree);
-}
+
 
 var mapSize;
-function getMapSize(map_size) {
+var spanningTree;
+function getMazeData(spanning_tree, map_size) {
     mapSize = map_size;
+    spanningTree = spanning_tree
 }
+console.log(spanningTree)
+console.log(mapSize)
+var mapMulti = (mapSize * 30) / 4;
+console.log(mapMulti)
 
 
-let held_directions = [];
-let character = document.querySelector('.character');
+var held_directions = [];
+var character = document.querySelector('.character');
 var map = document.querySelector(".map");
-let x = 14;
-let y = 14;
-let speed = 1;
+var x = 21;
+var y = 33;
+var speed = 1;
 
 const placeCharacter = function () {
     var pixelSize = parseInt(
@@ -27,29 +31,29 @@ const placeCharacter = function () {
         if (held_direction === directions.down) { y += speed; }
         if (held_direction === directions.up) { y -= speed; }
         character.setAttribute("facing", held_direction);
-        character.setAttribute("walking", held_direction ? "true" : "false");
+        character.setAttribute("walking", "true");
+    } else {
+        character.setAttribute("walking", "false");
     }
 
-    let charX = x;
-    let charY = y;
     let mapX = x;
     let mapY = y;
-    var mapMulti = 150;
+    mapMulti = 150;
 
-    //! here, the mulitplier is 16x whatever the grid size is multiplied by in the css, -5
-    if (charX < 0) { charX = 0; } // left
-    if (charX > 16 * mapMulti - 5) { charX = 16 * mapMulti - 5; } // right
-    if (charY < 0) { charY = 0; } // top
-    if (charY > 16 * mapMulti - 5) { charY = 16 * mapMulti - 5; } // bottom
+    //! here, the limit is 16x the map multiplier, -5
+    if (x < 0) { x = 0; } // left
+    if (x > 16 * mapMulti - 5) { x = 16 * mapMulti - 5; } // right
+    if (y < 0) { y = 0; } // top
+    if (y > 16 * mapMulti - 5) { y = 16 * mapMulti - 5; } // bottom
 
     if (mapX < 125) { mapX = 125; } // left
     if (mapX > (16 * mapMulti) - 125) { mapX = (16 * mapMulti) - 125; } // right
     if (mapY < 125) { mapY = 125; } // top
     if (mapY > (16 * mapMulti) - 125) { mapY = (16 * mapMulti) - 125; } // bottom
-    var camera_top = pixelSize * 125;
+    let camera_top = pixelSize * 125;
     let camera_left = pixelSize * 125;
     map.style.transform = `translate3d( ${-mapX * pixelSize + camera_left}px, ${-mapY * pixelSize + camera_top}px, 0 )`;
-    character.style.transform = `translate3d( ${charX * pixelSize}px, ${charY * pixelSize}px, 0 )`;
+    character.style.transform = `translate3d( ${x * pixelSize}px, ${y * pixelSize}px, 0 )`;
 
 }
 
@@ -69,6 +73,13 @@ const directions = {
     right: "right",
 }
 const keys = {
+    'w': directions.up,
+    'a': directions.left,
+    'd': directions.right,
+    's': directions.down,
+}
+
+const arrowKeys = {
     'ArrowUp': directions.up,
     'ArrowLeft': directions.left,
     'ArrowRight': directions.right,
