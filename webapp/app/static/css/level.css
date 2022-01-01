@@ -65,11 +65,11 @@ body {
 }
 
 .character{
+    color: transparent;
     position: absolute;
     overflow: hidden;
     width: 80px;
     height: 80px;
-
 }
 
 .character_spritesheet{
