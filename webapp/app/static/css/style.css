@@ -1,6 +1,6 @@
 * {
-    cursor:url('static/img/cursor.png'), auto;
-}
+    cursor: url(../img/cursor.png) , auto;
+} 
 
 body {
     background-color:#5e1605;

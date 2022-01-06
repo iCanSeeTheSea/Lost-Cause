@@ -1,0 +1,2 @@
+language = "python"
+run = "cd webapp && python run.py"

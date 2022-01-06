@@ -1,3 +1,4 @@
+
 :root {
     --pixel-size: 2px;
     --grid-cell: calc( var(--pixel-size) * 16);
@@ -17,6 +18,7 @@
 }
 
 body {
+    cursor: url(../img/cursor.png) , auto;
     background-color:#5e1605;
     color: #c9a95d;
     font-family: monospace;
