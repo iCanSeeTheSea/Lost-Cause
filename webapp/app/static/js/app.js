@@ -45,12 +45,12 @@ const placeCharacter = function () {
     if (y < 0) { y = 0; } // top
     if (y > 16 * mapMulti - 24) { y = 16 * mapMulti - 24; } // bottom
 
-    if (mapX < 125) { mapX = 125; } // left
-    if (mapX > (16 * mapMulti) - 125) { mapX = (16 * mapMulti) - 125; } // right
-    if (mapY < 125) { mapY = 125; } // tops
-    if (mapY > (16 * mapMulti) - 125) { mapY = (16 * mapMulti) - 125; } // bottom
-    let camera_top = pixelSize * 125;
-    let camera_left = pixelSize * 125;
+    if (mapX < 112) { mapX = 112; } // left
+    if (mapX > (16 * mapMulti) - 112) { mapX = (16 * mapMulti) - 112; } // right
+    if (mapY < 112) { mapY = 112; } // tops
+    if (mapY > (16 * mapMulti) - 112) { mapY = (16 * mapMulti) - 112; } // bottom
+    let camera_top = pixelSize * 112;
+    let camera_left = pixelSize * 112;
     map.style.transform = `translate3d( ${-mapX * pixelSize + camera_left}px, ${-mapY * pixelSize + camera_top}px, 0 )`;
     character.style.transform = `translate3d( ${x * pixelSize}px, ${y * pixelSize}px, 0 )`;
 

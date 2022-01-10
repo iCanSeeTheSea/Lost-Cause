@@ -47,8 +47,8 @@ body {
     }
     
     .camera {
-        width: calc(var(--pixel-size) * 250);
-        height: calc(var(--pixel-size) * 250);
+        width: calc(var(--pixel-size) * 224);
+        height: calc(var(--pixel-size) * 224);
         overflow: hidden;
         background: #502102;
         position:relative;
