@@ -63,8 +63,8 @@ const placeCharacter = function () {
     map.style.transform = `translate3d( ${-mapX * pixelSize + camera_left}px, ${-mapY * pixelSize + camera_top}px, 0 )`;
     character.style.transform = `translate3d( ${x * pixelSize}px, ${y * pixelSize}px, 0 )`;
 
-    var currentTileX = (x/128)+1; 
-    var currentTileY = (y/128)+1;
+    var currentTileX = ((x)/128)+1; 
+    var currentTileY = ((y)/128)+1;
 
     var currentTile = [roundTileCoord(currentTileX), roundTileCoord(currentTileY)]
     console.log(x, y, currentTile);
