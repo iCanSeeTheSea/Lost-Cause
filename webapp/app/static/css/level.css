@@ -70,15 +70,15 @@ body {
     color: transparent;
     position: absolute;
     overflow: hidden;
-    width: 80px;
-    height: 80px;
+    width: calc(var(--pixel-size) * 20);
+    height: calc(var(--pixel-size) * 20);
 }
 
 .character_spritesheet{
-    background: url('/static/img/debug-player-spritesheet.png') no-repeat no-repeat;
+    background: url('/static/img/player-spritesheet.png') no-repeat no-repeat;
     background-size: 100%;
-    height: 320px;
-    width: 320px;
+    height: calc(var(--pixel-size) * 80);
+    width: calc(var(--pixel-size) * 80);
     position: absolute;
 }
 
