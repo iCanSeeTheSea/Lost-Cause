@@ -20,6 +20,15 @@ var x = 21;
 var y = 33;
 var speed = 1;
 
+const roundTileCoord = function(tileCoord) {
+    if (tileCoord - Math.floor(tileCoord) > 0.5){
+        tileCoord = Math.floor(tileCoord) + 0.5
+    } else {
+        tileCoord = Math.floor(tileCoord)
+    }
+    return tileCoord
+}
+
 const placeCharacter = function () {
     var pixelSize = parseInt(
         getComputedStyle(document.documentElement).getPropertyValue('--pixel-size')
@@ -53,6 +62,12 @@ const placeCharacter = function () {
     let camera_left = pixelSize * 112;
     map.style.transform = `translate3d( ${-mapX * pixelSize + camera_left}px, ${-mapY * pixelSize + camera_top}px, 0 )`;
     character.style.transform = `translate3d( ${x * pixelSize}px, ${y * pixelSize}px, 0 )`;
+
+    var currentTileX = (x/128)+1; 
+    var currentTileY = (y/128)+1;
+
+    var currentTile = [roundTileCoord(currentTileX), roundTileCoord(currentTileY)]
+    console.log(x, y, currentTile);
 
 }
 
