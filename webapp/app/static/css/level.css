@@ -83,13 +83,13 @@ body {
 }
 
 .character[facing="down"] .character_spritesheet {
-    background-position-y: -80px;
+    background-position-y: calc(var(--pixel-size) * -20);
 }
 .character[facing="left"] .character_spritesheet {
-    background-position-y: -160px;
+    background-position-y: calc(var(--pixel-size) * -40);
 }
 .character[facing="up"] .character_spritesheet {
-    background-position-y: -240px;
+    background-position-y: calc(var(--pixel-size) * -60);
 }
 .character[walking="true"] .character_spritesheet {
     animation: walkAnimation 0.6s steps(4) infinite; 
