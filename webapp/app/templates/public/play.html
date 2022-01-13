@@ -20,7 +20,8 @@
 {% block script %}
 <script>
   // use with function from external js
-  getMazeData("{{spanningTree}}, {{mapSize}}")
+  var spanningTree = {{spanningTree | safe}};
+  var mapSize = {{mapSize | safe}};
 
 </script>
 {% endblock %}

@@ -1,12 +1,6 @@
 
 
 
-var mapSize;
-var spanningTree;
-function getMazeData(spanning_tree, map_size) {
-    mapSize = map_size;
-    spanningTree = spanning_tree
-}
 console.log(spanningTree)
 console.log(mapSize)
 var mapMulti = (mapSize * 30) / 4;
@@ -47,14 +41,12 @@ const placeCharacter = function () {
 
     let mapX = x;
     let mapY = y;
-    mapMulti = 150;
 
     
-    var currentTileX = ((x)/128)+1; 
-    var currentTileY = ((y)/128)+1;
+    var currentTileX = roundTileCoord(((x)/128)+1); 
+    var currentTileY = roundTileCoord(((y)/128)+1);
 
-    var currentTile = [roundTileCoord(currentTileX), roundTileCoord(currentTileY)]
-    console.log(x, y, currentTile);
+    console.log(x, y, currentTileX, currentTileY,"["+ currentTileX.toString()+ ", "+ currentTileY.toString()+ "]", spanningTree["["+ currentTileX.toString()+ ", "+ currentTileY.toString()+ "]"]);
 
 
 
