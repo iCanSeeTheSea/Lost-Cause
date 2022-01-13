@@ -49,10 +49,20 @@ const placeCharacter = function () {
     let mapY = y;
     mapMulti = 150;
 
+    
+    var currentTileX = ((x)/128)+1; 
+    var currentTileY = ((y)/128)+1;
+
+    var currentTile = [roundTileCoord(currentTileX), roundTileCoord(currentTileY)]
+    console.log(x, y, currentTile);
+
+
+
     if (x < 0) { x = 0; } // left
     if (x > 16 * mapMulti - 32) { x = 16 * mapMulti - 32; } // right
     if (y < 0) { y = 0; } // top
     if (y > 16 * mapMulti - 24) { y = 16 * mapMulti - 24; } // bottom
+
 
     if (mapX < 112) { mapX = 112; } // left
     if (mapX > (16 * mapMulti) - 112) { mapX = (16 * mapMulti) - 112; } // right
@@ -63,11 +73,6 @@ const placeCharacter = function () {
     map.style.transform = `translate3d( ${-mapX * pixelSize + camera_left}px, ${-mapY * pixelSize + camera_top}px, 0 )`;
     character.style.transform = `translate3d( ${x * pixelSize}px, ${y * pixelSize}px, 0 )`;
 
-    var currentTileX = ((x)/128)+1; 
-    var currentTileY = ((y)/128)+1;
-
-    var currentTile = [roundTileCoord(currentTileX), roundTileCoord(currentTileY)]
-    console.log(x, y, currentTile);
 
 }
 

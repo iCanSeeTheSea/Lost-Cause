@@ -7,6 +7,18 @@ tileNames = {'[0, 0, 0, 0]': 'no-walls.png', '[0, 0, 0, 1]': 'right-wall.png', '
              '[1, 1, 1, 0]': 'left-dead.png', '[1, 1, 1, 1]': ''}
 
 
+def getIntFromString(section):
+    s = ''
+    for char in section:
+        try:
+            i = int(char)
+            s += char
+        except ValueError:
+            pass
+    return int(s)
+            
+        
+
 def mazeImgGen(SIDELEN, spanning_tree):
     mazePath = Path('app/static/img/maze/')
 
@@ -19,9 +31,11 @@ def mazeImgGen(SIDELEN, spanning_tree):
     img = img.resize((SIDELEN*32*2-32, SIDELEN*32*2-32))
     # tiles are 32x32
 
-    for node in spanning_tree:
-        adjNodes = spanning_tree[node][0]
-        tile = mazePath / tileNames[str(spanning_tree[node][1])]
+    for strNode in spanning_tree:
+        separated = strNode.split(',')
+        node = [getIntFromString(separated[0]), getIntFromString(separated[1])]
+        adjNodes = spanning_tree[strNode][0]
+        tile = mazePath / tileNames[str(spanning_tree[strNode][1])]
         tileImg = Image.open(tile)
         img.paste(tileImg, ((node[0]-1)*64, (node[1]-1)*64))
         for adjNode in adjNodes:

@@ -13,7 +13,7 @@ def mazeGen(maxX, maxY):
 
     for x in range(1, maxX+1):
         for y in range(1, maxY+1):
-            nodes.append((x, y))
+            nodes.append([x, y])
     save_nodes = nodes.copy()
 
     adjacent_nodes = ((-1, 0), (1, 0), (0, 1), (0, -1))
@@ -23,7 +23,7 @@ def mazeGen(maxX, maxY):
 
     start_time = time.time()
 
-    next_node = (1, 1)
+    next_node = [1, 1]
 
     while True:
 
@@ -39,19 +39,19 @@ def mazeGen(maxX, maxY):
 
         # finding possible next nodes by comparing each position adjacent to the current node to the unused nodes
         for dx, dy in adjacent_nodes:
-            if (current_node[0] + dx, current_node[1] + dy) in nodes:
+            if [current_node[0] + dx, current_node[1] + dy] in nodes:
                 possible_nodes.append(
-                    (current_node[0] + dx, current_node[1] + dy))
+                    [current_node[0] + dx, current_node[1] + dy])
         if possible_nodes:
             # choosing a random (adjacent) node to go next
             next_node = random.choice(possible_nodes)
-            spanning_tree.append((next_node, current_node))
+            spanning_tree.append([next_node, current_node])
         else:
             # checking each node from the stack for possible nodes, if there are none, removing it
             for index in range(len(stack)-1, -1, -1):
                 check_node = stack[index]
                 for dx, dy in adjacent_nodes:
-                    if (check_node[0] + dx, check_node[1] + dy) in nodes:
+                    if [check_node[0] + dx, check_node[1] + dy] in nodes:
                         next_node = check_node
                         break
                 else:
@@ -96,5 +96,5 @@ def adjacencyListGen(spanning_tree, nodes):
                 walls[2] = 0
             elif xDiff < 0:
                 walls[3] = 0
-        adjacencyDict[node] = [adjacentNodes, walls]
+        adjacencyDict[str(node)] = [adjacentNodes, walls]
     return adjacencyDict
