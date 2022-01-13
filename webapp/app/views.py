@@ -11,5 +11,5 @@ def index():
 def about():
     map_size = 20
     spanning_tree = generateMaze.mazeGen(map_size, map_size)
-    drawMaze.mazeImgGen(map_size, spanning_tree)
+    spanning_tree = drawMaze.mazeImgGen(map_size, spanning_tree)
     return render_template('public/play.html', spanningTree=spanning_tree, mapSize=map_size)

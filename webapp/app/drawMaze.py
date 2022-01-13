@@ -31,6 +31,8 @@ def mazeImgGen(SIDELEN, spanning_tree):
     img = img.resize((SIDELEN*32*2-32, SIDELEN*32*2-32))
     # tiles are 32x32
 
+    joinNodesDict = {}
+
     for strNode in spanning_tree:
         separated = strNode.split(',')
         node = [getIntFromString(separated[0]), getIntFromString(separated[1])]
@@ -43,9 +45,16 @@ def mazeImgGen(SIDELEN, spanning_tree):
             join_y = ((adjNode[1] - node[1])/2) + node[1]
             if join_y-int(join_y) != 0:
                 tile = mazePath / 'left-right-wall.png'
+                joinNodesDict[str([int(join_x), join_y])] = [[], [0, 0, 1, 1]]
             elif join_x-int(join_x) != 0:
                 tile = mazePath / 'top-bottom-wall.png'
+                joinNodesDict[str([join_x, int(join_y)])] = [[], [1, 1, 0, 0]]
             tileImg = Image.open(tile)
             img.paste(tileImg, (int((join_x-1)*64), int((join_y-1)*64)))
 
     img.save(mazePath / "fullmaze.png")
+
+    spanning_tree.update(joinNodesDict)
+    
+    return spanning_tree
+
