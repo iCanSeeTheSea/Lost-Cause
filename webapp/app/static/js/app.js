@@ -13,6 +13,7 @@ var map = document.querySelector(".map");
 var x = 21;
 var y = 33;
 var speed = 1;
+var walls;
 
 const roundTileCoord = function(tileCoord) {
     if (tileCoord - Math.floor(tileCoord) > 0.5){
@@ -43,17 +44,32 @@ const placeCharacter = function () {
     let mapY = y;
 
     
-    var currentTileX = roundTileCoord(((x)/128)+1); 
+    var currentTileX = roundTileCoord(((x)/128)+1);
     var currentTileY = roundTileCoord(((y)/128)+1);
 
-    console.log(x, y, currentTileX, currentTileY,"["+ currentTileX.toString()+ ", "+ currentTileY.toString()+ "]", spanningTree["["+ currentTileX.toString()+ ", "+ currentTileY.toString()+ "]"]);
+    var tileOriginX = (currentTileX-1)*128;
+    var tileOriginY = (currentTileY-1)*128;
 
 
+    var tileString = "["+ currentTileX.toString()+ ", "+ currentTileY.toString()+ "]"
 
-    if (x < 0) { x = 0; } // left
-    if (x > 16 * mapMulti - 32) { x = 16 * mapMulti - 32; } // right
-    if (y < 0) { y = 0; } // top
-    if (y > 16 * mapMulti - 24) { y = 16 * mapMulti - 24; } // bottom
+    if (spanningTree[tileString]) {
+        walls = spanningTree[tileString][1]
+    }
+
+
+    console.log(x, y,'|', currentTileX, currentTileY,'|', tileOriginX, tileOriginY, '|', walls);
+
+    // if (x < 0) { x = 0; } // left
+    // if (x > 16 * mapMulti - 32) { x = 16 * mapMulti - 32; } // right
+    // if (y < 0) { y = 0; } // top
+    // if (y > 16 * mapMulti - 24) { y = 16 * mapMulti - 24; } // bottom
+
+    // top, bottom, left, right
+    if ( x < tileOriginX && walls[2] == 1) {x = tileOriginX;} // left
+    else if (x > tileOriginX+32 && walls[3] == 1) {x = tileOriginX+32;} // right
+    if (y < tileOriginY && walls[0] == 1) {y = tileOriginY; } // top
+    else if (y > tileOriginY+32 &&walls[1] == 1) {y = tileOriginY+32} // bottom
 
 
     if (mapX < 112) { mapX = 112; } // left
