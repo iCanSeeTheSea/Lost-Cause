@@ -1,12 +1,12 @@
-
-
-
+// debug
 console.log(spanningTree)
 console.log(mapSize)
+
+// get the correct multiplier for the collisions depending on the size of the maze
 var mapMulti = (mapSize * 30) / 4;
 console.log(mapMulti)
 
-
+// initial variable declarations
 var held_directions = [];
 var character = document.querySelector('.character');
 var map = document.querySelector(".map");
@@ -14,6 +14,8 @@ var x = 21;
 var y = 33;
 var speed = 1;
 
+
+// function to round a number to the nearest 0.5
 const roundTileCoord = function (tileCoord) {
     if (tileCoord - Math.floor(tileCoord) > 0.5) {
         tileCoord = Math.floor(tileCoord) + 0.5
@@ -23,10 +25,15 @@ const roundTileCoord = function (tileCoord) {
     return tileCoord
 }
 
+// deterimes where the character (and maze) is positioned every frame
 const placeCharacter = function () {
+
+    // getting the pixel size being used from the css
     var pixelSize = parseInt(
         getComputedStyle(document.documentElement).getPropertyValue('--pixel-size')
     );
+
+    // work out which direction the user wants to move the player
     const held_direction = held_directions[0];
     if (held_direction) {
         if (held_direction === directions.right) { x += speed; }
@@ -42,32 +49,36 @@ const placeCharacter = function () {
     let mapX = x;
     let mapY = y;
 
-
+    // work out which tile in the spanning tree the player is in
     var currentTileX = roundTileCoord(((x) / 128) + 1);
     var currentTileY = roundTileCoord(((y) / 128) + 1);
 
+    // debug
     console.log(x, y, currentTileX, currentTileY, "[" + currentTileX.toString() + ", " + currentTileY.toString() + "]", spanningTree["[" + currentTileX.toString() + ", " + currentTileY.toString() + "]"]);
 
 
-
+    // maze wall collisions
     if (x < 0) { x = 0; } // left
     if (x > 16 * mapMulti - 32) { x = 16 * mapMulti - 32; } // right
     if (y < 0) { y = 0; } // top
     if (y > 16 * mapMulti - 24) { y = 16 * mapMulti - 24; } // bottom
 
-
+    // smooth camera movement - moves the map against the player if the player is in the centre of the map
     if (mapX < 112) { mapX = 112; } // left
     if (mapX > (16 * mapMulti) - 112) { mapX = (16 * mapMulti) - 112; } // right
     if (mapY < 112) { mapY = 112; } // tops
     if (mapY > (16 * mapMulti) - 112) { mapY = (16 * mapMulti) - 112; } // bottom
     let camera_top = pixelSize * 112;
     let camera_left = pixelSize * 112;
+
+    // moving the map and player
     map.style.transform = `translate3d( ${-mapX * pixelSize + camera_left}px, ${-mapY * pixelSize + camera_top}px, 0 )`;
     character.style.transform = `translate3d( ${x * pixelSize}px, ${y * pixelSize}px, 0 )`;
 
 
 }
 
+// steps through every frame
 const step = function () {
     placeCharacter()
     window.requestAnimationFrame(function () {
@@ -97,6 +108,7 @@ const arrowKeys = {
     'ArrowDown': directions.down,
 }
 
+// event listeners for keys being pressed and released
 document.addEventListener('keydown', function (e) {
     let dir = keys[e.key];
     if (dir && held_directions.indexOf(dir) === -1) {
