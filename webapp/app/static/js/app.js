@@ -34,6 +34,9 @@ const placeCharacter = function () {
         getComputedStyle(document.documentElement).getPropertyValue('--pixel-size')
     );
 
+    var originalX = x;
+    var originalY = y;
+
     // work out which direction the user wants to move the player
     const held_direction = held_directions[0];
     if (held_direction) {
@@ -76,10 +79,38 @@ const placeCharacter = function () {
 
     // maze wall collisions
     // top, bottom, left, right
-    if ( x < tileOriginX+1 && walls[2] == 1) {x = tileOriginX+1;} // left
-    else if (x > tileOriginX+32 && walls[3] == 1) {x = tileOriginX+32;} // right
-    if (y < tileOriginY+1 && walls[0] == 1) {y = tileOriginY+1; } // top
-    else if (y > tileOriginY+32 &&walls[1] == 1) {y = tileOriginY+32} // bottom
+    // left
+    if ( x < tileOriginX+1) {   
+        if (walls[2] == 1){ 
+            x = originalX;
+        } else {
+            // space for corner correction
+        }
+    }
+    // right
+    if (x > tileOriginX+32) {
+        if (walls[3] == 1){
+            x = originalX;
+        } else {
+
+        }
+    }
+    // top
+    if (y < tileOriginY+1) {
+        if (walls[0] == 1){
+            y = originalY;
+        } else {
+
+        }
+    }
+    // bottom
+    if (y > tileOriginY+32) {
+        if (walls[1] == 1){
+            y = originalY;
+        } else {
+
+        }
+    }
 
     // smooth camera movement - moves the map against the player if the player is in the centre of the map
     if (mapX < 112) { mapX = 112; } // left
