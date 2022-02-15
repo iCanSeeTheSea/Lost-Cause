@@ -20,9 +20,7 @@ def mazeGen(maxX, maxY):
 
     stack = []
     spanning_tree = []
-
     start_time = time.time()
-
     next_node = [1, 1]
 
     while True:

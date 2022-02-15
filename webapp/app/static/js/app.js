@@ -53,24 +53,26 @@ const placeCharacter = function () {
     let mapX = x;
     let mapY = y;
 
+
     // work out which tile in the spanning tree the player is in
-    var currentTileX = roundTileCoord(((x) / 128) + 1);
-    var currentTileY = roundTileCoord(((y) / 128) + 1);
+    var currentTileX = roundTileCoord(((x) / 123) + 1);
+    var currentTileY = roundTileCoord(((y) / 123) + 1);
+    console.log(x, y, currentTileX, currentTileY)
 
     // debug
-    console.log(x, y, currentTileX, currentTileY, "[" + currentTileX.toString() + ", " + currentTileY.toString() + "]", spanningTree["[" + currentTileX.toString() + ", " + currentTileY.toString() + "]"]);
+    //console.log(x, y, currentTileX, currentTileY, "[" + currentTileX.toString() + ", " + currentTileY.toString() + "]", spanningTree["[" + currentTileX.toString() + ", " + currentTileY.toString() + "]"]);
 
 
     // get the coordinates of the tile and data from spanning tree
-    var tileOriginX = (currentTileX-1)*128;
-    var tileOriginY = (currentTileY-1)*128;
+    var tileOriginX = (currentTileX-1)*123;
+    var tileOriginY = (currentTileY-1)*123;
     var tileString = "["+ currentTileX.toString()+ ", "+ currentTileY.toString()+ "]"
     if (spanningTree[tileString]) {
         walls = spanningTree[tileString][1]
     }
 
 
-    console.log(x, y,'|', currentTileX, currentTileY,'|', tileOriginX, tileOriginY, '|', walls);
+    //console.log(x, y,'|', currentTileX, currentTileY,'|', tileOriginX, tileOriginY, '|', walls);
 
     // if (x < 0) { x = 0; } // left
     // if (x > 16 * mapMulti - 32) { x = 16 * mapMulti - 32; } // right
@@ -104,7 +106,7 @@ const placeCharacter = function () {
         }
     }
     // bottom
-    if (y > tileOriginY+32) {
+    if (y > tileOriginY+36) {
         if (walls[1] == 1){
             y = originalY;
         } else {
