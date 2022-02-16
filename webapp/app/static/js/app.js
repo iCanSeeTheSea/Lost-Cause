@@ -95,7 +95,7 @@ const placeCharacter = function () {
         if (walls[3] == 1) {
             x = originalX;
         } else if (walls[3] == 0 && y > tileOriginY + 37) {
-            x = originalX
+            x = originalX;
         }
     }
     // top
@@ -111,7 +111,7 @@ const placeCharacter = function () {
         if (walls[1] == 1) {
             y = originalY;
         } else if (walls[1] == 0 && x > tileOriginX + 32) {
-            y = originalY
+            y = originalY;
         }
     }
 

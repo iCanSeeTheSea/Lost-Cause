@@ -4,7 +4,7 @@
 
 {% block main %}
 
-<p>level</p>
+<p>use wasd to move</p>
 <div class='level'>
   <div class='camera'>
     <div class='map'>
@@ -20,8 +20,8 @@
 {% block script %}
 <script>
   // use with function from external js
-  var spanningTree = {{spanningTree | safe}};
-  var mapSize = {{mapSize | safe}};
+  var spanningTree = {{ spanningTree | safe}};
+  var mapSize = {{ mapSize | safe}};
 
 </script>
 {% endblock %}
