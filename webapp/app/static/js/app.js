@@ -64,9 +64,9 @@ const placeCharacter = function () {
 
 
     // get the coordinates of the tile and data from spanning tree
-    var tileOriginX = (currentTileX-1)*123;
-    var tileOriginY = (currentTileY-1)*123;
-    var tileString = "["+ currentTileX.toString()+ ", "+ currentTileY.toString()+ "]"
+    var tileOriginX = (currentTileX - 1) * 123;
+    var tileOriginY = (currentTileY - 1) * 123;
+    var tileString = "[" + currentTileX.toString() + ", " + currentTileY.toString() + "]"
     if (spanningTree[tileString]) {
         walls = spanningTree[tileString][1]
     }
@@ -81,36 +81,37 @@ const placeCharacter = function () {
 
     // maze wall collisions
     // top, bottom, left, right
+
     // left
-    if ( x < tileOriginX+1) {   
-        if (walls[2] == 1){ 
+    if (x < tileOriginX + 1) {
+        if (walls[2] == 1) {
             x = originalX;
         } else {
             // space for corner correction
         }
     }
     // right
-    if (x > tileOriginX+32) {
-        if (walls[3] == 1){
+    if (x > tileOriginX + 32) {
+        if (walls[3] == 1) {
             x = originalX;
-        } else {
-
+        } else if (walls[3] == 0 && y > tileOriginY + 37) {
+            x = originalX
         }
     }
     // top
-    if (y < tileOriginY+1) {
-        if (walls[0] == 1){
+    if (y < tileOriginY + 1) {
+        if (walls[0] == 1) {
             y = originalY;
         } else {
 
         }
     }
     // bottom
-    if (y > tileOriginY+36) {
-        if (walls[1] == 1){
+    if (y > tileOriginY + 37) {
+        if (walls[1] == 1) {
             y = originalY;
-        } else {
-
+        } else if (walls[1] == 0 && x > tileOriginX + 32) {
+            y = originalY
         }
     }
 
