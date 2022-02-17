@@ -86,8 +86,9 @@ const placeCharacter = function () {
     if (x < tileOriginX + 1) {
         if (walls[2] == 1) {
             x = originalX;
-        } else {
+        } else if (walls[2] == 0 && y < tileOriginY + 1) {
             // space for corner correction
+            x = originalX;
         }
     }
     // right
@@ -102,8 +103,8 @@ const placeCharacter = function () {
     if (y < tileOriginY + 1) {
         if (walls[0] == 1) {
             y = originalY;
-        } else {
-
+        } else if (walls[0] == 0 && x < tileOriginX + 1 ) {
+            y = originalY;
         }
     }
     // bottom
