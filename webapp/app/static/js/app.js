@@ -67,9 +67,8 @@ const placeCharacter = function () {
     3: 145
     */
 
-    var posCorrectDict = {20: 123, 15: 124, 10: 126.5, 5: 133, 3:145}
-
-    
+    // correct position? scaling? of player? walls?
+    var posCorrectDict = { 20: 123, 15: 124, 10: 126.5, 5: 133, 3: 145 }
     var positionCorrector = posCorrectDict[mapSize];
     console.log(mapSize, positionCorrector)
 
@@ -122,7 +121,7 @@ const placeCharacter = function () {
     if (y < tileOriginY + 1) {
         if (walls[0] == 1) {
             y = originalY;
-        } else if (walls[0] == 0 && x < tileOriginX + 1 ) {
+        } else if (walls[0] == 0 && x < tileOriginX + 1) {
             y = originalY;
         }
     }
