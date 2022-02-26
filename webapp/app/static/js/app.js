@@ -3,7 +3,7 @@ console.log(spanningTree)
 console.log(mapSize)
 
 // get the correct multiplier for the collisions depending on the size of the maze
-var mapMulti = (mapSize * 30) / 4;
+var mapMulti = (mapSize * 32) / 4;
 console.log(mapMulti)
 
 var root = document.querySelector(':root');
@@ -68,10 +68,12 @@ const placeCharacter = function () {
     */
 
     // correct position? scaling? of player? walls?
-    var posCorrectDict = { 20: 123, 15: 124, 10: 126.5, 5: 133, 3: 145 }
-    var positionCorrector = posCorrectDict[mapSize];
-    console.log(mapSize, positionCorrector)
+    // var posCorrectDict = { 20: 123, 15: 124, 10: 126.5, 5: 133, 3: 145 }
+    // var positionCorrector = posCorrectDict[mapSize];
+    // console.log(mapSize, positionCorrector)
 
+    var positionCorrector = 123
+    
     // work out which tile in the spanning tree the player is in
     var currentTileX = roundTileCoord(((x) / positionCorrector) + 1);
     var currentTileY = roundTileCoord(((y) / positionCorrector) + 1);
