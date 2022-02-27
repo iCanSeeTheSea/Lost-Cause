@@ -75,7 +75,11 @@ def mazeGen(m, maxX, maxY):
         else:
             # checking each node from the stack for possible nodes, if there are none, removing it
             for index in range(len(stack)-1, -1, -1):
-                check_node = stack[index]
+                
+                # extra random
+                check_node = random.choice(stack)
+                
+                
                 for dx, dy in adjacent_nodes:
                     if (check_node[0] + dx, check_node[1] + dy) in nodes:
                         next_node = check_node
