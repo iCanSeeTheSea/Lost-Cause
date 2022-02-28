@@ -9,8 +9,8 @@ def mazeGen(m, maxX, maxY):
     step = 2
     count = 0
 
-    for x in range(0, maxX+1):
-        for y in range(0, maxY+1):
+    for x in range(1, maxX+1):
+        for y in range(1, maxY+1):
             nodes.append((x, y))
 
     adjacent_nodes = ((-1, 0), (1, 0), (0, 1), (0, -1))
@@ -40,7 +40,10 @@ def mazeGen(m, maxX, maxY):
         current_node = next_node
         
         # print(current_node)
-        nodes.remove(current_node)
+        try:
+            nodes.remove(current_node)
+        except ValueError:
+            pass
 
         # finding possible next nodes by comparing each position adjacent to the current node to the unused nodes
         for dx, dy in adjacent_nodes:

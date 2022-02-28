@@ -4,8 +4,8 @@ import random, time
 
 def mazeGen(maxX, maxY):
     nodes = []
-    for x in range(0, maxX+1):
-        for y in range(0, maxY+1):
+    for x in range(1, maxX+1):
+        for y in range(1, maxY+1):
             nodes.append((x, y))
 
     adjacent_nodes = ((-1, 0), (1, 0), (0, 1), (0, -1))
@@ -25,7 +25,10 @@ def mazeGen(maxX, maxY):
         current_node = next_node
         
         # print(current_node)
-        nodes.remove(current_node)
+        try:
+            nodes.remove(current_node)
+        except ValueError:
+            pass
 
         # finding possible next nodes by comparing each position adjacent to the current node to the unused nodes
         for dx, dy in adjacent_nodes:
@@ -47,8 +50,8 @@ def mazeGen(maxX, maxY):
             end_time = time.perf_counter()-start_time
             print(
                 (str(end_time)[:-(len(str(end_time).split('.')[1])-2)]) + 's')
-            #print(spanning_tree)
+            print(spanning_tree)
             break
 
 
-mazeGen(100,100)
+mazeGen(20,20)
