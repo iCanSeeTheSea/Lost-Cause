@@ -70,8 +70,8 @@ def mazeGen(m, maxX, maxY):
                 (join_x-1)*(m*2), (join_y-1)*(m*2), m, m))
             
             # colours
-            if count%((maxX*maxY)//10 + (maxX*maxY)//100) == 0:
-                colour[step] -= 20; colour[step-1] -= 20
+            if count%((maxX*maxY)//200 + (maxX*maxY)//20000) == 0:
+                colour[step] -= 1; colour[step-1] -= 1
                 if colour[step] < 50: colour[step] = 250; step += 1
                 if colour[step-1] < 50: colour[step-1] = 250
                 if step > 2: step = 0
@@ -91,7 +91,11 @@ def mazeGen(m, maxX, maxY):
                 running = False
 
         pygame.display.flip()
+        
+        time.sleep(1)
+        running = False
 
     pygame.quit()
 
-mazeGen(4,100,100)
+while True:
+    mazeGen(4,100,100)

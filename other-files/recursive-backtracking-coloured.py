@@ -79,8 +79,8 @@ def mazeGen(m, maxX, maxY):
                 for dx, dy in adjacent_nodes:
                     if (check_node[0] + dx, check_node[1] + dy) in nodes:
                         next_node = check_node
-                        if count%110 == 0:                        
-                            colour[step] -= 20; colour[step-1] -= 20
+                        if count%55 == 0:                        
+                            colour[step] -= 10; colour[step-1] -= 10
                             if colour[step] < 50: colour[step] = 250; step += 1
                             if colour[step-1] < 50: colour[step-1] = 250
                             if step > 2: step = 0
@@ -110,8 +110,11 @@ def mazeGen(m, maxX, maxY):
                 running = False
 
         pygame.display.flip()
+        
+        time.sleep(1)
+        running = False
 
     pygame.quit()
 
-
-mazeGen(m=4, maxX=100, maxY=100)
+while True:
+    mazeGen(m=4, maxX=100, maxY=100)

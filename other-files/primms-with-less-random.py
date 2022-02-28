@@ -54,7 +54,7 @@ def mazeGen(m, maxX, maxY):
             # choosing a random (adjacent) node to go next
         
             # less random
-            next_node = frontiers[len(frontiers)//2 ]
+            next_node = frontiers[len(frontiers)//2]
             
             
             frontiers.remove(next_node)

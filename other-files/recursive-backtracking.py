@@ -70,5 +70,4 @@ def mazeGen(side):
                 (str(end_time)[:-(len(str(end_time).split('.')[1])-2)]) + 's')
             break
 
-while True:
-    mazeGen(100)
+mazeGen(100)
