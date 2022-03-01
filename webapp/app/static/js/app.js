@@ -72,7 +72,7 @@ const placeCharacter = function () {
     // var positionCorrector = posCorrectDict[mapSize];
     // console.log(mapSize, positionCorrector)
 
-    var positionCorrector = 123
+    var positionCorrector = 132
     
     // work out which tile in the spanning tree the player is in
     var currentTileX = roundTileCoord(((x) / positionCorrector) + 1);

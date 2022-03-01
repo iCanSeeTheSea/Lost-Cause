@@ -79,8 +79,6 @@ def primms(maxX, maxY):
             nodes.append([x, y])
     save_nodes = nodes.copy()
 
-    print(nodes)
-
 
     adjacent_nodes = ((-1, 0), (1, 0), (0, 1), (0, -1))
 
@@ -97,7 +95,6 @@ def primms(maxX, maxY):
 
         
         current_node = next_node
-        print(current_node)
         
         # print(current_node)
         try:
@@ -129,6 +126,8 @@ def primms(maxX, maxY):
 
     return adjacencyListGen(spanning_tree, save_nodes)
 
+
+# TODO comments in here!
 def adjacencyListGen(spanning_tree, nodes):
     adjacencyDict = {}
     for node in nodes:
@@ -143,6 +142,7 @@ def adjacencyListGen(spanning_tree, nodes):
                 continue
             adjacentNodes.append(adjNode)
             # top, bottom, left, right
+            # wall = 1
             xDiff = node[0] - adjNode[0]
             yDiff = node[1] - adjNode[1]
             if yDiff > 0:
