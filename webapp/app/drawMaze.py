@@ -43,7 +43,7 @@ def mazeImgGen(SIDELEN, spanning_tree):
 
         # getting the list of adjacent nodes from the dictionary
         adjNodes = []
-        for index, wall in enumerate(spanning_tree[strNode][1]):
+        for index, wall in enumerate(spanning_tree[strNode]):
             if not wall:
                 if index == 0:
                     adjNodes.append([node[0], node[1]-1])
