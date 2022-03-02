@@ -1,12 +1,14 @@
 from PIL import Image
 from pathlib import Path
+import json
 
 
 # [top, bottom, left, right]
-tileNames = {'[0, 0, 0, 0]': 'no-walls.png', '[0, 0, 0, 1]': 'right-wall.png', '[0, 0, 1, 0]': 'left-wall.png', '[0, 0, 1, 1]': 'left-right-wall.png',
-             '[0, 1, 0, 0]': 'bottom-wall.png', '[0, 1, 0, 1]': 'bottom-right-corner.png', '[0, 1, 1, 0]': 'bottom-left-corner.png', '[0, 1, 1, 1]': 'bottom-dead.png', '[1, 0, 0, 0]': 'top-wall.png',
-             '[1, 0, 0, 1]': 'top-right-corner.png', '[1, 0, 1, 0]': 'top-left-corner.png', '[1, 0, 1, 1]': 'top-dead.png', '[1, 1, 0, 0]': 'top-bottom-wall.png', '[1, 1, 0, 1]': 'right-dead.png',
-             '[1, 1, 1, 0]': 'left-dead.png', '[1, 1, 1, 1]': ''}
+# number corresponds to decimal value when walls dict is interpreted as binary
+tileNames = {0: 'no-walls.png', 1: 'right-wall.png', 2: 'left-wall.png', 3: 'left-right-wall.png',
+             4: 'bottom-wall.png', 5: 'bottom-right-corner.png', 6: 'bottom-left-corner.png', 7: 'bottom-dead.png', 8: 'top-wall.png',
+             9: 'top-right-corner.png', 10: 'top-left-corner.png', 11: 'top-dead.png', 12: 'top-bottom-wall.png', 13: 'right-dead.png',
+             14: 'left-dead.png', 15: ''}
 
 
 def getIntFromString(section):
@@ -18,8 +20,8 @@ def getIntFromString(section):
         except ValueError:
             pass
     return int(s)
-            
-        
+
+
 
 def mazeImgGen(SIDELEN, spanning_tree):
     mazePath = Path('app/static/img/maze/')
@@ -35,7 +37,7 @@ def mazeImgGen(SIDELEN, spanning_tree):
 
     joinNodesDict = {}
     
-    for strNode in spanning_tree:
+    for strNode, walls in spanning_tree.items():
 
         # turning dictionary keys (stored as strings) into  lists
         separated = strNode.split(',')
@@ -43,20 +45,23 @@ def mazeImgGen(SIDELEN, spanning_tree):
 
         # getting the list of adjacent nodes from the dictionary
         adjNodes = []
-        for index, wall in enumerate(spanning_tree[strNode]):
-            if not wall:
-                if index == 0:
-                    adjNodes.append([node[0], node[1]-1])
-                elif index == 1:
-                    adjNodes.append([node[0], node[1]+1])
-                elif index == 2:
-                    adjNodes.append([node[0]-1, node[1]])
-                elif index == 3:
-                    adjNodes.append([node[0]+1, node[1]])
-                
+
+        if walls['top'] == 0:
+            adjNodes.append([node[0], node[1]-1])
+        elif walls['bottom'] == 1:
+            adjNodes.append([node[0], node[1]+1])
+        elif walls['left'] == 2:
+            adjNodes.append([node[0]-1, node[1]])
+        elif walls['right'] == 3:
+            adjNodes.append([node[0]+1, node[1]])
+
+        print(adjNodes)
         
         # pasting the correct image (correspoding with the walls list) onto the main background image
-        tile = mazePath / tileNames[str(spanning_tree[strNode])]
+
+        key = (walls['top'] * 8) + (walls['bottom'] * 4) + (walls['left'] * 2) + (walls['right'])
+                    
+        tile = mazePath / tileNames[key]
         tileImg = Image.open(tile)
         img.paste(tileImg, ((node[0]-1)*64, (node[1]-1)*64))
 
@@ -67,12 +72,13 @@ def mazeImgGen(SIDELEN, spanning_tree):
             join_y = ((adjNode[1] - node[1])/2) + node[1]
 
             # pasting corridors joinging the nodes, and saving their data to the dictionary
+            
             if join_y-int(join_y) != 0:
                 tile = mazePath / 'left-right-wall.png'
-                joinNodesDict[str([int(join_x), join_y])] = [0, 0, 1, 1]
+                joinNodesDict[str([int(join_x), join_y])] = {'top': 0,'bottom': 0,'left': 1,'right': 1}
             elif join_x-int(join_x) != 0:
                 tile = mazePath / 'top-bottom-wall.png'
-                joinNodesDict[str([join_x, int(join_y)])] = [1, 1, 0, 0]
+                joinNodesDict[str([join_x, int(join_y)])] = {'top': 1,'bottom': 1,'left': 0,'right': 0}
             
             tileImg = Image.open(tile)
             img.paste(tileImg, (int((join_x-1)*64), int((join_y-1)*64)))
@@ -80,6 +86,12 @@ def mazeImgGen(SIDELEN, spanning_tree):
     img.save(mazePath / "fullmaze.png")
 
     spanning_tree.update(joinNodesDict)
+
+    json_data = json.dumps(spanning_tree, indent = 3)
+    with open('app/spanning-tree.json', 'w') as file:
+        file.write(json_data)   
+
+    #print(spanning_tree)
     
     return spanning_tree
 
