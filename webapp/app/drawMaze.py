@@ -56,7 +56,7 @@ def mazeImgGen(SIDELEN, spanning_tree):
                 
         
         # pasting the correct image (correspoding with the walls list) onto the main background image
-        tile = mazePath / tileNames[str(spanning_tree[strNode][1])]
+        tile = mazePath / tileNames[str(spanning_tree[strNode])]
         tileImg = Image.open(tile)
         img.paste(tileImg, ((node[0]-1)*64, (node[1]-1)*64))
 
@@ -69,10 +69,10 @@ def mazeImgGen(SIDELEN, spanning_tree):
             # pasting corridors joinging the nodes, and saving their data to the dictionary
             if join_y-int(join_y) != 0:
                 tile = mazePath / 'left-right-wall.png'
-                joinNodesDict[str([int(join_x), join_y])] = [[], [0, 0, 1, 1]]
+                joinNodesDict[str([int(join_x), join_y])] = [0, 0, 1, 1]
             elif join_x-int(join_x) != 0:
                 tile = mazePath / 'top-bottom-wall.png'
-                joinNodesDict[str([join_x, int(join_y)])] = [[], [1, 1, 0, 0]]
+                joinNodesDict[str([join_x, int(join_y)])] = [1, 1, 0, 0]
             
             tileImg = Image.open(tile)
             img.paste(tileImg, (int((join_x-1)*64), int((join_y-1)*64)))

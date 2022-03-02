@@ -128,6 +128,9 @@ def primms(maxX, maxY):
 
 
 # TODO comments in here!
+# TODO use an object for the tree and possibly send it as a json file
+
+    
 def adjacencyListGen(spanning_tree, nodes):
     adjacencyDict = {}
     for node in nodes:

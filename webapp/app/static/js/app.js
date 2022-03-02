@@ -88,7 +88,7 @@ const placeCharacter = function () {
     var tileOriginY = (currentTileY - 1) * positionCorrector;
     var tileString = "[" + currentTileX.toString() + ", " + currentTileY.toString() + "]"
     if (spanningTree[tileString]) {
-        walls = spanningTree[tileString][1]
+        walls = spanningTree[tileString]
     }
 
 
