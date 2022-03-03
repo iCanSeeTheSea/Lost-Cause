@@ -13,7 +13,7 @@ class Node:
         self._bottom = walls['bottom']
         self._left = walls['left']
         self._right = walls['right']
-        self._key = (self._top * 8) + (self._bottom * 4) + (self._left * 2) + (self._right)
+        self._key = str(hex(int(str(self._top) + str(self._bottom) + str(self._left) + str(self._right),2)))[2:]
 
     def __getattribute__(self, name):
         return super().__getattribute__(name)
@@ -38,25 +38,25 @@ class AdjacencyList:
 
 
 def generateDataString(maxX, maxY, adjacencyList):
-    walls = ''
-    for row in range(maxY):
-        for column in range(maxX):
+    mazeHex = ''
+    for row in range(1, maxY+1):
+        for column in range(1, maxX+1):
             node = adjacencyList.get(row, column)
-            walls += str(node._top) + str(node._bottom) + str(node._left) + str(node._right)
+            mazeHex += node._key
 
-
-    print(walls)
+    return mazeHex
     
 
 # [top, bottom, left, right]
-# number corresponds to decimal value when walls dict is interpreted as binary
-tileNames = {0: 'no-walls.png', 1: 'right-wall.png', 2: 'left-wall.png', 3: 'left-right-wall.png',
-             4: 'bottom-wall.png', 5: 'bottom-right-corner.png', 6: 'bottom-left-corner.png', 7: 'bottom-dead.png', 8: 'top-wall.png',
-             9: 'top-right-corner.png', 10: 'top-left-corner.png', 11: 'top-dead.png', 12: 'top-bottom-wall.png', 13: 'right-dead.png',
-             14: 'left-dead.png', 15: ''}
+# number corresponds to hex value of the node's key
+tileNames = {'0': 'no-walls.png', '1': 'right-wall.png', '2': 'left-wall.png', '3': 'left-right-wall.png',
+             '4': 'bottom-wall.png', '5': 'bottom-right-corner.png', '6': 'bottom-left-corner.png', '7': 'bottom-dead.png', '8': 'top-wall.png',
+             '9': 'top-right-corner.png', 'a': 'top-left-corner.png', 'b': 'top-dead.png', 'c': 'top-bottom-wall.png', 'd': 'right-dead.png',
+             'e': 'left-dead.png', 'f': ''}
 
 
 def drawMaze(maxY, maxX, adjacencyList):
+        
     mazePath = Path('app/static/img/maze/')
 
     width = 400
@@ -68,47 +68,47 @@ def drawMaze(maxY, maxX, adjacencyList):
     img = img.resize((maxX*32*2-32, maxY*32*2-32))
     # tiles are 32x32
     
-    for row in range(maxY):
-        for column in range(maxX):
+    for row in range(1, maxY+1):
+        for column in range(1, maxX+1):
             node = adjacencyList.get(row, column)
             
-
-        # getting the list of adjacent nodes from the dictionary
-        adjNodes = []
-
-        if node._top == 1:
-            adjNodes.append([node._id[0], node._id[1]-1])
-        if node._bottom == 1:
-            adjNodes.append([node._id[0], node._id[1]+1])
-        if node._left == 1:
-            adjNodes.append([node._id[0]-1, node._id[1]])
-        if node._right == 1:
-            adjNodes.append([node._id[0]+1, node._id[1]])
-        
-        # pasting the correct image (correspoding with the walls list) onto the main background image
-
-        
-                    
-        tile = mazePath / tileNames[node._key]
-        tileImg = Image.open(tile)
-        img.paste(tileImg, ((node._id[0]-1)*64, (node._id[1]-1)*64))
+    
+            # getting the list of adjacent nodes from the dictionary
+            adjNodes = []
+    
+            if node._top == 0:
+                adjNodes.append([node._id[0], node._id[1]-1])
+            if node._bottom == 0:
+                adjNodes.append([node._id[0], node._id[1]+1])
+            if node._left == 0:
+                adjNodes.append([node._id[0]-1, node._id[1]])
+            if node._right == 0:
+                adjNodes.append([node._id[0]+1, node._id[1]])
+    
+            # pasting the correct image (correspoding with the walls list) onto the main background image
 
         
-        for adjNode in adjNodes:
-            # figuring out where to place adjacent corridors based
-            join_x = ((adjNode[0] - node._id[0])/2) + node._id[0]
-            join_y = ((adjNode[1] - node._id[1])/2) + node._id[1]
-
-            # pasting corridors joinging the nodes, and saving their data to the dictionary
             
-            if join_y-int(join_y) != 0:
-                tile = mazePath / 'left-right-wall.png'
-                
-            elif join_x-int(join_x) != 0:
-                tile = mazePath / 'top-bottom-wall.png'
-            
+            tile = mazePath / tileNames[node._key]
             tileImg = Image.open(tile)
-            img.paste(tileImg, (int((join_x-1)*64), int((join_y-1)*64)))
+            img.paste(tileImg, ((node._id[0]-1)*64, (node._id[1]-1)*64))
+
+        
+            for adjNode in adjNodes:
+                # figuring out where to place adjacent corridors based
+                join_x = ((adjNode[0] - node._id[0])/2) + node._id[0]
+                join_y = ((adjNode[1] - node._id[1])/2) + node._id[1]
+    
+                # pasting corridors joinging the nodes, and saving their data to the dictionary
+                
+                if join_y-int(join_y) != 0:
+                    tile = mazePath / 'left-right-wall.png'
+                    
+                elif join_x-int(join_x) != 0:
+                    tile = mazePath / 'top-bottom-wall.png'
+                
+                tileImg = Image.open(tile)
+                img.paste(tileImg, (int((join_x-1)*64), int((join_y-1)*64)))
 
     img.save(mazePath / "fullmaze.png")
 
@@ -248,6 +248,7 @@ def adjacencyListGen(spanning_tree, nodes, maxX, maxY):
     for node in nodes:
 
         
+        walls = {'top' : 1, 'bottom' : 1, 'left' : 1, 'right' : 1}
         for pair in spanning_tree:
 
             
@@ -258,7 +259,6 @@ def adjacencyListGen(spanning_tree, nodes, maxX, maxY):
             else:
                 continue
 
-            walls = {'top' : 1, 'bottom' : 1, 'left' : 1, 'right' : 1}
             # top, bottom, left, right
             # wall = 1
             xDiff = node[0] - adjNode[0]
@@ -272,7 +272,7 @@ def adjacencyListGen(spanning_tree, nodes, maxX, maxY):
             elif xDiff < 0:
                 walls['right'] = 0
 
-            nodeObj = Node(node, walls)
-            adjacencyList.insert(nodeObj)
+        nodeObj = Node(node, walls)
+        adjacencyList.insert(nodeObj)
         
     return drawMaze(maxX, maxY, adjacencyList)

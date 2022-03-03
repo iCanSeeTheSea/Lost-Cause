@@ -1,10 +1,28 @@
 // debug
-console.log(spanningTree)
+console.log(mazeHex)
 console.log(mapSize)
 
 // get the correct multiplier for the collisions depending on the size of the maze
 var mapMulti = (mapSize * 32) / 4;
 console.log(mapMulti)
+
+var spanningTree = {}
+
+console.log(spanningTree)
+
+// TODO this
+var index = 0
+for (let row = 1; row <= mapSize; row++ ){
+    for (let column = 1; column <= mapSize; column++){
+        hex = mazeHex[index]
+        bin = (parseInt(hex, 16).toString(2)).padStart(4, '0')
+        spanningTree['[' + row.toString() + ',' + column.toString() + ']'] = bin
+        index += 1
+    }
+}
+
+console.log(spanningTree)
+
 
 var root = document.querySelector(':root');
 root.style.setProperty('--map_multiplier', mapMulti);
@@ -18,6 +36,23 @@ var y = 27;
 var speed = 1;
 var walls;
 
+/*
+20: 123
+^ - 1
+15: 124
+^ - 2.5
+10: 126.5
+^ - 6.5
+5: 133
+3: 145
+*/
+
+// correct position? scaling? of player? walls?
+// var posCorrectDict = { 20: 123, 15: 124, 10: 126.5, 5: 133, 3: 145 }
+// var positionCorrector = posCorrectDict[mapSize];
+// console.log(mapSize, positionCorrector)
+
+var positionCorrector = 132
 
 // function to round a number to the nearest 0.5
 const roundTileCoord = function (tileCoord) {
@@ -56,27 +91,11 @@ const placeCharacter = function () {
     let mapX = x;
     let mapY = y;
 
-    /*
-    20: 123
-    ^ - 1
-    15: 124
-    ^ - 2.5
-    10: 126.5
-    ^ - 6.5
-    5: 133
-    3: 145
-    */
 
-    // correct position? scaling? of player? walls?
-    // var posCorrectDict = { 20: 123, 15: 124, 10: 126.5, 5: 133, 3: 145 }
-    // var positionCorrector = posCorrectDict[mapSize];
-    // console.log(mapSize, positionCorrector)
-
-    var positionCorrector = 132
     
     // work out which tile in the spanning tree the player is in
-    var currentTileX = roundTileCoord(((x) / positionCorrector) + 1);
-    var currentTileY = roundTileCoord(((y) / positionCorrector) + 1);
+    let currentTileX = roundTileCoord(((x) / positionCorrector) + 1);
+    let currentTileY = roundTileCoord(((y) / positionCorrector) + 1);
     console.log(x, y, currentTileX, currentTileY)
 
     // debug
@@ -84,9 +103,9 @@ const placeCharacter = function () {
 
 
     // get the coordinates of the tile and data from spanning tree
-    var tileOriginX = (currentTileX - 1) * positionCorrector;
-    var tileOriginY = (currentTileY - 1) * positionCorrector;
-    var tileString = "[" + currentTileX.toString() + ", " + currentTileY.toString() + "]"
+    let tileOriginX = (currentTileX - 1) * positionCorrector;
+    let tileOriginY = (currentTileY - 1) * positionCorrector;
+    let tileString = "[" + currentTileX.toString() + ", " + currentTileY.toString() + "]"
     if (spanningTree[tileString]) {
         walls = spanningTree[tileString]
     }
