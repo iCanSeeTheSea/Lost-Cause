@@ -46,16 +46,16 @@ def mazeImgGen(SIDELEN, spanning_tree):
         # getting the list of adjacent nodes from the dictionary
         adjNodes = []
 
-        if walls['top'] == 0:
+        if walls['top'] == 1:
             adjNodes.append([node[0], node[1]-1])
-        elif walls['bottom'] == 1:
+        if walls['bottom'] == 1:
             adjNodes.append([node[0], node[1]+1])
-        elif walls['left'] == 2:
+        if walls['left'] == 1:
             adjNodes.append([node[0]-1, node[1]])
-        elif walls['right'] == 3:
+        if walls['right'] == 1:
             adjNodes.append([node[0]+1, node[1]])
 
-        print(adjNodes)
+        print(node, adjNodes, walls, walls['top'])
         
         # pasting the correct image (correspoding with the walls list) onto the main background image
 
