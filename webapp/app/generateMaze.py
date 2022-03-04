@@ -3,7 +3,7 @@ import random
 import time
 from PIL import Image
 from pathlib import Path
-import json
+
 
 
 class Node:
@@ -113,6 +113,7 @@ def drawMaze(maxY, maxX, adjacencyList):
     img.save(mazePath / "fullmaze.png")
 
     print(mazeHex)
+    
     return mazeHex
 
 
@@ -188,8 +189,6 @@ def recursiveBacktracking(maxX, maxY):
                 nodeObj = Node(node, walls)
                 adjacencyList.insert(nodeObj)
                 
-
-            
         else:
             # checking each node from the stack for possible nodes, if there are none, removing it
             for index in range(len(stack)-1, -1, -1):

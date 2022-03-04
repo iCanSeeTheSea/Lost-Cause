@@ -6,19 +6,31 @@ console.log(mapSize)
 var mapMulti = (mapSize * 32) / 4;
 console.log(mapMulti)
 
-var spanningTree = {}
+var spanningTree = []
 
-console.log(spanningTree)
-
-// TODO this
+// converting hex back into the spanning tree
 var index = 0
 for (let row = 1; row <= mapSize; row++ ){
+    var rowList = []
     for (let column = 1; column <= mapSize; column++){
+
+        // each hex character corresponds to one node of the maze
         hex = mazeHex[index]
+        
+        walls = {top: 1, bottom: 1, left: 1, right: 1}
+
+        // converting hex to binary, nibble will represent the walls of the node
         bin = (parseInt(hex, 16).toString(2)).padStart(4, '0')
-        spanningTree['[' + row.toString() + ',' + column.toString() + ']'] = bin
+        walls.top = bin[0]
+        walls.bottom = bin[1]
+        walls.left = bin[2]
+        walls.right = bin[3]
+
+        rowList.push(walls)
+    
         index += 1
     }
+    spanningTree.push(rowList)
 }
 
 console.log(spanningTree)
@@ -105,11 +117,12 @@ const placeCharacter = function () {
     // get the coordinates of the tile and data from spanning tree
     let tileOriginX = (currentTileX - 1) * positionCorrector;
     let tileOriginY = (currentTileY - 1) * positionCorrector;
-    let tileString = "[" + currentTileX.toString() + ", " + currentTileY.toString() + "]"
-    if (spanningTree[tileString]) {
-        walls = spanningTree[tileString]
+
+    if (spanningTree[currentTileX-1][currentTileY-1]) {
+        walls = spanningTree[currentTileX-1][currentTileY-1]
     }
 
+    console.log(walls)
 
     //console.log(x, y,'|', currentTileX, currentTileY,'|', tileOriginX, tileOriginY, '|', walls);
 
@@ -123,34 +136,34 @@ const placeCharacter = function () {
 
     // left
     if (x < tileOriginX + 1) {
-        if (walls[2] == 1) {
+        if (walls.left == 1) {
             x = originalX;
-        } else if (walls[2] == 0 && y < tileOriginY + 1) {
+        } else if (walls.left == 0 && y < tileOriginY + 1) {
             // space for corner correction
             x = originalX;
         }
     }
     // right
     if (x > tileOriginX + 32) {
-        if (walls[3] == 1) {
+        if (walls.right == 1) {
             x = originalX;
-        } else if (walls[3] == 0 && y > tileOriginY + 37) {
+        } else if (walls.right == 0 && y > tileOriginY + 37) {
             x = originalX;
         }
     }
     // top
     if (y < tileOriginY + 1) {
-        if (walls[0] == 1) {
+        if (walls.top == 1) {
             y = originalY;
-        } else if (walls[0] == 0 && x < tileOriginX + 1) {
+        } else if (walls.top == 0 && x < tileOriginX + 1) {
             y = originalY;
         }
     }
     // bottom
     if (y > tileOriginY + 37) {
-        if (walls[1] == 1) {
+        if (walls.bottom == 1) {
             y = originalY;
-        } else if (walls[1] == 0 && x > tileOriginX + 32) {
+        } else if (walls.bottom == 0 && x > tileOriginX + 32) {
             y = originalY;
         }
     }
