@@ -23,11 +23,11 @@ def mazeGen(m, maxX, maxY):
     # initialising pygame window
     screen = pygame.display.set_mode([(maxX*(m*2))-m, (maxY*(m*2))-m])
     screen.fill((0, 0, 0))
-    pygame.draw.rect(screen, (255, 255, 255), pygame.Rect(0, 0, m, m))
 
     start_time = time.perf_counter()
 
-    next_node = (1, 1)
+    next_node = random.choice(nodes)
+    pygame.draw.rect(screen, (255, 100, 100), pygame.Rect((next_node[0]-1)*(m*2), (next_node[1]-1)*(m*2), m, m))
     
     while True:
 
@@ -73,7 +73,7 @@ def mazeGen(m, maxX, maxY):
                 (join_x-1)*(m*2), (join_y-1)*(m*2), m, m))
             
             # colours
-            if count%((maxX*maxY)//200 + (maxX*maxY)//20000) == 0:
+            if count%((maxX*maxY)//150 + (maxX*maxY)//10500) == 0:
                 colour[step] -= 1; colour[step-1] -= 1
                 if colour[step] < 50: colour[step] = 250; step += 1
                 if colour[step-1] < 50: colour[step-1] = 250
@@ -101,4 +101,4 @@ def mazeGen(m, maxX, maxY):
     pygame.quit()
 
 while True:
-    mazeGen(4,100,100)
+    mazeGen(8,75,50)
