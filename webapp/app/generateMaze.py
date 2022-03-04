@@ -18,6 +18,10 @@ class Node:
     def __getattribute__(self, name):
         return super().__getattribute__(name)
 
+    def getWalls(self):
+        walls = {'top': self._top, 'bottom': self._bottom, 'left': self._left, 'right': self._right}
+        return walls
+
 class AdjacencyList:
     def __init__(self, maxX, maxY):
         # creating empty list the correct size for the maze
@@ -36,15 +40,6 @@ class AdjacencyList:
     def __getattribute__(self, name):
         return super().__getattribute__(name)
 
-
-def generateDataString(maxX, maxY, adjacencyList):
-    mazeHex = ''
-    for row in range(1, maxY+1):
-        for column in range(1, maxX+1):
-            node = adjacencyList.get(row, column)
-            mazeHex += node._key
-
-    return mazeHex
     
 
 # [top, bottom, left, right]
@@ -67,6 +62,8 @@ def drawMaze(maxY, maxX, adjacencyList):
 
     img = img.resize((maxX*32*2-32, maxY*32*2-32))
     # tiles are 32x32
+
+    mazeHex = ''
     
     for row in range(1, maxY+1):
         for column in range(1, maxX+1):
@@ -110,15 +107,20 @@ def drawMaze(maxY, maxX, adjacencyList):
                 tileImg = Image.open(tile)
                 img.paste(tileImg, (int((join_x-1)*64), int((join_y-1)*64)))
 
+            # saving hex keys to a string
+            mazeHex += node._key
+
     img.save(mazePath / "fullmaze.png")
 
-    
-    return generateDataString(maxX, maxY, adjacencyList)
+    print(mazeHex)
+    return mazeHex
 
 
 
 # recursive backtracking | 19/09/21
 def recursiveBacktracking(maxX, maxY):
+
+    adjacencyList = AdjacencyList(maxX, maxY)
 
     nodes = []
 
@@ -154,7 +156,33 @@ def recursiveBacktracking(maxX, maxY):
         if possible_nodes:
             # choosing a random (adjacent) node to go next
             next_node = random.choice(possible_nodes)
-            spanning_tree.append([next_node, current_node])
+            pair = [next_node, current_node]
+            
+            
+            for index, node in enumerate(pair):
+                if not adjacencyList.get(node[0], node[1]):
+                    walls = {'top' : 1, 'bottom' : 1, 'left' : 1, 'right' : 1}
+                else:
+                    nodeObj = adjacencyList.get(node[0], node[1])
+                    walls = nodeObj.getWalls()
+
+                adjNode = pair[index-1]
+                xDiff = node[0] - adjNode[0]
+                yDiff = node[1] - adjNode[1]
+                if yDiff > 0:
+                    walls['top'] = 0
+                elif yDiff < 0:
+                    walls['bottom'] = 0
+                if xDiff > 0:
+                    walls['left'] = 0
+                elif xDiff < 0:
+                    walls['right'] = 0
+
+                nodeObj = Node(node, walls)
+                adjacencyList.insert(nodeObj)
+                
+
+            
         else:
             # checking each node from the stack for possible nodes, if there are none, removing it
             for index in range(len(stack)-1, -1, -1):
@@ -178,7 +206,53 @@ def recursiveBacktracking(maxX, maxY):
     # end_time = time.time()-start_time
     # print((str(end_time)[:-(len(str(end_time).split('.')[1])-2)]) + 's')
 
-    return adjacencyListGen(spanning_tree, save_nodes, maxX, maxY)
+    return drawMaze(maxX, maxY, adjacencyList)
+
+'''
+when a pair would be added to the spanning tree -> 
+for both nodes:
+    - check their index in adjacency list
+    - if its not there:
+            make it
+    - update which wall is removed
+        
+'''
+
+
+
+def adjacencyListGen(spanning_tree, nodes, maxX, maxY):
+    adjacencyList = AdjacencyList(maxX, maxY)
+    for node in nodes:
+
+        
+        walls = {'top' : 1, 'bottom' : 1, 'left' : 1, 'right' : 1}
+        for pair in spanning_tree:
+
+            
+            if pair[1] == node:
+                adjNode = pair[0]
+            elif pair[0] == node:
+                adjNode = pair[1]
+            else:
+                continue
+
+            # top, bottom, left, right
+            # wall = 1
+            xDiff = node[0] - adjNode[0]
+            yDiff = node[1] - adjNode[1]
+            if yDiff > 0:
+                walls['top'] = 0
+            elif yDiff < 0:
+                walls['bottom'] = 0
+            if xDiff > 0:
+                walls['left'] = 0
+            elif xDiff < 0:
+                walls['right'] = 0
+
+        nodeObj = Node(node, walls)
+        adjacencyList.insert(nodeObj)
+        
+    return drawMaze(maxX, maxY, adjacencyList)
 
 def primms(maxX, maxY):
     
@@ -243,36 +317,3 @@ def primms(maxX, maxY):
 
 
     
-def adjacencyListGen(spanning_tree, nodes, maxX, maxY):
-    adjacencyList = AdjacencyList(maxX, maxY)
-    for node in nodes:
-
-        
-        walls = {'top' : 1, 'bottom' : 1, 'left' : 1, 'right' : 1}
-        for pair in spanning_tree:
-
-            
-            if pair[1] == node:
-                adjNode = pair[0]
-            elif pair[0] == node:
-                adjNode = pair[1]
-            else:
-                continue
-
-            # top, bottom, left, right
-            # wall = 1
-            xDiff = node[0] - adjNode[0]
-            yDiff = node[1] - adjNode[1]
-            if yDiff > 0:
-                walls['top'] = 0
-            elif yDiff < 0:
-                walls['bottom'] = 0
-            if xDiff > 0:
-                walls['left'] = 0
-            elif xDiff < 0:
-                walls['right'] = 0
-
-        nodeObj = Node(node, walls)
-        adjacencyList.insert(nodeObj)
-        
-    return drawMaze(maxX, maxY, adjacencyList)

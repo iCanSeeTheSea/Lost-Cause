@@ -1,4 +1,4 @@
-from app import app, generateMaze, drawMaze
+from app import app, generateMaze
 from flask import render_template
 
 
