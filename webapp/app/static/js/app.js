@@ -6,7 +6,7 @@ console.log(mapSize)
 var mapMulti = (mapSize * 32) / 4;
 console.log(mapMulti)
 
-var spanningTree = []
+var spanningTree = [];
 
 // converting hex back into the spanning tree
 var index = 0
@@ -21,10 +21,10 @@ for (let row = 1; row <= mapSize; row++ ){
 
         // converting hex to binary, nibble will represent the walls of the node
         bin = (parseInt(hex, 16).toString(2)).padStart(4, '0')
-        walls.top = bin[0]
-        walls.bottom = bin[1]
-        walls.left = bin[2]
-        walls.right = bin[3]
+        walls.top = parseInt(bin[0])
+        walls.bottom = parseInt(bin[1])
+        walls.left = parseInt(bin[2])
+        walls.right = parseInt(bin[3])
 
         rowList.push(walls)
     
@@ -118,11 +118,16 @@ const placeCharacter = function () {
     let tileOriginX = (currentTileX - 1) * positionCorrector;
     let tileOriginY = (currentTileY - 1) * positionCorrector;
 
+
+    if (Math.floor(currentTileX) != currentTileX || Math.floor(currentTileY) != currentTileY){
+        // store previous node to know where its walls where
+    }
+    
+
     if (spanningTree[currentTileX-1][currentTileY-1]) {
         walls = spanningTree[currentTileX-1][currentTileY-1]
     }
 
-    console.log(walls)
 
     //console.log(x, y,'|', currentTileX, currentTileY,'|', tileOriginX, tileOriginY, '|', walls);
 
