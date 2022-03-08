@@ -45,6 +45,8 @@ var character = document.querySelector('.character');
 var map = document.querySelector(".map");
 var x = 16;
 var y = 27;
+var currentTileX = 1
+var currentTileY = 1
 var speed = 1;
 var walls;
 
@@ -109,15 +111,20 @@ const placeCharacter = function () {
     let prevTileY = currentTileY;
     
     // work out which tile in the spanning tree the player is in
-    let currentTileX = roundTileCoord(((x) / positionCorrector) + 1);
-    let currentTileY = roundTileCoord(((y) / positionCorrector) + 1);
+    currentTileX = roundTileCoord(((x) / positionCorrector) + 1);
+    currentTileY = roundTileCoord(((y) / positionCorrector) + 1);
     console.log(x, y, currentTileX, currentTileY)
 
-    if (Math.floor(prevTileX) == prevTileX || Math.floor(prevTileY) == prevTileY){
-        // if the next node is going to be between two nodes
-        if (){
+
+    // if the next node is going to be between two nodes
+    if (prevTileX != currentTileX){
+        walls = {top: 1, bottom: 1, left: 0, right: 0}
+    } else if (prevTileY != currentTileY){
+        walls = {top: 0, bottom: 0, left: 1, right: 1}
+    } else {
+        walls = spanningTree[currentTileX-1][currentTileY-1]
     }
-    
+    console.log(walls)
 
     // debug
     //console.log(x, y, currentTileX, currentTileY, "[" + currentTileX.toString() + ", " + currentTileY.toString() + "]", spanningTree["[" + currentTileX.toString() + ", " + currentTileY.toString() + "]"]);
@@ -131,9 +138,7 @@ const placeCharacter = function () {
 
     
 
-    if (spanningTree[currentTileX-1][currentTileY-1]) {
-        walls = spanningTree[currentTileX-1][currentTileY-1]
-    }
+    
 
 
     //console.log(x, y,'|', currentTileX, currentTileY,'|', tileOriginX, tileOriginY, '|', walls);
