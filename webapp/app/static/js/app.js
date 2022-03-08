@@ -10,24 +10,25 @@ var spanningTree = [];
 
 // converting hex back into the spanning tree
 var index = 0
-for (let row = 1; row <= mapSize; row++ ){
+for (let row = 1; row <= mapSize; row++) {
     var rowList = []
-    for (let column = 1; column <= mapSize; column++){
+    for (let column = 1; column <= mapSize; column++) {
 
         // each hex character corresponds to one node of the maze
         hex = mazeHex[index]
-        
-        walls = {top: 1, bottom: 1, left: 1, right: 1}
+
+        walls = { top: 1, bottom: 1, left: 1, right: 1 }
 
         // converting hex to binary, nibble will represent the walls of the node
         bin = (parseInt(hex, 16).toString(2)).padStart(4, '0')
+        console.log(hex, bin)
         walls.top = parseInt(bin[0])
         walls.bottom = parseInt(bin[1])
         walls.left = parseInt(bin[2])
         walls.right = parseInt(bin[3])
 
         rowList.push(walls)
-    
+
         index += 1
     }
     spanningTree.push(rowList)
@@ -48,7 +49,7 @@ var y = 27;
 var currentTileX = 1
 var currentTileY = 1
 var speed = 1;
-var walls;
+var walls = spanningTree[currentTileX - 1][currentTileY - 1];
 
 /*
 20: 123
@@ -105,26 +106,27 @@ const placeCharacter = function () {
     let mapX = x;
     let mapY = y;
 
-    
+
     // store previous node to know where its walls where
     let prevTileX = currentTileX;
     let prevTileY = currentTileY;
-    
+
     // work out which tile in the spanning tree the player is in
     currentTileX = roundTileCoord(((x) / positionCorrector) + 1);
     currentTileY = roundTileCoord(((y) / positionCorrector) + 1);
-    console.log(x, y, currentTileX, currentTileY)
 
 
     // if the next node is going to be between two nodes
-    if (prevTileX != currentTileX){
-        walls = {top: 1, bottom: 1, left: 0, right: 0}
-    } else if (prevTileY != currentTileY){
-        walls = {top: 0, bottom: 0, left: 1, right: 1}
-    } else {
-        walls = spanningTree[currentTileX-1][currentTileY-1]
+    if (Math.floor(currentTileX) != currentTileX && prevTileX != currentTileX) {
+        walls = { top: 1, bottom: 1, left: 0, right: 0 }
+
+    } else if (Math.floor(currentTileY) != currentTileY && prevTileY != currentTileY) {
+        walls = { top: 0, bottom: 0, left: 1, right: 1 }
+
+    } else if (prevTileX != currentTileX || prevTileY != currentTileY) {
+        walls = spanningTree[currentTileX - 1][currentTileY - 1]
     }
-    console.log(walls)
+    console.log(x, y, currentTileX, currentTileY, walls)
 
     // debug
     //console.log(x, y, currentTileX, currentTileY, "[" + currentTileX.toString() + ", " + currentTileY.toString() + "]", spanningTree["[" + currentTileX.toString() + ", " + currentTileY.toString() + "]"]);
@@ -136,9 +138,9 @@ const placeCharacter = function () {
 
 
 
-    
 
-    
+
+
 
 
     //console.log(x, y,'|', currentTileX, currentTileY,'|', tileOriginX, tileOriginY, '|', walls);
