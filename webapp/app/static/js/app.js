@@ -103,12 +103,21 @@ const placeCharacter = function () {
     let mapX = x;
     let mapY = y;
 
-
+    
+    // store previous node to know where its walls where
+    let prevTileX = currentTileX;
+    let prevTileY = currentTileY;
     
     // work out which tile in the spanning tree the player is in
     let currentTileX = roundTileCoord(((x) / positionCorrector) + 1);
     let currentTileY = roundTileCoord(((y) / positionCorrector) + 1);
     console.log(x, y, currentTileX, currentTileY)
+
+    if (Math.floor(prevTileX) == prevTileX || Math.floor(prevTileY) == prevTileY){
+        // if the next node is going to be between two nodes
+        if (){
+    }
+    
 
     // debug
     //console.log(x, y, currentTileX, currentTileY, "[" + currentTileX.toString() + ", " + currentTileY.toString() + "]", spanningTree["[" + currentTileX.toString() + ", " + currentTileY.toString() + "]"]);
@@ -119,9 +128,7 @@ const placeCharacter = function () {
     let tileOriginY = (currentTileY - 1) * positionCorrector;
 
 
-    if (Math.floor(currentTileX) != currentTileX || Math.floor(currentTileY) != currentTileY){
-        // store previous node to know where its walls where
-    }
+
     
 
     if (spanningTree[currentTileX-1][currentTileY-1]) {

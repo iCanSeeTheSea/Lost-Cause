@@ -4,8 +4,6 @@ import time
 from PIL import Image
 from pathlib import Path
 
-
-
 class Node:
     def __init__(self, node, walls):
         self._id = node
@@ -40,235 +38,180 @@ class AdjacencyList:
     def __getattribute__(self, name):
         return super().__getattribute__(name)
 
-    
+class MazeGenerator:
+    def __init__(self, maxX, maxY):
+        self._adjacencyList = AdjacencyList(maxX, maxY)
 
-# [top, bottom, left, right]
-# number corresponds to hex value of the node's key
-tileNames = {'0': 'no-walls.png', '1': 'right-wall.png', '2': 'left-wall.png', '3': 'left-right-wall.png',
+        self._nodes = []
+
+        for x in range(1, maxX+1):
+            for y in range(1, maxY+1):
+                self._nodes.append([x, y])
+        self._save_nodes = self._nodes.copy()
+
+        self._adjacent_nodes = ((-1, 0), (1, 0), (0, 1), (0, -1))
+
+        self._maxX = maxX
+        self._maxY = maxY
+
+        # number corresponds to hex value of the node's key
+        self._tileNames =  {'0': 'no-walls.png', '1': 'right-wall.png', '2': 'left-wall.png', '3': 'left-right-wall.png',
              '4': 'bottom-wall.png', '5': 'bottom-right-corner.png', '6': 'bottom-left-corner.png', '7': 'bottom-dead.png', '8': 'top-wall.png',
              '9': 'top-right-corner.png', 'a': 'top-left-corner.png', 'b': 'top-dead.png', 'c': 'top-bottom-wall.png', 'd': 'right-dead.png',
              'e': 'left-dead.png', 'f': ''}
 
+    def __getattribute__(self, name):
+        return super().__getattribute__(name)
 
-def drawMaze(maxY, maxX, adjacencyList):
-        
-    mazePath = Path('app/static/img/maze/')
-
-    width = 400
-    height = 300
-
-    base = mazePath / 'base.png'
-    img = Image.open(base)
-
-    img = img.resize((maxX*32*2-32, maxY*32*2-32))
-    # tiles are 32x32
-
-    mazeHex = ''
-    
-    for row in range(1, maxY+1):
-        for column in range(1, maxX+1):
-            node = adjacencyList.get(row, column)
-            
-    
-            # getting the list of adjacent nodes from the dictionary
-            adjNodes = []
-    
-            if node._top == 0:
-                adjNodes.append([node._id[0], node._id[1]-1])
-            if node._bottom == 0:
-                adjNodes.append([node._id[0], node._id[1]+1])
-            if node._left == 0:
-                adjNodes.append([node._id[0]-1, node._id[1]])
-            if node._right == 0:
-                adjNodes.append([node._id[0]+1, node._id[1]])
-    
-            # pasting the correct image (correspoding with the walls list) onto the main background image
-
-        
-            
-            tile = mazePath / tileNames[node._key]
-            tileImg = Image.open(tile)
-            img.paste(tileImg, ((node._id[0]-1)*64, (node._id[1]-1)*64))
-
-        
-            for adjNode in adjNodes:
-                # figuring out where to place adjacent corridors based
-                join_x = ((adjNode[0] - node._id[0])/2) + node._id[0]
-                join_y = ((adjNode[1] - node._id[1])/2) + node._id[1]
-    
-                # pasting corridors joinging the nodes, and saving their data to the dictionary
+    def drawMaze(self):
                 
-                if join_y-int(join_y) != 0:
-                    tile = mazePath / 'left-right-wall.png'
+            mazePath = Path('app/static/img/maze/')
+        
+            base = mazePath / 'base.png'
+            img = Image.open(base)
+        
+            img = img.resize((self._maxX*32*2-32, self._maxY*32*2-32))
+            # tiles are 32x32
+        
+            mazeHex = ''
+            
+            for row in range(1, self._maxY+1):
+                for column in range(1, self._maxX+1):
+                    node = self._adjacencyList.get(row, column)
                     
-                elif join_x-int(join_x) != 0:
-                    tile = mazePath / 'top-bottom-wall.png'
-                
-                tileImg = Image.open(tile)
-                img.paste(tileImg, (int((join_x-1)*64), int((join_y-1)*64)))
-
-            # saving hex keys to a string
-            mazeHex += node._key
-
-    img.save(mazePath / "fullmaze.png")
-
-    print(mazeHex)
-    
-    return mazeHex
-
-
-
-# recursive backtracking | 19/09/21
-def recursiveBacktracking(maxX, maxY):
-
-    adjacencyList = AdjacencyList(maxX, maxY)
-
-    nodes = []
-
-    for x in range(1, maxX+1):
-        for y in range(1, maxY+1):
-            nodes.append([x, y])
-    save_nodes = nodes.copy()
-
-    adjacent_nodes = ((-1, 0), (1, 0), (0, 1), (0, -1))
-
-    stack = []
-    spanning_tree = []
-    start_time = time.time()
-    next_node = [1, 1]
-
-    while True:
-
-        current_node = next_node
-        stack.append(current_node)
-
-        try:
-            nodes.remove(current_node)
-        except ValueError:
-            pass
-
-        possible_nodes = []
-
-        # finding possible next nodes by comparing each position adjacent to the current node to the unused nodes
-        for dx, dy in adjacent_nodes:
-            if [current_node[0] + dx, current_node[1] + dy] in nodes:
-                possible_nodes.append(
-                    [current_node[0] + dx, current_node[1] + dy])
-        if possible_nodes:
-            # choosing a random (adjacent) node to go next
-            next_node = random.choice(possible_nodes)
-            pair = [next_node, current_node]
             
-
-            # updating (or adding) nodes to adjacencyList
-            '''
-            when a pair would be added to the spanning tree -> 
-            for both nodes:
-                - check their index in adjacency list
-                - if its not there:
-                        make it
-                - update which wall is removed
-                    
-            '''
-            for index, node in enumerate(pair):
-                if not adjacencyList.get(node[0], node[1]):
-                    walls = {'top' : 1, 'bottom' : 1, 'left' : 1, 'right' : 1}
-                else:
-                    nodeObj = adjacencyList.get(node[0], node[1])
-                    walls = nodeObj.getWalls()
-
-                # working out which wall to remove
-                adjNode = pair[index-1]
-                xDiff = node[0] - adjNode[0]
-                yDiff = node[1] - adjNode[1]
-                if yDiff > 0: walls['top'] = 0
-                elif yDiff < 0: walls['bottom'] = 0
-                if xDiff > 0: walls['left'] = 0
-                elif xDiff < 0: walls['right'] = 0
-
-                nodeObj = Node(node, walls)
-                adjacencyList.insert(nodeObj)
+                    # getting the list of adjacent nodes from the dictionary
+                    adjNodes = []
+            
+                    if node._top == 0:
+                        adjNodes.append([node._id[0], node._id[1]-1])
+                    if node._bottom == 0:
+                        adjNodes.append([node._id[0], node._id[1]+1])
+                    if node._left == 0:
+                        adjNodes.append([node._id[0]-1, node._id[1]])
+                    if node._right == 0:
+                        adjNodes.append([node._id[0]+1, node._id[1]])
+            
+                    # pasting the correct image (correspoding with the walls list) onto the main background image
+                    tile = mazePath / self._tileNames[node._key]
+                    tileImg = Image.open(tile)
+                    img.paste(tileImg, ((node._id[0]-1)*64, (node._id[1]-1)*64))
+        
                 
-        else:
-            # checking each node from the stack for possible nodes, if there are none, removing it
-            for index in range(len(stack)-1, -1, -1):
-                check_node = stack[index]
-                for dx, dy in adjacent_nodes:
-                    if [check_node[0] + dx, check_node[1] + dy] in nodes:
-                        next_node = check_node
-                        break
-                else:
-                    try:
-                        # using stack to keep track of which nodes to/ not to visit again
-                        stack.remove(check_node)
-                    except ValueError:
-                        pass
-                    continue
+                    for adjNode in adjNodes:
+                        # figuring out where to place adjacent corridors based
+                        join_x = ((adjNode[0] - node._id[0])/2) + node._id[0]
+                        join_y = ((adjNode[1] - node._id[1])/2) + node._id[1]
+            
+                        # pasting corridors joinging the nodes, and saving their data to the dictionary
+                        
+                        if join_y-int(join_y) != 0:
+                            tile = mazePath / 'left-right-wall.png'
+                            
+                        elif join_x-int(join_x) != 0:
+                            tile = mazePath / 'top-bottom-wall.png'
+                        
+                        tileImg = Image.open(tile)
+                        img.paste(tileImg, (int((join_x-1)*64), int((join_y-1)*64)))
+        
+                    # saving hex keys to a string
+                    mazeHex += node._key
+        
+            img.save(mazePath / "fullmaze.png")
+        
+            print(mazeHex)
+            
+            return mazeHex
+
+        # recursive backtracking | 19/09/21
+    def recursiveBacktracking(self):
+    
+        stack = []
+        start_time = time.time()
+        next_node = [1, 1]
+    
+        while True:
+    
+            current_node = next_node
+            stack.append(current_node)
+    
+            try:
+                self._nodes.remove(current_node)
+            except ValueError:
+                pass
+    
+            possible_nodes = []
+    
+            # finding possible next nodes by comparing each position adjacent to the current node to the unused nodes
+            for dx, dy in self._adjacent_nodes:
+                if [current_node[0] + dx, current_node[1] + dy] in self._nodes:
+                    possible_nodes.append(
+                        [current_node[0] + dx, current_node[1] + dy])
+            if possible_nodes:
+                # choosing a random (adjacent) node to go next
+                next_node = random.choice(possible_nodes)
+                pair = [next_node, current_node]
+                
+    
+                # updating (or adding) nodes to adjacencyList
+                '''
+                when a pair would be added to the spanning tree -> 
+                for both nodes:
+                    - check their index in adjacency list
+                    - if its not there:
+                            make it
+                    - update which wall is removed
+                        
+                '''
+                for index, node in enumerate(pair):
+                    if not self._adjacencyList.get(node[0], node[1]):
+                        walls = {'top' : 1, 'bottom' : 1, 'left' : 1, 'right' : 1}
+                    else:
+                        nodeObj = self._adjacencyList.get(node[0], node[1])
+                        walls = nodeObj.getWalls()
+    
+                    # working out which wall to remove
+                    adjNode = pair[index-1]
+                    xDiff = node[0] - adjNode[0]
+                    yDiff = node[1] - adjNode[1]
+                    if yDiff > 0: walls['top'] = 0
+                    elif yDiff < 0: walls['bottom'] = 0
+                    if xDiff > 0: walls['left'] = 0
+                    elif xDiff < 0: walls['right'] = 0
+    
+                    nodeObj = Node(node, walls)
+                    self._adjacencyList.insert(nodeObj)
+                    
+            else:
+                # checking each node from the stack for possible nodes, if there are none, removing it
+                for index in range(len(stack)-1, -1, -1):
+                    check_node = stack[index]
+                    for dx, dy in self._adjacent_nodes:
+                        if [check_node[0] + dx, check_node[1] + dy] in self._nodes:
+                            next_node = check_node
+                            break
+                    else:
+                        try:
+                            # using stack to keep track of which nodes to/ not to visit again
+                            stack.remove(check_node)
+                        except ValueError:
+                            pass
+                        continue
+                    break
+    
+            if len(stack) == 0:
                 break
-
-        if len(stack) == 0:
-            break
-
-    # end_time = time.time()-start_time
-    # print((str(end_time)[:-(len(str(end_time).split('.')[1])-2)]) + 's')
-
-    return drawMaze(maxX, maxY, adjacencyList)
-
-def primms(maxX, maxY):
     
-    nodes = []
-
-    for x in range(1, maxX+1):
-        for y in range(1, maxY+1):
-            nodes.append([x, y])
-    save_nodes = nodes.copy()
-
-
-    adjacent_nodes = ((-1, 0), (1, 0), (0, 1), (0, -1))
-
-    frontiers = []
-    prev_nodes = []
-
-    spanning_tree = []
-
-    #start_time = time.perf_counter()
-
-    next_node = [1, 1]
+        # end_time = time.time()-start_time
+        # print((str(end_time)[:-(len(str(end_time).split('.')[1])-2)]) + 's')
     
-    while True:
+        return self.drawMaze()
 
         
-        current_node = next_node
-        
-        # print(current_node)
-        try:
-            nodes.remove(current_node)
-        except ValueError:
-            pass
 
-        # finding possible next nodes by comparing each position adjacent to the current node to the unused nodes
-        for dx, dy in adjacent_nodes:
-            proposedNode = [current_node[0] + dx, current_node[1] + dy]
-            if proposedNode in nodes and proposedNode not in frontiers:
-                frontiers.append(proposedNode)
-                prev_nodes.append(current_node)
-        
-        if frontiers:
-            # choosing a random (adjacent) node to go next
 
-            index = random.randint(0,len(frontiers)-1)
-            next_node = frontiers.pop(index)
-            prev_node = prev_nodes.pop(index)
-            
-            spanning_tree.append((next_node, prev_node))
 
-        else:
-            #end_time = time.perf_counter()-start_time
-            #print((str(end_time)[:-(len(str(end_time).split('.')[1])-2)]) + 's')
 
-            break
-
-    return adjacencyListGen(spanning_tree, save_nodes, maxX, maxY)
 
 
 
