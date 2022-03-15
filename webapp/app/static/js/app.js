@@ -21,7 +21,6 @@ for (let row = 1; row <= mapSize; row++) {
 
         // converting hex to binary, nibble will represent the walls of the node
         bin = (parseInt(hex, 16).toString(2)).padStart(4, '0')
-        console.log(hex, bin)
         walls.top = parseInt(bin[0])
         walls.bottom = parseInt(bin[1])
         walls.left = parseInt(bin[2])
@@ -67,7 +66,7 @@ var walls = spanningTree[currentTileX - 1][currentTileY - 1];
 // var positionCorrector = posCorrectDict[mapSize];
 // console.log(mapSize, positionCorrector)
 
-var positionCorrector = 132
+var positionCorrector = 123
 
 // function to round a number to the nearest 0.5
 const roundTileCoord = function (tileCoord) {
@@ -126,23 +125,12 @@ const placeCharacter = function () {
     } else if (prevTileX != currentTileX || prevTileY != currentTileY) {
         walls = spanningTree[currentTileX - 1][currentTileY - 1]
     }
-    console.log(x, y, currentTileX, currentTileY, walls)
-
-    // debug
-    //console.log(x, y, currentTileX, currentTileY, "[" + currentTileX.toString() + ", " + currentTileY.toString() + "]", spanningTree["[" + currentTileX.toString() + ", " + currentTileY.toString() + "]"]);
-
+    console.log(x, y, currentTileX, currentTileY)
 
     // get the coordinates of the tile and data from spanning tree
     let tileOriginX = (currentTileX - 1) * positionCorrector;
     let tileOriginY = (currentTileY - 1) * positionCorrector;
-
-
-
-
-
-
-
-
+    
     //console.log(x, y,'|', currentTileX, currentTileY,'|', tileOriginX, tileOriginY, '|', walls);
 
     // if (x < 0) { x = 0; } // left
@@ -186,6 +174,8 @@ const placeCharacter = function () {
             y = originalY;
         }
     }
+    // debug
+    //console.log(x, y, currentTileX, currentTileY, "[" + currentTileX.toString() + ", " + currentTileY.toString() + "]", spanningTree["[" + currentTileX.toString() + ", " + currentTileY.toString() + "]"]);
 
     // smooth camera movement - moves the map against the player if the player is in the centre of the map
     if (mapX < 112) { mapX = 112; } // left
