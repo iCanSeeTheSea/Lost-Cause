@@ -15,8 +15,6 @@ class Node:
         self._key = str(hex(int(str(self._top) + str(self._bottom) +
                         str(self._left) + str(self._right), 2)))[2:]
 
-        print(walls, self._top, self._bottom, self._left, self._right)
-
     def __getattribute__(self, name):
         return super().__getattribute__(name)
 
@@ -56,9 +54,6 @@ class MazeGenerator:
                 self._nodes.append([x, y])
         self._save_nodes = self._nodes.copy()
 
-        print(self._adjacencyList._list)
-        print(self._nodes)
-
         self._adjacent_nodes = ((-1, 0), (1, 0), (0, 1), (0, -1))
 
         self._maxX = maxX
@@ -68,7 +63,7 @@ class MazeGenerator:
         self._tileNames = {'0': 'no-walls.png', '1': 'right-wall.png', '2': 'left-wall.png', '3': 'left-right-wall.png',
                            '4': 'bottom-wall.png', '5': 'bottom-right-corner.png', '6': 'bottom-left-corner.png', '7': 'bottom-dead.png', '8': 'top-wall.png',
                            '9': 'top-right-corner.png', 'a': 'top-left-corner.png', 'b': 'top-dead.png', 'c': 'top-bottom-wall.png', 'd': 'right-dead.png',
-                           'e': 'left-dead.png', 'f': ''}
+                           'e': 'left-dead.png', 'f': 'all-walls.png'}
 
     def __getattribute__(self, name):
         return super().__getattribute__(name)
@@ -100,9 +95,6 @@ class MazeGenerator:
                     adjNodes.append([node._id[0]-1, node._id[1]])
                 if node._right == 0:
                     adjNodes.append([node._id[0]+1, node._id[1]])
-
-                print(node._id, node._top, node._bottom,
-                      node._left, node._right, adjNodes)
 
                 # pasting the correct image (correspoding with the walls list) onto the main background image
                 tile = mazePath / self._tileNames[node._key]
@@ -239,7 +231,7 @@ class Base64Converter(MazeGenerator):
         # each hex digit corresponds to one of the nodes
         for index, node in enumerate(self._nodes):
             hex = self._hexString[index]
-            # cnverts the hex digit to binary
+            # converts the hex digit to binary
             wallBin = bin(int(hex, 16))[2:].zfill(4)
             walls = {'top': int(wallBin[0]), 'bottom': int(wallBin[1]),
                      'left': int(wallBin[2]), 'right': int(wallBin[3])}
