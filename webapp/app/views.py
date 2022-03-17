@@ -1,6 +1,7 @@
 from app import app, generateMaze
 from flask import render_template
-import base64
+from base64 import b64encode
+
 
 @app.route('/')
 def index():
@@ -12,11 +13,10 @@ def about():
     map_size = 20
     mazeGenerator = generateMaze.MazeGenerator(map_size, map_size)
     mazeHex = mazeGenerator.recursiveBacktracking()
-    
-    mazeB64 = f'{b64encode(bytes(map_size))}{b64encode(bytes(map_size))}{b64encode(bytes.fromhex(mazeHex))}'
-    print(mazeB64)
-    
+
+    mazeB64 = f'{map_size}{map_size}{b64encode(bytes.fromhex(mazeHex))}'
+
     base64Converter = generateMaze.Base64Converter(mazeB64)
     mazeHex = base64Converter.mazeFromHex()
-    
+
     return render_template('public/play.html', mazeHex=mazeHex, mapSize=map_size)

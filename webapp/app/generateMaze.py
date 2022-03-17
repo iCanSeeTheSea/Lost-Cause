@@ -2,7 +2,7 @@ import random
 import time
 from PIL import Image
 from pathlib import Path
-import base64
+from base64 import b64decode
 
 
 class Node:
@@ -215,27 +215,30 @@ class MazeGenerator:
 
 
 class Base64Converter(MazeGenerator):
-    def __init__(self,base64String):
+    def __init__(self, base64String):
         # get wisth and height from start of base 64 num
-        maxX = base64.b64decode(base64String[0])
-        maxY = base64.b64decode(base64String[1])
-        base64String = base64String[2:]
-        
+        maxX = int(base64String[0:2])
+        maxY = int(base64String[2:4])
+        print(maxX, maxY)
+        base64String = base64String[4:]
+        print(base64String)
+
         # inherit attributes
         super().__init__(maxX, maxY)
 
         # convert the rest of the base 64 into hex
-        self._hexString = base64.b64decode(base64String).hex()
+        self._hexString = b64decode(base64String).hex()
 
     def mazeFromHex(self):
         # each hex digit corresponds to one of the nodes
-        for hex in self._hexString:
+        for index, node in enumerate(self._nodes):
+            hex = self._hexString[index]
             # cnverts the hex digit to binary
             wallBin = bin(int(hex, 16))[2:].zfill(4)
-            walls = {'top': wallBin[0], 'bottom': wallBin[1], 'left': wallBin[2], 'right': wallBin[3]}
-            
+            walls = {'top': wallBin[0], 'bottom': wallBin[1],
+                     'left': wallBin[2], 'right': wallBin[3]}
+
             nodeObj = Node(node, walls)
             self._adjacencyList.insert(nodeObj)
 
-        return self.drawmaze()
-    
+        return self.drawMaze()
