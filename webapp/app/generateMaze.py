@@ -216,18 +216,19 @@ class MazeGenerator:
 
 class Base64Converter(MazeGenerator):
     def __init__(self, base64String):
-        # get wisth and height from start of base 64 num
+        # get width and height from start of base 64 num
         maxX = int(base64String[0:2])
         maxY = int(base64String[2:4])
-        print(maxX, maxY)
         base64String = base64String[4:]
-        print(base64String)
 
         # inherit attributes
         super().__init__(maxX, maxY)
 
         # convert the rest of the base 64 into hex
+        print(type(base64String))
         self._hexString = b64decode(base64String).hex()
+        print('HERE2222 --->', base64String)
+        print('HERE ->>', self._hexString)
 
     def mazeFromHex(self):
         # each hex digit corresponds to one of the nodes
