@@ -15,6 +15,8 @@ class Node:
         self._key = str(hex(int(str(self._top) + str(self._bottom) +
                         str(self._left) + str(self._right), 2)))[2:]
 
+        print(walls, self._top, self._bottom, self._left, self._right)
+
     def __getattribute__(self, name):
         return super().__getattribute__(name)
 
@@ -53,6 +55,9 @@ class MazeGenerator:
             for y in range(1, maxY+1):
                 self._nodes.append([x, y])
         self._save_nodes = self._nodes.copy()
+
+        print(self._adjacencyList._list)
+        print(self._nodes)
 
         self._adjacent_nodes = ((-1, 0), (1, 0), (0, 1), (0, -1))
 
@@ -96,6 +101,9 @@ class MazeGenerator:
                 if node._right == 0:
                     adjNodes.append([node._id[0]+1, node._id[1]])
 
+                print(node._id, node._top, node._bottom,
+                      node._left, node._right, adjNodes)
+
                 # pasting the correct image (correspoding with the walls list) onto the main background image
                 tile = mazePath / self._tileNames[node._key]
                 tileImg = Image.open(tile)
@@ -106,7 +114,7 @@ class MazeGenerator:
                     join_x = ((adjNode[0] - node._id[0])/2) + node._id[0]
                     join_y = ((adjNode[1] - node._id[1])/2) + node._id[1]
 
-                    # pasting corridors joinging the nodes, and saving their data to the dictionary
+                    # pasting corridors joining the nodes
 
                     if join_y-int(join_y) != 0:
                         tile = mazePath / 'left-right-wall.png'
@@ -225,10 +233,7 @@ class Base64Converter(MazeGenerator):
         super().__init__(maxX, maxY)
 
         # convert the rest of the base 64 into hex
-        print(type(base64String))
         self._hexString = b64decode(base64String).hex()
-        print('HERE2222 --->', base64String)
-        print('HERE ->>', self._hexString)
 
     def mazeFromHex(self):
         # each hex digit corresponds to one of the nodes
@@ -236,8 +241,8 @@ class Base64Converter(MazeGenerator):
             hex = self._hexString[index]
             # cnverts the hex digit to binary
             wallBin = bin(int(hex, 16))[2:].zfill(4)
-            walls = {'top': wallBin[0], 'bottom': wallBin[1],
-                     'left': wallBin[2], 'right': wallBin[3]}
+            walls = {'top': int(wallBin[0]), 'bottom': int(wallBin[1]),
+                     'left': int(wallBin[2]), 'right': int(wallBin[3])}
 
             nodeObj = Node(node, walls)
             self._adjacencyList.insert(nodeObj)
