@@ -111,8 +111,8 @@ const placeCharacter = function () {
     let prevTileY = currentTileY;
 
     // work out which tile in the spanning tree the player is in
-    currentTileX = roundTileCoord(((x) / positionCorrector) + 1);
-    currentTileY = roundTileCoord(((y) / positionCorrector) + 1);
+    currentTileX = roundTileCoord((x / positionCorrector) + 1);
+    currentTileY = roundTileCoord((y / positionCorrector) + 1);
 
 
     // if the next node is going to be between two nodes
@@ -130,7 +130,7 @@ const placeCharacter = function () {
     // get the coordinates of the tile and data from spanning tree
     let tileOriginX = (currentTileX - 1) * positionCorrector;
     let tileOriginY = (currentTileY - 1) * positionCorrector;
-    
+
     //console.log(x, y,'|', currentTileX, currentTileY,'|', tileOriginX, tileOriginY, '|', walls);
 
     // if (x < 0) { x = 0; } // left

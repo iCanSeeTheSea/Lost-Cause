@@ -99,7 +99,8 @@ class MazeGenerator:
                 # pasting the correct image (correspoding with the walls list) onto the main background image
                 tile = mazePath / self._tileNames[node._key]
                 tileImg = Image.open(tile)
-                img.paste(tileImg, ((node._id[0]-1)*64, (node._id[1]-1)*64))
+                debug = Image.open(mazePath / 'debug-tile.png')
+                img.paste(debug, ((node._id[0]-1)*64, (node._id[1]-1)*64))
 
                 for adjNode in adjNodes:
                     # figuring out where to place adjacent corridors based
@@ -115,7 +116,7 @@ class MazeGenerator:
                         tile = mazePath / 'top-bottom-wall.png'
 
                     tileImg = Image.open(tile)
-                    img.paste(tileImg, (int((join_x-1)*64), int((join_y-1)*64)))
+                    img.paste(debug, (int((join_x-1)*64), int((join_y-1)*64)))
 
                 # saving hex keys to a string
                 mazeHex += node._key
