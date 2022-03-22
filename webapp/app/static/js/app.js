@@ -66,7 +66,7 @@ var walls = spanningTree[currentTileX - 1][currentTileY - 1];
 // var positionCorrector = posCorrectDict[mapSize];
 // console.log(mapSize, positionCorrector)
 
-var positionCorrector = 123
+var positionCorrector = 131.25
 
 // function to round a number to the nearest 0.5
 const roundTileCoord = function (tileCoord) {
