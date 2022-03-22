@@ -154,7 +154,7 @@ const placeCharacter = function () {
     if (x > tileOriginX + 32) {
         if (walls.right == 1) {
             x = originalX;
-        } else if (walls.right == 0 && y > tileOriginY + 37) {
+        } else if (walls.right == 0 && y > tileOriginY + 41) {
             x = originalX;
         }
     }
@@ -167,7 +167,7 @@ const placeCharacter = function () {
         }
     }
     // bottom
-    if (y > tileOriginY + 37) {
+    if (y > tileOriginY + 41) {
         if (walls.bottom == 1) {
             y = originalY;
         } else if (walls.bottom == 0 && x > tileOriginX + 32) {
