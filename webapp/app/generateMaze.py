@@ -6,22 +6,35 @@ from base64 import b64decode
 
 
 class Node:
-    def __init__(self, node, walls):
+    def __init__(self, node: list, walls: dict):
         self._id = node
-        self._top = walls['top']
-        self._bottom = walls['bottom']
-        self._left = walls['left']
-        self._right = walls['right']
-        self._key = str(hex(int(str(self._top) + str(self._bottom) +
-                        str(self._left) + str(self._right), 2)))[2:]
+        self._walls = walls
+        self._key = str(hex(int(str(walls["top"]) + str(walls["bottom"]) +
+                        str(walls["left"]) + str(walls["right"]), 2)))[2:]
 
-    def __getattribute__(self, name):
-        return super().__getattribute__(name)
-
+    def key(self):
+        return self._key
+    
     def getWalls(self):
-        walls = {'top': self._top, 'bottom': self._bottom,
-                 'left': self._left, 'right': self._right}
-        return walls
+        return self._walls
+
+    def top(self):
+        return self._walls["top"]
+
+    def bottom(self):
+        return self._walls["bottom"]
+
+    def left(self):
+        return self._walls["left"]
+
+    def right(self):
+        return self._walls["right"]
+
+    def row(self):
+        return self._id[0]
+
+    def column(self):
+        return self._id[1]
 
 
 class AdjacencyList:
@@ -30,17 +43,14 @@ class AdjacencyList:
         self._list = [[None for _ in range(maxX)] for _ in range(maxY)]
 
     def insert(self, node):
-        row = node._id[0]
-        column = node._id[1]
+        row = node.row()
+        column = node.column()
         # maze starts at 1,1 but list indexing starts at [0][0]
         self._list[row-1][column-1] = node
 
     def get(self, row, column):
         node = self._list[row-1][column-1]
         return node
-
-    def __getattribute__(self, name):
-        return super().__getattribute__(name)
 
 
 class MazeGenerator:
@@ -65,9 +75,6 @@ class MazeGenerator:
                            '9': 'top-right-corner.png', 'a': 'top-left-corner.png', 'b': 'top-dead.png', 'c': 'top-bottom-wall.png', 'd': 'right-dead.png',
                            'e': 'left-dead.png', 'f': 'all-walls.png'}
 
-    def __getattribute__(self, name):
-        return super().__getattribute__(name)
-
     def drawMaze(self):
 
         mazePath = Path('app/static/img/maze/')
@@ -89,25 +96,25 @@ class MazeGenerator:
                 # getting the list of adjacent nodes from the dictionary
                 adjNodes = []
 
-                if node._top == 0:
-                    adjNodes.append([node._id[0], node._id[1]-1])
-                if node._bottom == 0:
-                    adjNodes.append([node._id[0], node._id[1]+1])
-                if node._left == 0:
-                    adjNodes.append([node._id[0]-1, node._id[1]])
-                if node._right == 0:
-                    adjNodes.append([node._id[0]+1, node._id[1]])
+                if node.top() == 0:
+                    adjNodes.append([node.row(), node.column()-1])
+                if node.bottom() == 0:
+                    adjNodes.append([node.row(), node.column()+1])
+                if node.left() == 0:
+                    adjNodes.append([node.row()-1, node.column()])
+                if node.right() == 0:
+                    adjNodes.append([node.row()+1, node.column()])
 
                 # pasting the correct image (correspoding with the walls list) onto the main background image
-                tile = mazePath / self._tileNames[node._key]
+                tile = mazePath / self._tileNames[node.key()]
                 tileImg = Image.open(tile)
                 
-                img.paste(tileImg, ((node._id[0]-1)*64, (node._id[1]-1)*64))
+                img.paste(tileImg, ((node.row()-1)*64, (node.column()-1)*64))
 
                 for adjNode in adjNodes:
                     # figuring out where to place adjacent corridors based
-                    join_x = ((adjNode[0] - node._id[0])/2) + node._id[0]
-                    join_y = ((adjNode[1] - node._id[1])/2) + node._id[1]
+                    join_x = ((adjNode[0] - node.row())/2) + node.row()
+                    join_y = ((adjNode[1] - node.column())/2) + node.column()
 
                     # pasting corridors joining the nodes
 
