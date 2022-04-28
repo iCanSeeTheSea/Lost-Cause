@@ -9,12 +9,15 @@ class Node:
     def __init__(self, node: list, walls: dict):
         self._id = node
         self._walls = walls
-        self._key = str(hex(int(str(walls["top"]) + str(walls["bottom"]) +
-                        str(walls["left"]) + str(walls["right"]), 2)))[2:]
+
+        # generates a unique identifier based on the adjacent walls
+        self._key = hex(int(str(walls["top"]) +
+                        str(walls["bottom"]) +
+                        str(walls["left"]) + str(walls["right"]), 2))[2:]
 
     def key(self):
         return self._key
-    
+
     def getWalls(self):
         return self._walls
 
@@ -39,7 +42,7 @@ class Node:
 
 class AdjacencyList:
     def __init__(self, maxX, maxY):
-        # creating empty list the correct size for the maze
+        # 2D list to store node objects - index matches coordinate in the maze
         self._list = [[None for _ in range(maxX)] for _ in range(maxY)]
 
     def insert(self, node):
@@ -75,7 +78,7 @@ class MazeGenerator:
                            '9': 'top-right-corner.png', 'a': 'top-left-corner.png', 'b': 'top-dead.png', 'c': 'top-bottom-wall.png', 'd': 'right-dead.png',
                            'e': 'left-dead.png', 'f': 'all-walls.png'}
 
-    def drawMaze(self):
+    def _drawMaze(self):
 
         mazePath = Path('app/static/img/maze/')
 
@@ -93,9 +96,8 @@ class MazeGenerator:
             for column in range(1, self._maxX+1):
                 node = self._adjacencyList.get(row, column)
 
-                # getting the list of adjacent nodes from the dictionary
                 adjNodes = []
-
+                # getting the list of adjacent nodes from the dictionary
                 if node.top() == 0:
                     adjNodes.append([node.row(), node.column()-1])
                 if node.bottom() == 0:
@@ -108,7 +110,7 @@ class MazeGenerator:
                 # pasting the correct image (correspoding with the walls list) onto the main background image
                 tile = mazePath / self._tileNames[node.key()]
                 tileImg = Image.open(tile)
-                
+
                 img.paste(tileImg, ((node.row()-1)*64, (node.column()-1)*64))
 
                 for adjNode in adjNodes:
@@ -127,8 +129,7 @@ class MazeGenerator:
                     tileImg = Image.open(tile)
                     img.paste(tileImg, (int((join_x-1)*64), int((join_y-1)*64)))
 
-                # saving hex keys to a string
-                mazeHex += node._key
+                mazeHex += node.key()
 
         img.save(mazePath / "fullmaze.png")
 
@@ -150,7 +151,7 @@ class MazeGenerator:
 
             try:
                 self._nodes.remove(current_node)
-            except ValueError:
+            except ValueError:  # raised if current node already not in self._nodes  - this is fine
                 pass
 
             possible_nodes = []
@@ -165,35 +166,29 @@ class MazeGenerator:
                 next_node = random.choice(possible_nodes)
                 pair = [next_node, current_node]
 
-                # updating (or adding) nodes to adjacencyList
-                '''
-                when a pair would be added to the spanning tree -> 
-                for both nodes:
-                    - check their index in adjacency list
-                    - if its not there:
-                            make it
-                    - update which wall is removed
-                        
-                '''
+                # updating (or adding if not already) nodes to adjacencyList
                 for index, node in enumerate(pair):
                     if not self._adjacencyList.get(node[0], node[1]):
-                        walls = {'top': 1, 'bottom': 1, 'left': 1, 'right': 1}
+                        walls = {'top': True, 'bottom': True,
+                                 'left': True, 'right': True}
                     else:
                         nodeObj = self._adjacencyList.get(node[0], node[1])
                         walls = nodeObj.getWalls()
+
+                    # ! finishing changing walls dict to bools
 
                     # working out which wall to remove
                     adjNode = pair[index-1]
                     xDiff = node[0] - adjNode[0]
                     yDiff = node[1] - adjNode[1]
                     if yDiff > 0:
-                        walls['top'] = 0
+                        walls['top'] = False
                     elif yDiff < 0:
-                        walls['bottom'] = 0
+                        walls['bottom'] = False
                     if xDiff > 0:
-                        walls['left'] = 0
+                        walls['left'] = False
                     elif xDiff < 0:
-                        walls['right'] = 0
+                        walls['right'] = False
 
                     nodeObj = Node(node, walls)
                     self._adjacencyList.insert(nodeObj)
@@ -221,7 +216,7 @@ class MazeGenerator:
         # end_time = time.time()-start_time
         # print((str(end_time)[:-(len(str(end_time).split('.')[1])-2)]) + 's')
 
-        return self.drawMaze()
+        return self._drawMaze()
 
 
 class Base64Converter(MazeGenerator):
@@ -249,4 +244,4 @@ class Base64Converter(MazeGenerator):
             nodeObj = Node(node, walls)
             self._adjacencyList.insert(nodeObj)
 
-        return self.drawMaze()
+        return self._drawMaze()
