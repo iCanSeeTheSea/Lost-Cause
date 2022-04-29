@@ -1,64 +1,65 @@
+from dataclasses import dataclass
 import random
+from string import hexdigits
 import time
 from PIL import Image
 from pathlib import Path
 from base64 import b64decode
 
-
+@dataclass
 class Node:
     def __init__(self, node: list, walls: dict):
         self._id = node
         self._walls = walls
-
+        
         # generates a unique identifier based on the adjacent walls
-        self._key = hex(int(str(walls["top"]) +
-                        str(walls["bottom"]) +
-                        str(walls["left"]) + str(walls["right"]), 2))[2:]
+        wallsStr = walls['top'] + walls['bottom'] + walls['left'] + walls['right']
+        self._key = hex(int(wallsStr, 2))[2:]
 
-    def key(self):
+    def getKey(self):
         return self._key
 
     def getWalls(self):
         return self._walls
 
-    def top(self):
-        return self._walls["top"]
+    def getTop(self):
+        return self._walls['top']
 
-    def bottom(self):
-        return self._walls["bottom"]
+    def getBottom(self):
+        return self._walls['bottom']
 
-    def left(self):
-        return self._walls["left"]
+    def getLeft(self):
+        return self._walls['left']
 
-    def right(self):
-        return self._walls["right"]
+    def getRight(self):
+        return self._walls['right']
 
-    def row(self):
+    def getRow(self):
         return self._id[0]
 
-    def column(self):
+    def getColumn(self):
         return self._id[1]
 
 
-class AdjacencyList:
+class Maze:
     def __init__(self, maxX, maxY):
         # 2D list to store node objects - index matches coordinate in the maze
         self._list = [[None for _ in range(maxX)] for _ in range(maxY)]
 
-    def insert(self, node):
+    def insertNode(self, node):
         row = node.row()
         column = node.column()
         # maze starts at 1,1 but list indexing starts at [0][0]
         self._list[row-1][column-1] = node
 
-    def get(self, row, column):
+    def getNode(self, row, column):
         node = self._list[row-1][column-1]
         return node
 
 
 class MazeGenerator:
     def __init__(self, maxX, maxY):
-        self._adjacencyList = AdjacencyList(maxX, maxY)
+        self._maze = Maze(maxX, maxY)
 
         self._nodes = []
 
@@ -67,7 +68,7 @@ class MazeGenerator:
                 self._nodes.append([x, y])
         self._save_nodes = self._nodes.copy()
 
-        self._adjacent_nodes = ((-1, 0), (1, 0), (0, 1), (0, -1))
+        self._adjacentCoords = ((-1, 0), (1, 0), (0, 1), (0, -1))
 
         self._maxX = maxX
         self._maxY = maxY
@@ -94,24 +95,26 @@ class MazeGenerator:
 
         for row in range(1, self._maxY+1):
             for column in range(1, self._maxX+1):
-                node = self._adjacencyList.get(row, column)
+                node = self._maze.getNode(row, column)
+                # nodeRow = node.getRow()
+                # nodeCol = node.getColumn()
 
                 adjNodes = []
                 # getting the list of adjacent nodes from the dictionary
-                if node.top() == 0:
-                    adjNodes.append([node.row(), node.column()-1])
-                if node.bottom() == 0:
-                    adjNodes.append([node.row(), node.column()+1])
-                if node.left() == 0:
-                    adjNodes.append([node.row()-1, node.column()])
-                if node.right() == 0:
-                    adjNodes.append([node.row()+1, node.column()])
+                if node.getTop() == 0:
+                    adjNodes.append([row, column-1])
+                if node.getBottom() == 0:
+                    adjNodes.append([row, column+1])
+                if node.getLeft() == 0:
+                    adjNodes.append([row-1, column])
+                if node.getRright() == 0:
+                    adjNodes.append([row+1, column])
 
                 # pasting the correct image (correspoding with the walls list) onto the main background image
-                tile = mazePath / self._tileNames[node.key()]
+                tile = mazePath / self._tileNames[node.getKey()]
                 tileImg = Image.open(tile)
 
-                img.paste(tileImg, ((node.row()-1)*64, (node.column()-1)*64))
+                img.paste(tileImg, ((row-1)*64, (column-1)*64))
 
                 for adjNode in adjNodes:
                     # figuring out where to place adjacent corridors based
@@ -129,9 +132,9 @@ class MazeGenerator:
                     tileImg = Image.open(tile)
                     img.paste(tileImg, (int((join_x-1)*64), int((join_y-1)*64)))
 
-                mazeHex += node.key()
+                mazeHex += node.getKey()
 
-        img.save(mazePath / "fullmaze.png")
+        img.save(mazePath / 'fullmaze.png')
 
         print(mazeHex)
 
@@ -142,69 +145,67 @@ class MazeGenerator:
 
         stack = []
         start_time = time.time()
-        next_node = [1, 1]
+        nextPos = [1, 1]
 
         while True:
 
-            current_node = next_node
-            stack.append(current_node)
+            currentPos = nextPos
+            stack.append(currentPos)
 
             try:
-                self._nodes.remove(current_node)
+                self._nodes.remove(currentPos)
             except ValueError:  # raised if current node already not in self._nodes  - this is fine
                 pass
 
-            possible_nodes = []
+            possibleCoords = []
 
             # finding possible next nodes by comparing each position adjacent to the current node to the unused nodes
-            for dx, dy in self._adjacent_nodes:
-                if [current_node[0] + dx, current_node[1] + dy] in self._nodes:
-                    possible_nodes.append(
-                        [current_node[0] + dx, current_node[1] + dy])
-            if possible_nodes:
+            for dx, dy in self._adjacentCoords:
+                if [currentPos[0] + dx, currentPos[1] + dy] in self._nodes:
+                    possibleCoords.append(
+                        [currentPos[0] + dx, currentPos[1] + dy])
+            if possibleCoords:
                 # choosing a random (adjacent) node to go next
-                next_node = random.choice(possible_nodes)
-                pair = [next_node, current_node]
+                nextPos = random.choice(possibleCoords)
+                pair = [nextPos, currentPos]
 
-                # updating (or adding if not already) nodes to adjacencyList
-                for index, node in enumerate(pair):
-                    if not self._adjacencyList.get(node[0], node[1]):
-                        walls = {'top': True, 'bottom': True,
-                                 'left': True, 'right': True}
+                # updating (or adding if not already) nodes in maze
+                for index, coord in enumerate(pair):
+                    if not self._maze.get(coord[0], coord[1]):
+                        walls = {'top': '1', 'bottom': '1',
+                                 'left': '1', 'right': '1'}
                     else:
-                        nodeObj = self._adjacencyList.get(node[0], node[1])
-                        walls = nodeObj.getWalls()
-
-                    # ! finishing changing walls dict to bools
+                        node = self._maze.getNode(coord[0], coord[1])
+                        walls = node.getWalls()
 
                     # working out which wall to remove
                     adjNode = pair[index-1]
-                    xDiff = node[0] - adjNode[0]
-                    yDiff = node[1] - adjNode[1]
+                    xDiff = coord[0] - adjNode[0]
+                    yDiff = coord[1] - adjNode[1]
                     if yDiff > 0:
-                        walls['top'] = False
+                        walls['top'] = '0'
                     elif yDiff < 0:
-                        walls['bottom'] = False
+                        walls['bottom'] = '0'
                     if xDiff > 0:
-                        walls['left'] = False
+                        walls['left'] = '0'
                     elif xDiff < 0:
-                        walls['right'] = False
+                        walls['right'] = '0'
 
-                    nodeObj = Node(node, walls)
-                    self._adjacencyList.insert(nodeObj)
+                    node = Node(coord, walls)
+                    self._maze.insertNode(node)
 
             else:
                 # checking each node from the stack for possible nodes, if there are none, removing it
                 for index in range(len(stack)-1, -1, -1):
-                    check_node = stack[index]
-                    for dx, dy in self._adjacent_nodes:
-                        if [check_node[0] + dx, check_node[1] + dy] in self._nodes:
-                            next_node = check_node
+                    checkPos = stack[index]
+                    for dx, dy in self._adjacentCoords:
+                        if [checkPos[0] + dx, checkPos[1] + dy] in self._nodes:
+                            nextPos = checkPos
                             break
                     else:
                         try:
                             # using stack to keep track of which nodes to/ not to visit again
-                            stack.remove(check_node)
+                            stack.remove(checkPos)
                         except ValueError:
                             pass
                         continue
@@ -221,12 +222,11 @@ class MazeGenerator:
 
 class Base64Converter(MazeGenerator):
     def __init__(self, base64String):
-        # get width and height from start of base 64 num
+        # remove and save width and height from start of base 64 num
         maxX = int(base64String[0:2])
         maxY = int(base64String[2:4])
         base64String = base64String[4:]
 
-        # inherit attributes
         super().__init__(maxX, maxY)
 
         # convert the rest of the base 64 into hex
@@ -235,13 +235,13 @@ class Base64Converter(MazeGenerator):
     def mazeFromHex(self):
         # each hex digit corresponds to one of the nodes
         for index, node in enumerate(self._nodes):
-            hex = self._hexString[index]
+            hexDigit = self._hexString[index]
             # converts the hex digit to binary
-            wallBin = bin(int(hex, 16))[2:].zfill(4)
+            wallBin = bin(int(hexDigit, 16))[2:].zfill(4)
             walls = {'top': int(wallBin[0]), 'bottom': int(wallBin[1]),
                      'left': int(wallBin[2]), 'right': int(wallBin[3])}
 
             nodeObj = Node(node, walls)
-            self._adjacencyList.insert(nodeObj)
+            self._maze.insert(nodeObj)
 
         return self._drawMaze()
