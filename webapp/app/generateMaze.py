@@ -5,40 +5,44 @@ import time
 from PIL import Image
 from pathlib import Path
 from base64 import b64decode
-
+ 
 @dataclass
 class Node:
-    def __init__(self, node: list, walls: dict):
-        self._id = node
-        self._walls = walls
-        
-        # generates a unique identifier based on the adjacent walls
-        wallsStr = walls['top'] + walls['bottom'] + walls['left'] + walls['right']
-        self._key = hex(int(wallsStr, 2))[2:]
+    walls: dict
+    pos: list
 
-    def getKey(self):
-        return self._key
-
-    def getWalls(self):
-        return self._walls
-
-    def getTop(self):
+    def __post_init__(self):   
+         # generates a unique identifier based on the adjacent walls
+         wallsStr = self._walls['top'] + self._walls['bottom'] + self._walls['left'] + self._walls['right']
+         self._key = hex(int(wallsStr, 2))[2:]
+    
+    @property
+    def top(self):
         return self._walls['top']
-
-    def getBottom(self):
+    
+    @property
+    def bottom(self):
         return self._walls['bottom']
-
-    def getLeft(self):
+    
+    @property
+    def left(self):
         return self._walls['left']
-
-    def getRight(self):
+    
+    @property
+    def right(self):
         return self._walls['right']
-
-    def getRow(self):
-        return self._id[0]
-
-    def getColumn(self):
-        return self._id[1]
+    
+    @property
+    def row(self):
+        return self._pos[0]
+    
+    def column(self):
+        return self._pos[1]
+    
+    @property
+    def key(self):
+        return self._key
+         
 
 
 class Maze:
@@ -101,13 +105,13 @@ class MazeGenerator:
 
                 adjNodes = []
                 # getting the list of adjacent nodes from the dictionary
-                if node.getTop() == 0:
+                if node.getWall('top') == 0:
                     adjNodes.append([row, column-1])
-                if node.getBottom() == 0:
+                if node.getWall('bottom') == 0:
                     adjNodes.append([row, column+1])
-                if node.getLeft() == 0:
+                if node.getWall('left') == 0:
                     adjNodes.append([row-1, column])
-                if node.getRright() == 0:
+                if node.getWall('right') == 0:
                     adjNodes.append([row+1, column])
 
                 # pasting the correct image (correspoding with the walls list) onto the main background image
@@ -118,8 +122,8 @@ class MazeGenerator:
 
                 for adjNode in adjNodes:
                     # figuring out where to place adjacent corridors based
-                    join_x = ((adjNode[0] - node.row())/2) + node.row()
-                    join_y = ((adjNode[1] - node.column())/2) + node.column()
+                    join_x = ((adjNode[0] - node.row)/2) + node.row
+                    join_y = ((adjNode[1] - node.column)/2) + node.column
 
                     # pasting corridors joining the nodes
 
@@ -176,7 +180,7 @@ class MazeGenerator:
                                  'left': '1', 'right': '1'}
                     else:
                         node = self._maze.getNode(coord[0], coord[1])
-                        walls = node.getWalls()
+                        walls = node.walls
 
                     # working out which wall to remove
                     adjNode = pair[index-1]
@@ -191,7 +195,7 @@ class MazeGenerator:
                     elif xDiff < 0:
                         walls['right'] = '0'
 
-                    node = Node(coord, walls)
+                    node = Node(walls, coord)
                     self._maze.insertNode(node)
 
             else:
