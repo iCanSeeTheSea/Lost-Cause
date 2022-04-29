@@ -50,13 +50,13 @@ class Maze:
         # 2D list to store node objects - index matches coordinate in the maze
         self._list = [[None for _ in range(maxX)] for _ in range(maxY)]
 
-    def insertNode(self, node):
-        row = node.row()
-        column = node.column()
+    def insert(self, node):
+        row = node.row
+        column = node.column
         # maze starts at 1,1 but list indexing starts at [0][0]
         self._list[row-1][column-1] = node
 
-    def getNode(self, row, column):
+    def node(self, row, column):
         node = self._list[row-1][column-1]
         return node
 
@@ -70,7 +70,7 @@ class MazeGenerator:
         for x in range(1, maxX+1):
             for y in range(1, maxY+1):
                 self._nodes.append([x, y])
-        self._save_nodes = self._nodes.copy()
+        self._saveNodes = self._nodes.copy()
 
         self._adjacentCoords = ((-1, 0), (1, 0), (0, 1), (0, -1))
 
@@ -99,23 +99,23 @@ class MazeGenerator:
 
         for row in range(1, self._maxY+1):
             for column in range(1, self._maxX+1):
-                node = self._maze.getNode(row, column)
+                node = self._maze.node(row, column)
                 # nodeRow = node.getRow()
                 # nodeCol = node.getColumn()
 
                 adjNodes = []
                 # getting the list of adjacent nodes from the dictionary
-                if node.getWall('top') == 0:
+                if node.top == 0:
                     adjNodes.append([row, column-1])
-                if node.getWall('bottom') == 0:
+                if node.bottom == 0:
                     adjNodes.append([row, column+1])
-                if node.getWall('left') == 0:
+                if node.left == 0:
                     adjNodes.append([row-1, column])
-                if node.getWall('right') == 0:
+                if node.right == 0:
                     adjNodes.append([row+1, column])
 
                 # pasting the correct image (correspoding with the walls list) onto the main background image
-                tile = mazePath / self._tileNames[node.getKey()]
+                tile = mazePath / self._tileNames[node.key]
                 tileImg = Image.open(tile)
 
                 img.paste(tileImg, ((row-1)*64, (column-1)*64))
@@ -136,7 +136,7 @@ class MazeGenerator:
                     tileImg = Image.open(tile)
                     img.paste(tileImg, (int((join_x-1)*64), int((join_y-1)*64)))
 
-                mazeHex += node.getKey()
+                mazeHex += node.key
 
         img.save(mazePath / 'fullmaze.png')
 
@@ -175,11 +175,11 @@ class MazeGenerator:
 
                 # updating (or adding if not already) nodes in maze
                 for index, coord in enumerate(pair):
-                    if not self._maze.get(coord[0], coord[1]):
+                    if not self._maze.node(coord[0], coord[1]):
                         walls = {'top': '1', 'bottom': '1',
                                  'left': '1', 'right': '1'}
                     else:
-                        node = self._maze.getNode(coord[0], coord[1])
+                        node = self._maze.node(coord[0], coord[1])
                         walls = node.walls
 
                     # working out which wall to remove
