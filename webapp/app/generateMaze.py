@@ -13,31 +13,31 @@ class Node:
 
     def __post_init__(self):   
          # generates a unique identifier based on the adjacent walls
-         wallsStr = self._walls['top'] + self._walls['bottom'] + self._walls['left'] + self._walls['right']
+         wallsStr = self.walls['top'] + self.walls['bottom'] + self.walls['left'] + self.walls['right']
          self._key = hex(int(wallsStr, 2))[2:]
     
     @property
     def top(self):
-        return self._walls['top']
+        return self.walls['top']
     
     @property
     def bottom(self):
-        return self._walls['bottom']
+        return self.walls['bottom']
     
     @property
     def left(self):
-        return self._walls['left']
+        return self.walls['left']
     
     @property
     def right(self):
-        return self._walls['right']
+        return self.walls['right']
     
     @property
     def row(self):
-        return self._pos[0]
+        return self.pos[0]
     
     def column(self):
-        return self._pos[1]
+        return self.pos[1]
     
     @property
     def key(self):
@@ -50,15 +50,15 @@ class Maze:
         # 2D list to store node objects - index matches coordinate in the maze
         self._list = [[None for _ in range(maxX)] for _ in range(maxY)]
 
-    def insert(self, node):
-        row = node.row
-        column = node.column
+    def insert(self, nodeObj):
+        row = nodeObj.row()
+        column = nodeObj.column
         # maze starts at 1,1 but list indexing starts at [0][0]
-        self._list[row-1][column-1] = node
+        self._list[row-1][column-1] = nodeObj
 
     def node(self, row, column):
-        node = self._list[row-1][column-1]
-        return node
+        nodeObj = self._list[row-1][column-1]
+        return nodeObj
 
 
 class MazeGenerator:
@@ -196,7 +196,7 @@ class MazeGenerator:
                         walls['right'] = '0'
 
                     node = Node(walls, coord)
-                    self._maze.insertNode(node)
+                    self._maze.insert(node)
 
             else:
                 # checking each node from the stack for possible nodes, if there are none, removing it
