@@ -2,47 +2,88 @@ from dataclasses import dataclass
 import random
 from string import hexdigits
 import time
+from turtle import pos
 from PIL import Image
 from pathlib import Path
 from base64 import b64decode
- 
+from numpy import _2Tuple
+
+from pygame import init
+
+
 @dataclass
 class Node:
-    walls: dict
-    pos: list
+    __pos: list
 
-    def __post_init__(self):   
-         # generates a unique identifier based on the adjacent walls
-         wallsStr = self.walls['top'] + self.walls['bottom'] + self.walls['left'] + self.walls['right']
-         self._key = hex(int(wallsStr, 2))[2:]
-    
+    def __post_init__(self):
+        self._top = 0
+        self._bottom = 0
+        self._left = 0
+        self._right = 0
+
+        self._row = self.__pos[0]
+        self._column = self.__pos[1]
+
+    def _wallValueChecker(self, value):
+        if value == "1" or value == "0":
+            return True
+        else:
+            raise ValueError("wall value should be either \"1\" or \"0\"")
+
+    def wallsFromBinary(self, bin):
+        self._top = bin[0]
+        self._bottom = bin[1]
+        self._left = bin[2]
+        self._right = bin[3]
+
     @property
     def top(self):
-        return self.walls['top']
-    
+        return self._top
+
+    @top.setter
+    def top(self, value):
+        if self._wallValueChecker(value):
+            self._top = value
+
     @property
     def bottom(self):
-        return self.walls['bottom']
-    
+        return self._bottom
+
+    @bottom.setter
+    def bottom(self, value):
+        if self._wallValueChecker(value):
+            self._bottom = value
+
     @property
     def left(self):
-        return self.walls['left']
-    
+        return self._left
+
+    @left.setter
+    def left(self, value):
+        if self._wallValueChecker(value):
+            self._left = value
+
     @property
     def right(self):
-        return self.walls['right']
-    
+        return self._right
+
+    @right.setter
+    def right(self, value):
+        if self._wallValueChecker(value):
+            self._right = value
+
     @property
     def row(self):
-        return self.pos[0]
-    
+        return self._row
+
+    @property
     def column(self):
-        return self.pos[1]
-    
+        return self._column
+
     @property
     def key(self):
-        return self._key
-         
+        wallsStr = self._top + self._bottom + self._left + self._right
+        self._key = hex(int(wallsStr, 2))[2:]
 
 
 class Maze:
@@ -51,14 +92,14 @@ class Maze:
         self._list = [[None for _ in range(maxX)] for _ in range(maxY)]
 
     def insert(self, nodeObj):
-        row = nodeObj.row()
+        row = nodeObj.row
         column = nodeObj.column
         # maze starts at 1,1 but list indexing starts at [0][0]
         self._list[row-1][column-1] = nodeObj
 
-    def node(self, row, column):
-        nodeObj = self._list[row-1][column-1]
-        return nodeObj
+    def node(self, coord):
+        node = self._list[coord[0]-1][coord[1]-1]
+        return node
 
 
 class MazeGenerator:
@@ -100,8 +141,6 @@ class MazeGenerator:
         for row in range(1, self._maxY+1):
             for column in range(1, self._maxX+1):
                 node = self._maze.node(row, column)
-                # nodeRow = node.getRow()
-                # nodeCol = node.getColumn()
 
                 adjNodes = []
                 # getting the list of adjacent nodes from the dictionary
@@ -176,26 +215,23 @@ class MazeGenerator:
                 # updating (or adding if not already) nodes in maze
                 for index, coord in enumerate(pair):
                     if not self._maze.node(coord[0], coord[1]):
-                        walls = {'top': '1', 'bottom': '1',
-                                 'left': '1', 'right': '1'}
+                        node = Node(coord)
                     else:
                         node = self._maze.node(coord[0], coord[1])
-                        walls = node.walls
 
                     # working out which wall to remove
                     adjNode = pair[index-1]
                     xDiff = coord[0] - adjNode[0]
                     yDiff = coord[1] - adjNode[1]
                     if yDiff > 0:
-                        walls['top'] = '0'
+                        node.top = '0'
                     elif yDiff < 0:
-                        walls['bottom'] = '0'
+                        node.bottom = '0'
                     if xDiff > 0:
-                        walls['left'] = '0'
+                        node.left = '0'
                     elif xDiff < 0:
-                        walls['right'] = '0'
+                        node.right = '0'
 
-                    node = Node(walls, coord)
                     self._maze.insert(node)
 
             else:
@@ -224,28 +260,26 @@ class MazeGenerator:
         return self._drawMaze()
 
 
-class Base64Converter(MazeGenerator):
-    def __init__(self, base64String):
-        # remove and save width and height from start of base 64 num
-        maxX = int(base64String[0:2])
-        maxY = int(base64String[2:4])
-        base64String = base64String[4:]
+# class Base64Converter(MazeGenerator):
+#     def __init__(self, base64String):
+#         # remove and save width and height from start of base 64 num
+#         maxX = int(base64String[0:2])
+#         maxY = int(base64String[2:4])
+#         base64String = base64String[4:]
 
-        super().__init__(maxX, maxY)
+#         super().__init__(maxX, maxY)
 
-        # convert the rest of the base 64 into hex
-        self._hexString = b64decode(base64String).hex()
+#         # convert the rest of the base 64 into hex
+#         self._hexString = b64decode(base64String).hex()
 
-    def mazeFromHex(self):
-        # each hex digit corresponds to one of the nodes
-        for index, node in enumerate(self._nodes):
-            hexDigit = self._hexString[index]
-            # converts the hex digit to binary
-            wallBin = bin(int(hexDigit, 16))[2:].zfill(4)
-            walls = {'top': int(wallBin[0]), 'bottom': int(wallBin[1]),
-                     'left': int(wallBin[2]), 'right': int(wallBin[3])}
+#     def mazeFromHex(self):
+#         # each hex digit corresponds to one of the nodes
+#         for index, node in enumerate(self._nodes):
+#             hexDigit = self._hexString[index]
+#             # converts the hex digit to binary
+#             wallBin = bin(int(hexDigit, 16))[2:].zfill(4)
+#             nodeObj = Node(node)
+#             nodeObj.wallsFromBinary(wallBin)
+#             self._maze.insert(nodeObj)
 
-            nodeObj = Node(node, walls)
-            self._maze.insert(nodeObj)
-
-        return self._drawMaze()
+#         return self._drawMaze()
