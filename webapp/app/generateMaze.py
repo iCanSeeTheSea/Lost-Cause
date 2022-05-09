@@ -2,13 +2,9 @@ from dataclasses import dataclass
 import random
 from string import hexdigits
 import time
-from turtle import pos
 from PIL import Image
 from pathlib import Path
 from base64 import b64decode
-from numpy import _2Tuple
-
-from pygame import init
 
 
 @dataclass
@@ -16,10 +12,10 @@ class Node:
     __pos: list
 
     def __post_init__(self):
-        self._top = 0
-        self._bottom = 0
-        self._left = 0
-        self._right = 0
+        self._top = "0"
+        self._bottom = "0"
+        self._left = "0"
+        self._right = "0"
 
         self._row = self.__pos[0]
         self._column = self.__pos[1]
@@ -83,7 +79,7 @@ class Node:
     @property
     def key(self):
         wallsStr = self._top + self._bottom + self._left + self._right
-        self._key = hex(int(wallsStr, 2))[2:]
+        return hex(int(wallsStr, 2))[2:]
 
 
 class Maze:
@@ -140,17 +136,17 @@ class MazeGenerator:
 
         for row in range(1, self._maxY+1):
             for column in range(1, self._maxX+1):
-                node = self._maze.node(row, column)
+                node = self._maze.node([row, column])
 
                 adjNodes = []
                 # getting the list of adjacent nodes from the dictionary
-                if node.top == 0:
+                if node.top == "0":
                     adjNodes.append([row, column-1])
-                if node.bottom == 0:
+                if node.bottom == "0":
                     adjNodes.append([row, column+1])
-                if node.left == 0:
+                if node.left == "0":
                     adjNodes.append([row-1, column])
-                if node.right == 0:
+                if node.right == "0":
                     adjNodes.append([row+1, column])
 
                 # pasting the correct image (correspoding with the walls list) onto the main background image
@@ -214,10 +210,10 @@ class MazeGenerator:
 
                 # updating (or adding if not already) nodes in maze
                 for index, coord in enumerate(pair):
-                    if not self._maze.node(coord[0], coord[1]):
+                    if not self._maze.node(coord):
                         node = Node(coord)
                     else:
-                        node = self._maze.node(coord[0], coord[1])
+                        node = self._maze.node(coord)
 
                     # working out which wall to remove
                     adjNode = pair[index-1]

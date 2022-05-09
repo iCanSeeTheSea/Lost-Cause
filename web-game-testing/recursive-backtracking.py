@@ -1,6 +1,7 @@
 # recursive backtracking | 19/09/21
 
-import random, time
+import random
+import time
 
 # generating nodes based on chosen size
 maxX = 20
@@ -8,18 +9,18 @@ maxY = 20
 
 nodes = []
 
-for x in range(1,maxX+1):
-    for y in range(1,maxY+1):
+for x in range(1, maxX+1):
+    for y in range(1, maxY+1):
         nodes.append((x, y))
 
-adjacent_nodes = ((-1, 0), (1,0), (0,1), (0, -1))
+adjacent_nodes = ((-1, 0), (1, 0), (0, 1), (0, -1))
 
 stack = []
 spanning_tree = []
 
 start_time = time.time()
 
-next_node = (1,1)
+next_node = (1, 1)
 
 while True:
 
@@ -47,15 +48,17 @@ while True:
             check_node = stack[index]
             for dx, dy in adjacent_nodes:
                 if (check_node[0] + dx, check_node[1] + dy) in nodes:
-                    next_node = check_node; break
+                    next_node = check_node
+                    break
             else:
                 try:
-                    stack.remove(check_node) # using stack to keep track of which nodes to/ not to visit again
+                    # using stack to keep track of which nodes to/ not to visit again
+                    stack.remove(check_node)
                 except ValueError:
                     pass
                 continue
             break
-    
+
     if len(stack) == 0:
         break
 
@@ -63,7 +66,8 @@ end_time = time.time()-start_time
 print((str(end_time)[:-(len(str(end_time).split('.')[1])-2)]) + 's')
 
 file = open('web-game-testing/spanning-tree.txt', 'a')
-file.truncate(0) # empties the file before writing new tree
+file.truncate(0)  # empties the file before writing new tree
 for item in spanning_tree:
     #            {      coordinate going to        } {       coordinate coming from    }
-    file.write(f'{str(item[0][0])},{str(item[0][1])},{str(item[1][0])},{str(item[1][1])}\n')
+    file.write(
+        f'{str(item[0][0])},{str(item[0][1])},{str(item[1][0])},{str(item[1][1])}\n')
