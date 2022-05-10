@@ -12,10 +12,10 @@ class Node:
     __pos: list
 
     def __post_init__(self):
-        self._top = "0"
-        self._bottom = "0"
-        self._left = "0"
-        self._right = "0"
+        self._top = "1"
+        self._bottom = "1"
+        self._left = "1"
+        self._right = "1"
 
         self._row = self.__pos[0]
         self._column = self.__pos[1]

@@ -37,7 +37,8 @@ console.log(spanningTree)
 
 
 var root = document.querySelector(':root');
-root.style.setProperty('--map_multiplier', mapMulti);
+root.style.setProperty('--map-size', mapSize); 
+
 
 // initial variable declarations
 var held_directions = [];
@@ -66,7 +67,7 @@ var walls = spanningTree[currentTileX - 1][currentTileY - 1];
 // var positionCorrector = posCorrectDict[mapSize];
 // console.log(mapSize, positionCorrector)
 
-var positionCorrector = 131.25
+
 
 // function to round a number to the nearest 0.5
 const roundTileCoord = function (tileCoord) {
@@ -85,6 +86,8 @@ const placeCharacter = function () {
     var pixelSize = parseInt(
         getComputedStyle(document.documentElement).getPropertyValue('--pixel-size')
     );
+
+    var positionCorrector = 128
 
     var originalX = x;
     var originalY = y;
