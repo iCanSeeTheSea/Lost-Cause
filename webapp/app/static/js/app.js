@@ -2,9 +2,6 @@
 console.log(mazeHex)
 console.log(mapSize)
 
-// get the correct multiplier for the collisions depending on the size of the maze
-var mapMulti = (mapSize * 32) / 4;
-console.log(mapMulti)
 
 var spanningTree = [];
 
@@ -180,11 +177,15 @@ const placeCharacter = function () {
     // debug
     //console.log(x, y, currentTileX, currentTileY, "[" + currentTileX.toString() + ", " + currentTileY.toString() + "]", spanningTree["[" + currentTileX.toString() + ", " + currentTileY.toString() + "]"]);
 
+
+    let imgSize = (mapSize * 128) - 64
+    console.log(imgSize)
+    
     // smooth camera movement - moves the map against the player if the player is in the centre of the map
     if (mapX < 112) { mapX = 112; } // left
-    if (mapX > (16 * mapMulti) - 112) { mapX = (16 * mapMulti) - 112; } // right
+    if (mapX > imgSize - 112) { mapX = imgSize - 112; } // right
     if (mapY < 112) { mapY = 112; } // tops
-    if (mapY > (16 * mapMulti) - 112) { mapY = (16 * mapMulti) - 112; } // bottom
+    if (mapY > imgSize - 112) { mapY = imgSize - 112; } // bottom
     let camera_top = pixelSize * 112;
     let camera_left = pixelSize * 112;
 
