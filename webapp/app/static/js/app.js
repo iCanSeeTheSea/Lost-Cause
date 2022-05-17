@@ -1,15 +1,15 @@
 // debug
 console.log(mazeHex)
-console.log(mapSize)
+console.log(mapWidth, mapHeight)
 
 
 var spanningTree = [];
 
 // converting hex back into the spanning tree
 var index = 0
-for (let row = 1; row <= mapSize; row++) {
+for (let row = 1; row <= mapWidth; row++) {
     var rowList = []
-    for (let column = 1; column <= mapSize; column++) {
+    for (let column = 1; column <= mapHeight; column++) {
 
         // each hex character corresponds to one node of the maze
         hex = mazeHex[index]
@@ -32,9 +32,10 @@ for (let row = 1; row <= mapSize; row++) {
 
 console.log(spanningTree)
 
-
+// setting css properties to correct values
 var root = document.querySelector(':root');
-root.style.setProperty('--map-size', mapSize); 
+root.style.setProperty('--map-width', mapWidth); 
+root.style.setProperty('--map-height', mapHeight); 
 
 
 // initial variable declarations
@@ -47,24 +48,6 @@ var currentTileX = 1
 var currentTileY = 1
 var speed = 1;
 var walls = spanningTree[currentTileX - 1][currentTileY - 1];
-
-/*
-20: 123
-^ - 1
-15: 124
-^ - 2.5
-10: 126.5
-^ - 6.5
-5: 133
-3: 145
-*/
-
-// correct position? scaling? of player? walls?
-// var posCorrectDict = { 20: 123, 15: 124, 10: 126.5, 5: 133, 3: 145 }
-// var positionCorrector = posCorrectDict[mapSize];
-// console.log(mapSize, positionCorrector)
-
-
 
 // function to round a number to the nearest 0.5
 const roundTileCoord = function (tileCoord) {
@@ -79,15 +62,16 @@ const roundTileCoord = function (tileCoord) {
 // deterimes where the character (and maze) is positioned every frame
 const placeCharacter = function () {
 
-    // getting the pixel size being used from the css
-    var pixelSize = parseInt(
+    // getting the pixel size being used from the css - varies depending on how large the browser window is
+    let pixelSize = parseInt(
         getComputedStyle(document.documentElement).getPropertyValue('--pixel-size')
     );
 
-    var positionCorrector = 128
+    let positionCorrector = 128
 
-    var originalX = x;
-    var originalY = y;
+    // storing position from previous frame in case new position is blocked 
+    let originalX = x;
+    let originalY = y;
 
     // work out which direction the user wants to move the player
     const held_direction = held_directions[0];
@@ -125,18 +109,12 @@ const placeCharacter = function () {
     } else if (prevTileX != currentTileX || prevTileY != currentTileY) {
         walls = spanningTree[currentTileX - 1][currentTileY - 1]
     }
+    // debug
     console.log(x, y, currentTileX, currentTileY)
 
     // get the coordinates of the tile and data from spanning tree
     let tileOriginX = (currentTileX - 1) * positionCorrector;
     let tileOriginY = (currentTileY - 1) * positionCorrector;
-
-    //console.log(x, y,'|', currentTileX, currentTileY,'|', tileOriginX, tileOriginY, '|', walls);
-
-    // if (x < 0) { x = 0; } // left
-    // if (x > 16 * mapMulti - 32) { x = 16 * mapMulti - 32; } // right
-    // if (y < 0) { y = 0; } // top
-    // if (y > 16 * mapMulti - 24) { y = 16 * mapMulti - 24; } // bottom
 
     // maze wall collisions
     // top, bottom, left, right
@@ -174,18 +152,16 @@ const placeCharacter = function () {
             y = originalY;
         }
     }
-    // debug
-    //console.log(x, y, currentTileX, currentTileY, "[" + currentTileX.toString() + ", " + currentTileY.toString() + "]", spanningTree["[" + currentTileX.toString() + ", " + currentTileY.toString() + "]"]);
-
-
-    let imgSize = (mapSize * 128) - 64
-    console.log(imgSize)
     
-    // smooth camera movement - moves the map against the player if the player is in the centre of the map
+
+    let imgWidth = (mapWidth * 128) - 64
+    let imgHeight = (mapHeight * 128) - 64
+    
+    // smooth camera movement - moves the map against the player while the player is in the centre of the map
     if (mapX < 112) { mapX = 112; } // left
-    if (mapX > imgSize - 112) { mapX = imgSize - 112; } // right
+    if (mapX > imgWidth - 112) { mapX = imgWidth - 112; } // right
     if (mapY < 112) { mapY = 112; } // tops
-    if (mapY > imgSize - 112) { mapY = imgSize - 112; } // bottom
+    if (mapY > imgHeight - 112) { mapY = imgHeight - 112; } // bottom
     let camera_top = pixelSize * 112;
     let camera_left = pixelSize * 112;
 
@@ -205,7 +181,7 @@ const step = function () {
 }
 step()
 
-
+// mapping keys to movement directions
 const directions = {
     up: "up",
     down: "down",
@@ -217,18 +193,17 @@ const keys = {
     'a': directions.left,
     'd': directions.right,
     's': directions.down,
-}
-
-const arrowKeys = {
     'ArrowUp': directions.up,
     'ArrowLeft': directions.left,
     'ArrowRight': directions.right,
     'ArrowDown': directions.down,
 }
 
+
 // event listeners for keys being pressed and released
 document.addEventListener('keydown', function (e) {
     let dir = keys[e.key];
+    // adds last key pressed to the start of the held_directions array
     if (dir && held_directions.indexOf(dir) === -1) {
         held_directions.unshift(dir);
     }
@@ -237,6 +212,7 @@ document.addEventListener('keydown', function (e) {
 document.addEventListener('keyup', function (e) {
     let dir = keys[e.key];
     let index = held_directions.indexOf(dir);
+    // removes key from help_directions when it stops being pressed
     if (index > -1) {
         held_directions.splice(index, 1)
     }
