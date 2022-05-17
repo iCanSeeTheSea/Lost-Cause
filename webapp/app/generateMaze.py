@@ -94,7 +94,7 @@ class Maze:
         self._list[row-1][column-1] = nodeObj
 
     def node(self, coord):
-        node = self._list[coord[0]-1][coord[1]-1]
+        node = self._list[coord[0]-1][coord[1]-1] # Changed
         return node
 
 
@@ -104,9 +104,9 @@ class MazeGenerator:
 
         self._nodes = []
 
-        for x in range(1, maxX+1):
-            for y in range(1, maxY+1):
-                self._nodes.append([x, y])
+        for row in range(1, maxY+1):
+            for column in range(1, maxX+1):
+                self._nodes.append([row, column])
         self._saveNodes = self._nodes.copy()
 
         self._adjacentCoords = ((-1, 0), (1, 0), (0, 1), (0, -1))
@@ -153,12 +153,12 @@ class MazeGenerator:
                 tile = mazePath / self._tileNames[node.key]
                 tileImg = Image.open(tile)
 
-                img.paste(tileImg, ((row-1)*64, (column-1)*64))
+                img.paste(tileImg, ((column-1)*64, (row-1)*64))
 
                 for adjNode in adjNodes:
                     # figuring out where to place adjacent corridors based
-                    join_x = ((adjNode[0] - node.row)/2) + node.row
-                    join_y = ((adjNode[1] - node.column)/2) + node.column
+                    join_y = ((adjNode[0] - node.row)/2) + node.row
+                    join_x = ((adjNode[1] - node.column)/2) + node.column
 
                     # pasting corridors joining the nodes
 
@@ -199,10 +199,10 @@ class MazeGenerator:
             possibleCoords = []
 
             # finding possible next nodes by comparing each position adjacent to the current node to the unused nodes
-            for dx, dy in self._adjacentCoords:
-                if [currentPos[0] + dx, currentPos[1] + dy] in self._nodes:
+            for dy, dx in self._adjacentCoords:
+                if [currentPos[0] + dy, currentPos[1] + dx] in self._nodes:
                     possibleCoords.append(
-                        [currentPos[0] + dx, currentPos[1] + dy])
+                        [currentPos[0] + dy, currentPos[1] + dx])
             if possibleCoords:
                 # choosing a random (adjacent) node to go next
                 nextPos = random.choice(possibleCoords)
@@ -217,8 +217,8 @@ class MazeGenerator:
 
                     # working out which wall to remove
                     adjNode = pair[index-1]
-                    xDiff = coord[0] - adjNode[0]
-                    yDiff = coord[1] - adjNode[1]
+                    yDiff = coord[0] - adjNode[0]
+                    xDiff = coord[1] - adjNode[1]
                     if yDiff > 0:
                         node.top = '0'
                     elif yDiff < 0:
@@ -235,7 +235,7 @@ class MazeGenerator:
                 for index in range(len(stack)-1, -1, -1):
                     checkPos = stack[index]
                     for dx, dy in self._adjacentCoords:
-                        if [checkPos[0] + dx, checkPos[1] + dy] in self._nodes:
+                        if [checkPos[0] + dy, checkPos[1] + dx] in self._nodes:
                             nextPos = checkPos
                             break
                     else:

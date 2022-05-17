@@ -2,7 +2,6 @@
 :root {
     --pixel-size: 2px;
     --grid-cell: calc( var(--pixel-size) * 64);
-    --map-size: 0;
  }
 
 @media( min-width: 700px ) {
@@ -60,8 +59,8 @@ body {
         image-rendering: pixelated;
         background-image: url("/static/img/maze/fullmaze.png");
         background-size: 100%;
-        width: calc((var(--map-size) * var(--grid-cell) * 2) - var(--grid-cell));
-        height: calc((var(--map-size) * var(--grid-cell) * 2) - var(--grid-cell));
+        width: calc((var(--map-width) * var(--grid-cell) * 2) - var(--grid-cell));
+        height: calc((var(--map-height) * var(--grid-cell) * 2) - var(--grid-cell));
     position: relative;
 }
 
