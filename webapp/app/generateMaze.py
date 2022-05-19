@@ -193,7 +193,7 @@ class MazeGenerator:
 
             try:
                 self._nodes.remove(currentPos)
-            except ValueError:  # raised if current node already not in self._nodes  - this is fine
+            except ValueError: # value error is raised if the current position has already been removed - occurs after maze reaches a dead end and backtracks
                 pass
 
             possibleCoords = []
@@ -241,7 +241,7 @@ class MazeGenerator:
                     else:
                         try:
                             # using stack to keep track of which nodes to/ not to visit again
-                            stack.remove(checkPos)
+                            stack.pop()
                         except ValueError:
                             pass
                         continue

@@ -30,7 +30,7 @@ def mazeGen(side):
         try:
             nodes.remove(current_node)
         except ValueError:
-            pass
+            print('node not in node list: ', current_node)
 
         possible_nodes = []
 
@@ -60,7 +60,7 @@ def mazeGen(side):
                         # using stack to keep track of which nodes to/ not to visit again
                         stack.remove(check_node)
                     except ValueError:
-                        pass
+                        print('node not in stack: ', check_node)
                     continue
                 break
 
@@ -68,6 +68,7 @@ def mazeGen(side):
             end_time = time.perf_counter()-start_time
             print(
                 (str(end_time)[:-(len(str(end_time).split('.')[1])-2)]) + 's')
+            print(spanning_tree)
             break
 
-mazeGen(100)
+mazeGen(5)
