@@ -10,8 +10,8 @@ def index():
 
 @app.route('/play')
 def about():
-    map_height = 20
-    map_width = 20
+    map_height = 4
+    map_width = 10
     mazeGenerator = generateMaze.MazeGenerator(map_width, map_height)
     mazeHex = mazeGenerator.recursiveBacktracking()
 

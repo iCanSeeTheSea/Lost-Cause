@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 import random
-from string import hexdigits
 import time
 from PIL import Image
 from pathlib import Path
+from string import hexdigits
 from base64 import b64decode
 
 
@@ -26,11 +26,11 @@ class Node:
         else:
             raise ValueError("wall value should be either \"1\" or \"0\"")
 
-    def wallsFromBinary(self, bin):
-        self._top = bin[0]
-        self._bottom = bin[1]
-        self._left = bin[2]
-        self._right = bin[3]
+    def wallsFromBinary(self, wallBin):
+        self._top = wallBin[0]
+        self._bottom = wallBin[1]
+        self._left = wallBin[2]
+        self._right = wallBin[3]
 
     def debug(self):
         return [self.__pos, (self._top, self._bottom, self._left, self._right), self.key]
@@ -135,14 +135,13 @@ class MazeGenerator:
         img = img.resize((self._maxX * 32 * 2 - 32, self._maxY * 32 * 2 - 32))
         # tiles are 32x32
 
-        debug = Image.open(mazePath / 'debug-tile.png')
+        # debug = Image.open(mazePath / 'debug-tile.png')
 
         mazeHex = ''
 
         for row in range(1, self._maxY + 1):
             for column in range(1, self._maxX + 1):
                 node = self._maze.node([row, column])
-                print(node.debug())
 
                 adjNodes = []
                 # getting the list of adjacent nodes from the dictionary
@@ -154,9 +153,8 @@ class MazeGenerator:
                     adjNodes.append([row, column - 1])
                 if node.right == "0":
                     adjNodes.append([row, column + 1])
-                print(adjNodes)
 
-                # pasting the correct image (correspoding with the walls list) onto the main background image
+                # pasting the correct image (corresponding with the walls list) onto the main background image
                 tile = mazePath / self._tileNames[node.key]
                 tileImg = Image.open(tile)
 

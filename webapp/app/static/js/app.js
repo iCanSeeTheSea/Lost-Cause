@@ -7,9 +7,9 @@ let spanningTree = [];
 
 // converting hex back into the spanning tree
 let index = 0;
-for (let row = 1; row <= mapWidth; row++) {
+for (let row = 1; row <= mapHeight; row++) {
     let rowList = [];
-    for (let column = 1; column <= mapHeight; column++) {
+    for (let column = 1; column <= mapWidth; column++) {
 
         // each hex character corresponds to one node of the maze
         let hex = mazeHex[index]
@@ -47,7 +47,7 @@ let y = 27;
 let currentTileX = 1
 let currentTileY = 1
 let speed = 1;
-let walls = spanningTree[currentTileX - 1][currentTileY - 1];
+let walls = spanningTree[currentTileY - 1][currentTileX - 1];
 
 // function to round a number to the nearest 0.5
 const roundTileCoord = function (tileCoord) {
@@ -120,7 +120,7 @@ const placeCharacter = function () {
         walls = spanningTree[currentTileY - 1][currentTileX - 1]
     }
     // debug
-    console.log(x, y, currentTileX, currentTileY, walls)
+    console.log(y, x, currentTileY, currentTileX, walls)
 
     // get the coordinates of the tile and data from spanning tree
     let tileOriginX = (currentTileX - 1) * positionCorrector;
