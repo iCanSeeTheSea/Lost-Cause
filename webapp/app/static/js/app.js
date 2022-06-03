@@ -3,21 +3,21 @@ console.log(mazeHex)
 console.log(mapWidth, mapHeight)
 
 
-var spanningTree = [];
+let spanningTree = [];
 
 // converting hex back into the spanning tree
-var index = 0
+let index = 0;
 for (let row = 1; row <= mapWidth; row++) {
-    var rowList = []
+    let rowList = [];
     for (let column = 1; column <= mapHeight; column++) {
 
         // each hex character corresponds to one node of the maze
-        hex = mazeHex[index]
+        let hex = mazeHex[index]
 
-        walls = { top: 1, bottom: 1, left: 1, right: 1 }
+        let walls = {top: 1, bottom: 1, left: 1, right: 1}
 
         // converting hex to binary, nibble will represent the walls of the node
-        bin = (parseInt(hex, 16).toString(2)).padStart(4, '0')
+        let bin = (parseInt(hex, 16).toString(2)).padStart(4, '0')
         walls.top = parseInt(bin[0])
         walls.bottom = parseInt(bin[1])
         walls.left = parseInt(bin[2])
@@ -33,21 +33,21 @@ for (let row = 1; row <= mapWidth; row++) {
 console.log(spanningTree)
 
 // setting css properties to correct values
-var root = document.querySelector(':root');
+let root = document.querySelector(':root');
 root.style.setProperty('--map-width', mapWidth); 
 root.style.setProperty('--map-height', mapHeight); 
 
 
 // initial variable declarations
-var held_directions = [];
-var character = document.querySelector('.character');
-var map = document.querySelector(".map");
-var x = 16;
-var y = 27;
-var currentTileX = 1
-var currentTileY = 1
-var speed = 1;
-var walls = spanningTree[currentTileX - 1][currentTileY - 1];
+let held_directions = [];
+let character = document.querySelector('.character');
+let map = document.querySelector(".map");
+let x = 16;
+let y = 27;
+let currentTileX = 1
+let currentTileY = 1
+let speed = 1;
+let walls = spanningTree[currentTileX - 1][currentTileY - 1];
 
 // function to round a number to the nearest 0.5
 const roundTileCoord = function (tileCoord) {
@@ -59,7 +59,7 @@ const roundTileCoord = function (tileCoord) {
     return tileCoord
 }
 
-// deterimes where the character (and maze) is positioned every frame
+// determines where the character (and maze) is positioned every frame
 const placeCharacter = function () {
 
     // getting the pixel size being used from the css - varies depending on how large the browser window is
@@ -76,10 +76,20 @@ const placeCharacter = function () {
     // work out which direction the user wants to move the player
     const held_direction = held_directions[0];
     if (held_direction) {
-        if (held_direction === directions.right) { x += speed; }
-        if (held_direction === directions.left) { x -= speed; }
-        if (held_direction === directions.down) { y += speed; }
-        if (held_direction === directions.up) { y -= speed; }
+        switch (held_direction) {
+            case directions.right:
+                x += speed;
+                break;
+            case directions.left:
+                x -= speed;
+                break;
+            case directions.down:
+                y += speed;
+                break;
+            case directions.up:
+                y -= speed;
+                break;
+        }
         character.setAttribute("facing", held_direction);
         character.setAttribute("walking", "true");
     } else {
@@ -100,17 +110,17 @@ const placeCharacter = function () {
 
 
     // if the next node is going to be between two nodes
-    if (Math.floor(currentTileX) != currentTileX && prevTileX != currentTileX) {
+    if (Math.floor(currentTileX) !== currentTileX && prevTileX !== currentTileX) {
         walls = { top: 1, bottom: 1, left: 0, right: 0 }
 
-    } else if (Math.floor(currentTileY) != currentTileY && prevTileY != currentTileY) {
+    } else if (Math.floor(currentTileY) !== currentTileY && prevTileY !== currentTileY) {
         walls = { top: 0, bottom: 0, left: 1, right: 1 }
 
-    } else if (prevTileX != currentTileX || prevTileY != currentTileY) {
-        walls = spanningTree[currentTileX - 1][currentTileY - 1]
+    } else if (prevTileX !== currentTileX || prevTileY !== currentTileY) {
+        walls = spanningTree[currentTileY - 1][currentTileX - 1]
     }
     // debug
-    console.log(x, y, currentTileX, currentTileY)
+    console.log(x, y, currentTileX, currentTileY, walls)
 
     // get the coordinates of the tile and data from spanning tree
     let tileOriginX = (currentTileX - 1) * positionCorrector;
@@ -121,34 +131,34 @@ const placeCharacter = function () {
 
     // left
     if (x < tileOriginX + 1) {
-        if (walls.left == 1) {
+        if (walls.left === 1) {
             x = originalX;
-        } else if (walls.left == 0 && y < tileOriginY + 1) {
+        } else if (walls.left === 0 && y < tileOriginY + 1) {
             // space for corner correction
             x = originalX;
         }
     }
     // right
     if (x > tileOriginX + 32) {
-        if (walls.right == 1) {
+        if (walls.right === 1) {
             x = originalX;
-        } else if (walls.right == 0 && y > tileOriginY + 41) {
+        } else if (walls.right === 0 && y > tileOriginY + 41) {
             x = originalX;
         }
     }
     // top
     if (y < tileOriginY + 1) {
-        if (walls.top == 1) {
+        if (walls.top === 1) {
             y = originalY;
-        } else if (walls.top == 0 && x < tileOriginX + 1) {
+        } else if (walls.top === 0 && x < tileOriginX + 1) {
             y = originalY;
         }
     }
     // bottom
     if (y > tileOriginY + 41) {
-        if (walls.bottom == 1) {
+        if (walls.bottom === 1) {
             y = originalY;
-        } else if (walls.bottom == 0 && x > tileOriginX + 32) {
+        } else if (walls.bottom === 0 && x > tileOriginX + 32) {
             y = originalY;
         }
     }

@@ -1,14 +1,24 @@
 # recursive backtracking | 19/09/21
 
+from platform import node
 import random
 import time
 import pygame
 pygame.init()
 
 
+def chooseColour(node):
+    if 0 <= node[1] < 10 or 40 <= node[1]:
+        colour = (85, 205, 252)
+    elif 10 <= node[1] < 20 or 30 <= node[1] < 40:
+        colour = (247, 168, 184)
+    elif 20 <= node[1] < 30:
+        colour = (255, 255, 255)
+    return colour
+
+
 def mazeGen(m, maxX, maxY):
     nodes = []
-    colour = [255, 255, 255]
     step = 0
 
     for x in range(1, maxX+1):
@@ -20,14 +30,15 @@ def mazeGen(m, maxX, maxY):
     stack = []
     spanning_tree = []
 
-    # initialising pygame window
-    screen = pygame.display.set_mode([(maxX*(m*2))-m, (maxY*(m*2))-m])
-    screen.fill((0, 0, 0))
-    pygame.draw.rect(screen, (255, 255, 255), pygame.Rect(0, 0, m, m))
-
     start_time = time.time()
 
     next_node = (1, 1)
+    colour = chooseColour(next_node)
+
+    # initialising pygame window
+    screen = pygame.display.set_mode([(maxX*(m*2))-m, (maxY*(m*2))-m])
+    screen.fill((0, 0, 0))
+    pygame.draw.rect(screen, colour, pygame.Rect(0, 0, m, m))
 
     while True:
 
@@ -61,13 +72,14 @@ def mazeGen(m, maxX, maxY):
             spanning_tree.append((next_node, current_node))
 
             # visualisation
-            rColour = tuple(colour)
-            pygame.draw.rect(screen, rColour, pygame.Rect(
+            colour = chooseColour(next_node)
+            pygame.draw.rect(screen, colour, pygame.Rect(
                 (next_node[0]-1)*(m*2), (next_node[1]-1)*(m*2), m, m))
             # finding mid-points between current and previous nodes to remove wall
             join_x = ((current_node[0] - next_node[0])/2) + next_node[0]
             join_y = ((current_node[1] - next_node[1])/2) + next_node[1]
-            pygame.draw.rect(screen, rColour, pygame.Rect(
+            colour = chooseColour([join_x, join_y])
+            pygame.draw.rect(screen, colour, pygame.Rect(
                 (join_x-1)*(m*2), (join_y-1)*(m*2), m, m))
 
         else:
@@ -77,16 +89,6 @@ def mazeGen(m, maxX, maxY):
                 for dx, dy in adjacent_nodes:
                     if (check_node[0] + dx, check_node[1] + dy) in nodes:
                         next_node = check_node
-                        colour[step] = 0
-                        colour[step-1] = 0
-                        colour[step-2] = 255
-                        if colour[step] < 50:
-                            colour[step] = 250
-                            step += 1
-                        if colour[step-1] < 50:
-                            colour[step-1] = 250
-                        if step > 2:
-                            step = 0
                         break
                 else:
                     try:
@@ -117,5 +119,4 @@ def mazeGen(m, maxX, maxY):
     pygame.quit()
 
 
-while True:
-    mazeGen(m=5, maxX=75, maxY=75)
+mazeGen(m=5, maxX=120, maxY=50)
