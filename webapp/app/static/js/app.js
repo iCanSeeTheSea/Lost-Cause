@@ -1,6 +1,7 @@
 // debug
 console.log(mazeHex)
 console.log(mapWidth, mapHeight)
+const mazeScale = 128
 
 
 class Maze {
@@ -60,154 +61,180 @@ class Maze {
 
 }
 
+class Entity {
+    constructor(y, x, identifier) {
+        this.x = x;
+        this.y = y;
+        this.speed = 0;
+        this.prevTileX = 0;
+        this.prevTileY = 0;
+        this.currentTileX = 0;
+        this.currentTileY = 0;
+        this.determineCurrentTile()
+        this.walls = maze.getWalls(this.currentTileX, this.currentTileY, this.prevTileX, this.prevTileY);
+        this.self = document.querySelector(identifier);
+    }
+
+    // function to round a number to the nearest 0.5
+    roundTileCoord(tileCoord) {
+        if (tileCoord - Math.floor(tileCoord) > 0.5) {
+            tileCoord = Math.floor(tileCoord) + 0.5
+        } else {
+            tileCoord = Math.floor(tileCoord)
+        }
+        return tileCoord
+    }
+
+    determineCurrentTile(){
+        // store previous node to know where its walls where
+        this.prevTileX = this.currentTileX;
+        this.prevTileY = this.currentTileY;
+
+        // work out which tile in the spanning tree the player is in
+        this.currentTileX = this.roundTileCoord((this.x / mazeScale) + 1);
+        this.currentTileY = this.roundTileCoord((this.y / mazeScale) + 1);
+    }
+
+    determineWalls() {
+        this.determineCurrentTile()
+        return maze.getWalls(this.currentTileX, this.currentTileY, this.prevTileX, this.prevTileY, this.walls)
+    }
+
+    checkCollision(originalX, originalY, tileOriginX, tileOriginY) {
+        // maze wall collisions
+        // top, bottom, left, right
+
+        this.walls = this.determineWalls()
+
+        // left
+        if (this.x < tileOriginX + 1) {
+            if (this.walls.left === 1) {
+                this.x = originalX;
+            } else if (this.walls.left === 0 && this.y < tileOriginY + 1) {
+                // corner correction
+                this.x = originalX;
+            }
+        }
+        // right
+        if (this.x > tileOriginX + 32) {
+            if (this.walls.right === 1) {
+                this.x = originalX;
+            } else if (this.walls.right === 0 && this.y > tileOriginY + 41) {
+                this.x = originalX;
+            }
+        }
+        // top
+        if (this.y < tileOriginY + 1) {
+            if (this.walls.top === 1) {
+                this.y = originalY;
+            } else if (this.walls.top === 0 && this.x < tileOriginX + 1) {
+                this.y = originalY;
+            }
+        }
+        // bottom
+        if (this.y > tileOriginY + 41) {
+            if (this.walls.bottom === 1) {
+                this.y = originalY;
+            } else if (this.walls.bottom === 0 && this.x > tileOriginX + 32) {
+                this.y = originalY;
+            }
+        }
+    }
+
+    move(direction) {
+        // storing position from previous frame in case new position is blocked
+        let originalX = this.x;
+        let originalY = this.y;
+
+        // get the coordinates of the tile and data from spanning tree
+        let tileOriginX = (this.currentTileX - 1) * mazeScale;
+        let tileOriginY = (this.currentTileY - 1) * mazeScale;
+        switch (direction) {
+            case directions.right:
+                this.x += this.speed;
+                break;
+            case directions.left:
+                this.x -= this.speed;
+                break;
+            case directions.down:
+                this.y += this.speed;
+                break;
+            case directions.up:
+                this.y -= this.speed;
+                break;
+        }
+        this.checkCollision(originalX, originalY, tileOriginX, tileOriginY)
+    }
+
+}
+
+class Player extends Entity {
+    constructor() {
+        super(27, 16, '.character');
+        this.speed = 1
+        this.map = document.querySelector('.map')
+    }
+
+    move(pixelSize){
+        let mapX = this.x;
+        let mapY = this.y;
+
+        console.log(this.y, this.x, this.currentTileY, this.currentTileX, this.walls)
+
+        let held_direction = held_directions[0];
+        if (held_direction){
+            super.move(held_direction)
+            this.self.setAttribute("facing", held_direction)
+            this.self.setAttribute("walking", "true");
+        } else {
+            this.self.setAttribute("walking", "false");
+        }
+
+        // smooth camera movement - moves the map against the player while the player is in the centre of the map
+        if (mapX < 112) { mapX = 112; } // left
+        if (mapX > imgWidth - 112) { mapX = imgWidth - 112; } // right
+        if (mapY < 112) { mapY = 112; } // tops
+        if (mapY > imgHeight - 112) { mapY = imgHeight - 112; } // bottom
+        let camera_top = pixelSize * 112;
+        let camera_left = pixelSize * 112;
+
+        // moving the map and player
+        this.map.style.transform = `translate3d( ${-mapX * pixelSize + camera_left}px, ${-mapY * pixelSize + camera_top}px, 0 )`;
+        this.self.style.transform = `translate3d( ${this.x * pixelSize}px, ${this.y * pixelSize}px, 0 )`;
+
+        }
+}
+
 const maze = new Maze(mapHeight, mapWidth, mazeHex)
 maze.output()
 
+let player = new Player()
+
 // setting css properties to correct values
 let root = document.querySelector(':root');
-root.style.setProperty('--map-width', mapWidth); 
-root.style.setProperty('--map-height', mapHeight); 
-
+root.style.setProperty('--map-width', mapWidth);
+root.style.setProperty('--map-height', mapHeight);
 
 // initial variable declarations
 let held_directions = [];
-let character = document.querySelector('.character');
-let map = document.querySelector(".map");
-let x = 16;
-let y = 27;
-let prevTileX = 0;
-let prevTileY = 0;
-let currentTileX = 1
-let currentTileY = 1
-let speed = 1;
-let walls = maze.getWalls(currentTileX, currentTileY, prevTileX, prevTileY);
-const mazeScale = 128
-
-// function to round a number to the nearest 0.5
-const roundTileCoord = function (tileCoord) {
-    if (tileCoord - Math.floor(tileCoord) > 0.5) {
-        tileCoord = Math.floor(tileCoord) + 0.5
-    } else {
-        tileCoord = Math.floor(tileCoord)
-    }
-    return tileCoord
-}
+const imgWidth = (maze.width * mazeScale) - 64
+const imgHeight = (maze.height * mazeScale) - 64
 
 // determines where the character (and maze) is positioned every frame
-const placeCharacter = function () {
+const gameLoop = function () {
 
     // getting the pixel size being used from the css - varies depending on how large the browser window is
     let pixelSize = parseInt(
         getComputedStyle(document.documentElement).getPropertyValue('--pixel-size')
     );
 
-    // storing position from previous frame in case new position is blocked 
-    let originalX = x;
-    let originalY = y;
-
-    // work out which direction the user wants to move the player
-    const held_direction = held_directions[0];
-    if (held_direction) {
-        switch (held_direction) {
-            case directions.right:
-                x += speed;
-                break;
-            case directions.left:
-                x -= speed;
-                break;
-            case directions.down:
-                y += speed;
-                break;
-            case directions.up:
-                y -= speed;
-                break;
-        }
-        character.setAttribute("facing", held_direction);
-        character.setAttribute("walking", "true");
-    } else {
-        character.setAttribute("walking", "false");
-    }
-
-    let mapX = x;
-    let mapY = y;
-
-
-    // store previous node to know where its walls where
-    prevTileX = currentTileX;
-    prevTileY = currentTileY;
-
-    // work out which tile in the spanning tree the player is in
-    currentTileX = roundTileCoord((x / mazeScale) + 1);
-    currentTileY = roundTileCoord((y / mazeScale) + 1);
-
-    walls = maze.getWalls(currentTileX, currentTileY, prevTileX, prevTileY, walls)
-
-    // debug
-    console.log(y, x, currentTileY, currentTileX, walls)
-
-    // get the coordinates of the tile and data from spanning tree
-    let tileOriginX = (currentTileX - 1) * mazeScale;
-    let tileOriginY = (currentTileY - 1) * mazeScale;
-
-    // maze wall collisions
-    // top, bottom, left, right
-
-    // left
-    if (x < tileOriginX + 1) {
-        if (walls.left === 1) {
-            x = originalX;
-        } else if (walls.left === 0 && y < tileOriginY + 1) {
-            // space for corner correction
-            x = originalX;
-        }
-    }
-    // right
-    if (x > tileOriginX + 32) {
-        if (walls.right === 1) {
-            x = originalX;
-        } else if (walls.right === 0 && y > tileOriginY + 41) {
-            x = originalX;
-        }
-    }
-    // top
-    if (y < tileOriginY + 1) {
-        if (walls.top === 1) {
-            y = originalY;
-        } else if (walls.top === 0 && x < tileOriginX + 1) {
-            y = originalY;
-        }
-    }
-    // bottom
-    if (y > tileOriginY + 41) {
-        if (walls.bottom === 1) {
-            y = originalY;
-        } else if (walls.bottom === 0 && x > tileOriginX + 32) {
-            y = originalY;
-        }
-    }
-    
-
-    let imgWidth = (mapWidth * 128) - 64
-    let imgHeight = (mapHeight * 128) - 64
-    
-    // smooth camera movement - moves the map against the player while the player is in the centre of the map
-    if (mapX < 112) { mapX = 112; } // left
-    if (mapX > imgWidth - 112) { mapX = imgWidth - 112; } // right
-    if (mapY < 112) { mapY = 112; } // tops
-    if (mapY > imgHeight - 112) { mapY = imgHeight - 112; } // bottom
-    let camera_top = pixelSize * 112;
-    let camera_left = pixelSize * 112;
-
-    // moving the map and player
-    map.style.transform = `translate3d( ${-mapX * pixelSize + camera_left}px, ${-mapY * pixelSize + camera_top}px, 0 )`;
-    character.style.transform = `translate3d( ${x * pixelSize}px, ${y * pixelSize}px, 0 )`;
-
+    player.move(pixelSize)
 
 }
 
 // steps through every frame
 const step = function () {
-    placeCharacter()
+    gameLoop()
     window.requestAnimationFrame(function () {
         step()
     })
