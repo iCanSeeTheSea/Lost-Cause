@@ -3,6 +3,24 @@ console.log(mazeHex)
 console.log(mapWidth, mapHeight)
 const mazeScale = 128
 
+// mapping keys to movement directions
+const directions = {
+    up: "up",
+    down: "down",
+    left: "left",
+    right: "right",
+}
+const keys = {
+    'w': directions.up,
+    'a': directions.left,
+    'd': directions.right,
+    's': directions.down,
+    'ArrowUp': directions.up,
+    'ArrowLeft': directions.left,
+    'ArrowRight': directions.right,
+    'ArrowDown': directions.down,
+}
+
 
 class Maze {
 
@@ -70,6 +88,8 @@ class Entity {
         this.prevTileY = 0;
         this.currentTileX = 0;
         this.currentTileY = 0;
+        this.tileOriginX = 0;
+        this.tileOriginY = 0;
         this.determineCurrentTile()
         this.walls = maze.getWalls(this.currentTileX, this.currentTileY, this.prevTileX, this.prevTileY);
         this.self = document.querySelector(identifier);
@@ -100,42 +120,42 @@ class Entity {
         return maze.getWalls(this.currentTileX, this.currentTileY, this.prevTileX, this.prevTileY, this.walls)
     }
 
-    checkCollision(originalX, originalY, tileOriginX, tileOriginY) {
+    checkCollision(originalX, originalY) {
         // maze wall collisions
         // top, bottom, left, right
 
         this.walls = this.determineWalls()
 
         // left
-        if (this.x < tileOriginX + 1) {
+        if (this.x < this.tileOriginX + 1) {
             if (this.walls.left === 1) {
                 this.x = originalX;
-            } else if (this.walls.left === 0 && this.y < tileOriginY + 1) {
+            } else if (this.walls.left === 0 && this.y < this.tileOriginY + 1) {
                 // corner correction
                 this.x = originalX;
             }
         }
         // right
-        if (this.x > tileOriginX + 32) {
+        if (this.x > this.tileOriginX + 32) {
             if (this.walls.right === 1) {
                 this.x = originalX;
-            } else if (this.walls.right === 0 && this.y > tileOriginY + 41) {
+            } else if (this.walls.right === 0 && this.y > this.tileOriginY + 41) {
                 this.x = originalX;
             }
         }
         // top
-        if (this.y < tileOriginY + 1) {
+        if (this.y < this.tileOriginY + 1) {
             if (this.walls.top === 1) {
                 this.y = originalY;
-            } else if (this.walls.top === 0 && this.x < tileOriginX + 1) {
+            } else if (this.walls.top === 0 && this.x < this.tileOriginX + 1) {
                 this.y = originalY;
             }
         }
         // bottom
-        if (this.y > tileOriginY + 41) {
+        if (this.y > this.tileOriginY + 41) {
             if (this.walls.bottom === 1) {
                 this.y = originalY;
-            } else if (this.walls.bottom === 0 && this.x > tileOriginX + 32) {
+            } else if (this.walls.bottom === 0 && this.x > this.tileOriginX + 32) {
                 this.y = originalY;
             }
         }
@@ -147,8 +167,9 @@ class Entity {
         let originalY = this.y;
 
         // get the coordinates of the tile and data from spanning tree
-        let tileOriginX = (this.currentTileX - 1) * mazeScale;
-        let tileOriginY = (this.currentTileY - 1) * mazeScale;
+        this.tileOriginX = (this.currentTileX - 1) * mazeScale;
+        this.tileOriginY = (this.currentTileY - 1) * mazeScale;
+
         switch (direction) {
             case directions.right:
                 this.x += this.speed;
@@ -163,7 +184,11 @@ class Entity {
                 this.y -= this.speed;
                 break;
         }
-        this.checkCollision(originalX, originalY, tileOriginX, tileOriginY)
+        this.checkCollision(originalX, originalY)
+    }
+
+    getTilePosition(){
+        return {y: this.currentTileY, x: this.currentTileX}
     }
 
 }
@@ -179,7 +204,7 @@ class Player extends Entity {
         let mapX = this.x;
         let mapY = this.y;
 
-        console.log(this.y, this.x, this.currentTileY, this.currentTileX, this.walls)
+        //console.log(this.y, this.x, this.currentTileY, this.currentTileX, this.walls)
 
         let held_direction = held_directions[0];
         if (held_direction){
@@ -205,10 +230,111 @@ class Player extends Entity {
         }
 }
 
+class Enemy extends Entity {
+    constructor(range) {
+        super(0, 0, '.enemy');
+        this.speed = 1;
+        this.range = range
+        this.path = [];
+        this.target = {};
+        this.targetTile = {};
+    }
+
+    spawn(tileY, tileX){
+        this.x = (tileX -1) * mazeScale + 20
+        this.y = (tileY -1) * mazeScale + 40
+        this.currentTileY = this.prevTileY = tileY;
+        this.currentTileX = this.prevTileX = tileX;
+    }
+
+    pathFind(entity){
+        this.targetTile = player.getTilePosition()
+        if ((this.currentTileX - this.range < this.targetTile.x || this.currentTileX + this.range > this.targetTile.x) &&
+            (this.currentTileY - this.range < this.targetTile.x || this.currentTileY + this.range > this.targetTile.y)){
+            let checkTile = {y: this.currentTileY, x: this.currentTileX}
+            this.path = []
+            this.depthFirstSearch(checkTile, 0)
+        }
+    }
+
+    depthFirstSearch(checkTile, depth){
+        console.log(checkTile, this.targetTile, depth, this.path)
+        if (depth < this.range) {
+            if (this.walls.left === 1) {
+                if (checkTile.x - 0.5 === this.targetTile.x) {
+                    return true;
+                } else if(this.depthFirstSearch({y: checkTile.y, x: checkTile.x - 0.5}, depth + 1)) {
+                    this.path.unshift(directions.left)
+                    return true
+                }
+            }
+            if (this.walls.right === 1) {
+                if (checkTile.x + 0.5 === this.targetTile.x) {
+                    return true;
+                } else if(this.depthFirstSearch({y: checkTile.y, x: checkTile.x + 0.5}, depth + 1)) {
+                    this.path.unshift(directions.right)
+                    return true
+                }
+            }
+            if (this.walls.top === 1) {
+                if (checkTile.y - 0.5 === this.targetTile.y) {
+                    return true;
+                } else if (this.depthFirstSearch({y: checkTile.y - 0.5, x: checkTile.x}, depth + 1)) {
+                    this.path.unshift(directions.up)
+                    return true
+                }
+            }
+            if (this.walls.bottom === 1) {
+                if (checkTile.y + 0.5 === this.targetTile.y) {
+                    return true;
+                } else if(this.depthFirstSearch({y: checkTile.y + 0.5, x: checkTile.x}, depth + 1)){
+                    this.path.unshift(directions.down)
+                    return true
+                }
+            }
+            return false
+        } else { return false }
+    }
+
+    move(pixelSize){
+        //console.log(this.y, this.x, this.currentTileY, this.currentTileX, this.walls, this.target, this.path)
+        if (this.target !== {}) {
+            // move towards target
+            if (this.x > this.target.x) {
+                let direction = directions.left
+            } else if (this.x < this.target.x) {
+                let direction = directions.right
+            } else if (this.y > this.target.y) {
+                let direction = directions.up
+            } else if (this.y < this.target.y) {
+                let direction = directions.down
+            } else {
+                this.target = {};
+                this.path.shift();
+            }
+        }
+        if (this.targetTile.x === this.currentTileX && this.targetTile.y === this.currentTileY){
+            // set player as target
+        } else if (!this.path){
+            // random movement
+        } else {
+            // move to next tile
+            super.move(this.path[0]);
+            if (Math.abs(this.currentTileX - this.prevTileX) === 0.5 || Math.abs(this.currentTileY - this.prevTileY) === 0.5) {
+                this.target = {y: this.tileOriginX + 20, x: this.tileOriginY + 15}
+            }
+        }
+        this.self.style.transform = `translate3d( ${this.x * pixelSize}px, ${this.y * pixelSize}px, 0 )`;
+    }
+}
+
 const maze = new Maze(mapHeight, mapWidth, mazeHex)
 maze.output()
 
 let player = new Player()
+
+let enemy = new Enemy(3)
+enemy.spawn(2, 2)
 
 // setting css properties to correct values
 let root = document.querySelector(':root');
@@ -230,6 +356,9 @@ const gameLoop = function () {
 
     player.move(pixelSize)
 
+    enemy.pathFind(Player);
+    enemy.move(pixelSize)
+
 }
 
 // steps through every frame
@@ -241,23 +370,6 @@ const step = function () {
 }
 step()
 
-// mapping keys to movement directions
-const directions = {
-    up: "up",
-    down: "down",
-    left: "left",
-    right: "right",
-}
-const keys = {
-    'w': directions.up,
-    'a': directions.left,
-    'd': directions.right,
-    's': directions.down,
-    'ArrowUp': directions.up,
-    'ArrowLeft': directions.left,
-    'ArrowRight': directions.right,
-    'ArrowDown': directions.down,
-}
 
 
 // event listeners for keys being pressed and released
