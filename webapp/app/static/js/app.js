@@ -240,21 +240,41 @@ class Enemy extends Entity {
     spawn(tileY, tileX){
         this.x = (tileX -1) * mazeScale + 20
         this.y = (tileY -1) * mazeScale + 40
-        this.currentTileY = this.prevTileY = tileY;
-        this.currentTileX = this.prevTileX = tileX;
+        this.currentTile = this.prevTile = {y: tileY, x: tileX}
     }
 
     pathFind(){
         this.targetTile = player.getTilePosition()
-        if ((this.currentTileX - this.range < this.targetTile.x || this.currentTileX + this.range > this.targetTile.x) &&
-            (this.currentTileY - this.range < this.targetTile.y || this.currentTileY + this.range > this.targetTile.y)){
-            let checkTile = {y: this.currentTileY, x: this.currentTileX}
+        // TODO use getter
+        let walls = player.walls()
+        let min = {y: this.currentTile.y - this.range/2, x: this.currentTile.x - this.range/2};
+        let max = {y: this.currentTile.y + this.range/2, x: this.currentTile.x + this.range/2};
+
+        if (min.y <= this.targetTile.y <= max.y && min.x <= this.targetTile.x <= max.x){
+            let checkTile = this.targetTile
+            let prevCheckTile = checkTile
+            let tilesInRange = []
+            let adjacentTiles = []
+            let visitedTiles = []
             this.path = []
-            console.log('search start', this.currentTileY, this.currentTileX, this.walls)
-            this.depthFirstSearch(checkTile, checkTile, this.walls,0)
+            console.log('search start', this.currentTile, this.walls)
+
+            for (let row = min.y; row <= max.y; row += 0.5){
+                for (let column = min.x; column <= max.x; column += 0.5){
+
+                }
+            }
+
+
+            while (checkTile !== this.currentTile){
+
+
+            }
         }
     }
 
+
+    // ! doesnt work
     depthFirstSearch(checkTile, prevCheckTile, walls, depth){
         walls = maze.getWalls(checkTile, prevCheckTile, walls);
         console.log(prevCheckTile, checkTile, this.targetTile, walls, depth, this.path)
