@@ -59,16 +59,16 @@ class Maze {
         }
     }
 
-    getWalls(currentTileX, currentTileY, prevTileX, prevTileY, walls){
+    getWalls(currentTile, prevTile, walls){
         // if the next node is going to be between two nodes
-        if (Math.floor(currentTileX) !== currentTileX && prevTileX !== currentTileX) {
+        if (Math.floor(currentTile.x) !== currentTile.x && prevTile.x !== currentTile.x) {
             walls =  { top: 1, bottom: 1, left: 0, right: 0 }
 
-        } else if (Math.floor(currentTileY) !== currentTileY && prevTileY !== currentTileY) {
+        } else if (Math.floor(currentTile.y) !== currentTile.y && prevTile.y !== currentTile.y) {
             walls =  { top: 0, bottom: 0, left: 1, right: 1 }
 
-        } else if (prevTileX !== currentTileX || prevTileY !== currentTileY) {
-            walls = this.adjacencyList[currentTileY - 1][currentTileX - 1]
+        } else if (prevTile.y !== currentTile.y || prevTile.x !== currentTile.x) {
+            walls = this.adjacencyList[currentTile.y - 1][currentTile.x - 1]
         }
         return walls
     }
@@ -84,14 +84,11 @@ class Entity {
         this.x = x;
         this.y = y;
         this.speed = 0;
-        this.prevTileX = 0;
-        this.prevTileY = 0;
-        this.currentTileX = 0;
-        this.currentTileY = 0;
-        this.tileOriginX = 0;
-        this.tileOriginY = 0;
+        this.prevTile = {y: 0, x: 0};
+        this.currentTile = {y: 0, x:0};
+        this.tileOrigin = {y: 0, x: 0};
         this.determineCurrentTile()
-        this.walls = maze.getWalls(this.currentTileX, this.currentTileY, this.prevTileX, this.prevTileY);
+        this.walls = maze.getWalls(this.currentTile, this.prevTile);
         this.self = document.querySelector(identifier);
     }
 
@@ -107,17 +104,17 @@ class Entity {
 
     determineCurrentTile(){
         // store previous node to know where its walls where
-        this.prevTileX = this.currentTileX;
-        this.prevTileY = this.currentTileY;
+        this.prevTile.y = this.currentTile.y
+        this.prevTile.x = this.currentTile.x;
 
-        // work out which tile in the spanning tree the player is in
-        this.currentTileX = this.roundTileCoord((this.x / mazeScale) + 1);
-        this.currentTileY = this.roundTileCoord((this.y / mazeScale) + 1);
+        // work out which tile in the spanning tree the entity is in
+        this.currentTile.x = this.roundTileCoord((this.x / mazeScale) + 1);
+        this.currentTile.y = this.roundTileCoord((this.y / mazeScale) + 1);
     }
 
     determineWalls() {
         this.determineCurrentTile()
-        return maze.getWalls(this.currentTileX, this.currentTileY, this.prevTileX, this.prevTileY, this.walls)
+        return maze.getWalls(this.currentTile, this.prevTile, this.walls)
     }
 
     checkCollision(originalX, originalY) {
@@ -167,8 +164,8 @@ class Entity {
         let originalY = this.y;
 
         // get the coordinates of the tile and data from spanning tree
-        this.tileOriginX = (this.currentTileX - 1) * mazeScale;
-        this.tileOriginY = (this.currentTileY - 1) * mazeScale;
+        this.tileOriginX = (this.currentTile.x - 1) * mazeScale;
+        this.tileOriginY = (this.currentTile.y - 1) * mazeScale;
 
         switch (direction) {
             case directions.right:
@@ -188,7 +185,7 @@ class Entity {
     }
 
     getTilePosition(){
-        return {y: this.currentTileY, x: this.currentTileX}
+        return this.currentTile
     }
 
 }
@@ -247,53 +244,57 @@ class Enemy extends Entity {
         this.currentTileX = this.prevTileX = tileX;
     }
 
-    pathFind(entity){
+    pathFind(){
         this.targetTile = player.getTilePosition()
         if ((this.currentTileX - this.range < this.targetTile.x || this.currentTileX + this.range > this.targetTile.x) &&
-            (this.currentTileY - this.range < this.targetTile.x || this.currentTileY + this.range > this.targetTile.y)){
+            (this.currentTileY - this.range < this.targetTile.y || this.currentTileY + this.range > this.targetTile.y)){
             let checkTile = {y: this.currentTileY, x: this.currentTileX}
             this.path = []
-            this.depthFirstSearch(checkTile, 0)
+            console.log('search start', this.currentTileY, this.currentTileX, this.walls)
+            this.depthFirstSearch(checkTile, checkTile, this.walls,0)
         }
     }
 
-    depthFirstSearch(checkTile, depth){
-        console.log(checkTile, this.targetTile, depth, this.path)
+    depthFirstSearch(checkTile, prevCheckTile, walls, depth){
+        walls = maze.getWalls(checkTile, prevCheckTile, walls);
+        console.log(prevCheckTile, checkTile, this.targetTile, walls, depth, this.path)
         if (depth < this.range) {
-            if (this.walls.left === 1) {
-                if (checkTile.x - 0.5 === this.targetTile.x) {
-                    return true;
-                } else if(this.depthFirstSearch({y: checkTile.y, x: checkTile.x - 0.5}, depth + 1)) {
-                    this.path.unshift(directions.left)
-                    return true
-                }
-            }
-            if (this.walls.right === 1) {
-                if (checkTile.x + 0.5 === this.targetTile.x) {
-                    return true;
-                } else if(this.depthFirstSearch({y: checkTile.y, x: checkTile.x + 0.5}, depth + 1)) {
-                    this.path.unshift(directions.right)
-                    return true
-                }
-            }
-            if (this.walls.top === 1) {
+            if (this.walls.top === 0 && prevCheckTile.y >= checkTile.y) {
                 if (checkTile.y - 0.5 === this.targetTile.y) {
                     return true;
-                } else if (this.depthFirstSearch({y: checkTile.y - 0.5, x: checkTile.x}, depth + 1)) {
+                } else if (this.depthFirstSearch({y: checkTile.y - 0.5, x: checkTile.x}, checkTile, walls,+ 0.5)) {
                     this.path.unshift(directions.up)
                     return true
                 }
             }
-            if (this.walls.bottom === 1) {
+            if (this.walls.bottom === 0 && prevCheckTile.y <= checkTile.y) {
                 if (checkTile.y + 0.5 === this.targetTile.y) {
                     return true;
-                } else if(this.depthFirstSearch({y: checkTile.y + 0.5, x: checkTile.x}, depth + 1)){
+                } else if(this.depthFirstSearch({y: checkTile.y + 0.5, x: checkTile.x}, checkTile, walls,depth + 0.5)){
                     this.path.unshift(directions.down)
                     return true
                 }
             }
+            if (this.walls.left === 0 && prevCheckTile.x >= checkTile.x) {
+                if (checkTile.x - 0.5 === this.targetTile.x) {
+                    return true;
+                } else if(this.depthFirstSearch({y: checkTile.y, x: checkTile.x - 0.5}, checkTile, walls,depth + 0.5)) {
+                    this.path.unshift(directions.left)
+                    return true
+                }
+            }
+            if (this.walls.right === 0 && prevCheckTile.x <= checkTile.x) {
+                if (checkTile.x + 0.5 === this.targetTile.x) {
+                    return true;
+                } else if(this.depthFirstSearch({y: checkTile.y, x: checkTile.x + 0.5}, checkTile, walls,depth + 0.5)) {
+                    this.path.unshift(directions.right)
+                    return true
+                }
+            }
             return false
-        } else { return false }
+        } else {
+            return false
+        }
     }
 
     move(pixelSize){
@@ -356,7 +357,7 @@ const gameLoop = function () {
 
     player.move(pixelSize)
 
-    enemy.pathFind(Player);
+    enemy.pathFind();
     enemy.move(pixelSize)
 
 }
