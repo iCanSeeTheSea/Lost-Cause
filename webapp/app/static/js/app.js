@@ -21,6 +21,32 @@ const keys = {
     'ArrowDown': directions.down,
 }
 
+class Node{
+    constructor(y, x, walls) {
+        this.x = x;
+        this.y = y;
+        this.top = walls.top;
+        this.bottom = walls.bottom;
+        this.left = walls.left;
+        this.right = walls.right;
+        this.wallString = this.top.toString() + this.bottom.toString() + this.left.toString() + this.right.toString();
+    }
+}
+
+class HorizontalEdge extends Node{
+    constructor(y, x) {
+        walls = { top: 1, bottom: 1, left: 0, right: 0 }
+        super(y, x, walls);
+    }
+}
+
+class VerticalEdge extends Node{
+    constructor(y, x) {
+        walls = { top: 0, bottom: 0, left: 1, right: 1 }
+        super(y, x, walls);
+    }
+}
+
 
 class Maze {
 
@@ -50,8 +76,9 @@ class Maze {
                 walls.bottom = parseInt(bin[1])
                 walls.left = parseInt(bin[2])
                 walls.right = parseInt(bin[3])
+                let node = Node(row, column, walls);
 
-                rowList.push(walls)
+                rowList.push(node)
 
                 index += 1
             }
@@ -59,18 +86,23 @@ class Maze {
         }
     }
 
-    getWalls(currentTile, prevTile, walls){
+    getNodeFromCoordinate(y, x){
+        return this.adjacencyList[y - 1][x - 1]
+    }
+
+    getNode(currentTile, prevTile){
+        let node = currentTile;
         // if the next node is going to be between two nodes
         if (Math.floor(currentTile.x) !== currentTile.x && prevTile.x !== currentTile.x) {
-            walls =  { top: 1, bottom: 1, left: 0, right: 0 }
+            node = HorizontalEdge(currentTile.y, currentTile.x)
 
         } else if (Math.floor(currentTile.y) !== currentTile.y && prevTile.y !== currentTile.y) {
-            walls =  { top: 0, bottom: 0, left: 1, right: 1 }
+            node = VerticalEdge(currentTile.y, currentTile.x)
 
         } else if (prevTile.y !== currentTile.y || prevTile.x !== currentTile.x) {
-            walls = this.adjacencyList[currentTile.y - 1][currentTile.x - 1]
+            node = this.adjacencyList[currentTile.y - 1][currentTile.x - 1]
         }
-        return walls
+        return node
     }
 
     output(){
@@ -84,11 +116,10 @@ class Entity {
         this.x = x;
         this.y = y;
         this.speed = 0;
-        this.prevTile = {y: 0, x: 0};
+        this.prevTile = {y: 0, x:0};
         this.currentTile = {y: 0, x:0};
-        this.tileOrigin = {y: 0, x: 0};
+        this.tileOrigin = {y: 0, x:0}
         this.determineCurrentTile()
-        this.walls = maze.getWalls(this.currentTile, this.prevTile);
         this.self = document.querySelector(identifier);
     }
 
@@ -104,55 +135,51 @@ class Entity {
 
     determineCurrentTile(){
         // store previous node to know where its walls where
-        this.prevTile.y = this.currentTile.y
-        this.prevTile.x = this.currentTile.x;
+        this.prevTile = this.currentTile;
 
         // work out which tile in the spanning tree the entity is in
         this.currentTile.x = this.roundTileCoord((this.x / mazeScale) + 1);
         this.currentTile.y = this.roundTileCoord((this.y / mazeScale) + 1);
-    }
 
-    determineWalls() {
-        this.determineCurrentTile()
-        return maze.getWalls(this.currentTile, this.prevTile, this.walls)
+        this.currentTile = maze.getNode(this.currentTile, this.prevTile)
     }
 
     checkCollision(originalX, originalY) {
         // maze wall collisions
         // top, bottom, left, right
 
-        this.walls = this.determineWalls()
+        this.determineCurrentTile()
 
         // left
         if (this.x < this.tileOriginX + 1) {
-            if (this.walls.left === 1) {
+            if (this.currentTile.left === 1) {
                 this.x = originalX;
-            } else if (this.walls.left === 0 && this.y < this.tileOriginY + 1) {
+            } else if (this.currentTile.left === 0 && this.y < this.tileOriginY + 1) {
                 // corner correction
                 this.x = originalX;
             }
         }
         // right
         if (this.x > this.tileOriginX + 32) {
-            if (this.walls.right === 1) {
+            if (this.currentTile.right === 1) {
                 this.x = originalX;
-            } else if (this.walls.right === 0 && this.y > this.tileOriginY + 41) {
+            } else if (this.currentTile.right === 0 && this.y > this.tileOriginY + 41) {
                 this.x = originalX;
             }
         }
         // top
         if (this.y < this.tileOriginY + 1) {
-            if (this.walls.top === 1) {
+            if (this.currentTile.top === 1) {
                 this.y = originalY;
-            } else if (this.walls.top === 0 && this.x < this.tileOriginX + 1) {
+            } else if (this.currentTile.top === 0 && this.x < this.tileOriginX + 1) {
                 this.y = originalY;
             }
         }
         // bottom
         if (this.y > this.tileOriginY + 41) {
-            if (this.walls.bottom === 1) {
+            if (this.currentTile.bottom === 1) {
                 this.y = originalY;
-            } else if (this.walls.bottom === 0 && this.x > this.tileOriginX + 32) {
+            } else if (this.currentTile.bottom === 0 && this.x > this.tileOriginX + 32) {
                 this.y = originalY;
             }
         }
@@ -184,7 +211,7 @@ class Entity {
         this.checkCollision(originalX, originalY)
     }
 
-    getTilePosition(){
+    getCurrentTile(){
         return this.currentTile
     }
 
@@ -244,12 +271,9 @@ class Enemy extends Entity {
     }
 
     pathFind(){
-        this.targetTile = player.getTilePosition()
-        // TODO use getter
-        let walls = player.walls()
+        this.targetTile = player.getCurrentTile()
         let min = {y: this.currentTile.y - this.range/2, x: this.currentTile.x - this.range/2};
         let max = {y: this.currentTile.y + this.range/2, x: this.currentTile.x + this.range/2};
-
         if (min.y <= this.targetTile.y <= max.y && min.x <= this.targetTile.x <= max.x){
             let checkTile = this.targetTile
             let prevCheckTile = checkTile
@@ -257,7 +281,7 @@ class Enemy extends Entity {
             let adjacentTiles = []
             let visitedTiles = []
             this.path = []
-            console.log('search start', this.currentTile, this.walls)
+            console.log('search start', this.currentTile)
 
             for (let row = min.y; row <= max.y; row += 0.5){
                 for (let column = min.x; column <= max.x; column += 0.5){
@@ -274,7 +298,7 @@ class Enemy extends Entity {
     }
 
 
-    // ! doesnt work
+    // ! doesn't work WILL NOT BE USED
     depthFirstSearch(checkTile, prevCheckTile, walls, depth){
         walls = maze.getWalls(checkTile, prevCheckTile, walls);
         console.log(prevCheckTile, checkTile, this.targetTile, walls, depth, this.path)
@@ -341,7 +365,7 @@ class Enemy extends Entity {
         } else {
             // move to next tile
             super.move(this.path[0]);
-            if (Math.abs(this.currentTileX - this.prevTileX) === 0.5 || Math.abs(this.currentTileY - this.prevTileY) === 0.5) {
+            if (Math.abs(this.currentTile.x - this.prevTile.x) === 0.5 || Math.abs(this.currentTile.y - this.prevTile.y) === 0.5) {
                 this.target = {y: this.tileOriginX + 20, x: this.tileOriginY + 15}
             }
         }
