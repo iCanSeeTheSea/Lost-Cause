@@ -8,11 +8,11 @@ pygame.init()
 
 
 def chooseColour(node):
-    if 0 <= node[1] < 10 or 40 <= node[1]:
+    if 0 <= node[1] < 14 or 56 <= node[1]:
         colour = (85, 205, 252)
-    elif 10 <= node[1] < 20 or 30 <= node[1] < 40:
+    elif 14 <= node[1] < 28 or 42 <= node[1] < 56:
         colour = (247, 168, 184)
-    elif 20 <= node[1] < 30:
+    elif 28 <= node[1] < 42:
         colour = (255, 255, 255)
     return colour
 
@@ -119,4 +119,5 @@ def mazeGen(m, maxX, maxY):
     pygame.quit()
 
 
-mazeGen(m=5, maxX=120, maxY=50)
+while True:
+    mazeGen(m=8, maxX=120, maxY=70)
