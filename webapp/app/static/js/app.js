@@ -59,6 +59,8 @@ class Maze {
         }
     }
 
+    // ! bad implementation
+    // * check tile positions around .5, whichever direction there's two tiles in is the right one.
     getWalls(currentTile, prevTile, walls){
         // if the next node is going to be between two nodes
         if (Math.floor(currentTile.x) !== currentTile.x && prevTile.x !== currentTile.x) {
@@ -71,6 +73,11 @@ class Maze {
             walls = this.adjacencyList[currentTile.y - 1][currentTile.x - 1]
         }
         return walls
+    }
+
+    getTile(y, x){
+
+        return this.getWalls()
     }
 
     output(){
