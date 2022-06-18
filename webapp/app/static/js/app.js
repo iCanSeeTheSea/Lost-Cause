@@ -90,19 +90,29 @@ class Maze {
         return this.adjacencyList[y - 1][x - 1]
     }
 
-    getNode(currentTile, prevTile){
-        let node = currentTile;
-        // if the next node is going to be between two nodes
-        if (Math.floor(currentTile.x) !== currentTile.x && prevTile.x !== currentTile.x) {
-            node = HorizontalEdge(currentTile.y, currentTile.x)
+    // getNode(currentTile, prevTile){
+    //     let node = currentTile;
+    //     // if the next node is going to be between two nodes
+    //     if (Math.floor(currentTile.x) !== currentTile.x && prevTile.x !== currentTile.x) {
+    //         node = HorizontalEdge(currentTile.y, currentTile.x)
+    //
+    //     } else if (Math.floor(currentTile.y) !== currentTile.y && prevTile.y !== currentTile.y) {
+    //         node = VerticalEdge(currentTile.y, currentTile.x)
+    //
+    //     } else if (prevTile.y !== currentTile.y || prevTile.x !== currentTile.x) {
+    //         node = this.adjacencyList[currentTile.y - 1][currentTile.x - 1]
+    //     }
+    //     return node
+    // }
 
-        } else if (Math.floor(currentTile.y) !== currentTile.y && prevTile.y !== currentTile.y) {
-            node = VerticalEdge(currentTile.y, currentTile.x)
-
-        } else if (prevTile.y !== currentTile.y || prevTile.x !== currentTile.x) {
-            node = this.adjacencyList[currentTile.y - 1][currentTile.x - 1]
+    getNode(currentTile){
+        if (currentTile.x % 1 !== 0){
+            return HorizontalEdge(currentTile.y, currentTile.x)
+        } else if (currentTile.y % 1 !== 0){
+            return VerticalEdge(currentTile.y, currentTile.x)
+        } else {
+            return this.adjacencyList[currentTile.y -1][currentTile.x -1]
         }
-        return node
     }
 
     output(){
