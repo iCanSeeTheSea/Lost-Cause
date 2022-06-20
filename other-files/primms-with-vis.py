@@ -1,7 +1,10 @@
-# primms 
+# primms
 
-import random, time, pygame
+import random
+import time
+import pygame
 pygame.init()
+
 
 def mazeGen(m, maxX, maxY):
     nodes = []
@@ -27,8 +30,9 @@ def mazeGen(m, maxX, maxY):
     start_time = time.perf_counter()
 
     next_node = random.choice(nodes)
-    pygame.draw.rect(screen, (255, 100, 100), pygame.Rect((next_node[0]-1)*(m*2), (next_node[1]-1)*(m*2), m, m))
-    
+    pygame.draw.rect(screen, (255, 100, 100), pygame.Rect(
+        (next_node[0]-1)*(m*2), (next_node[1]-1)*(m*2), m, m))
+
     while True:
 
         for event in pygame.event.get():
@@ -36,9 +40,9 @@ def mazeGen(m, maxX, maxY):
                 running = False
 
         pygame.display.flip()
-        
+
         current_node = next_node
-        
+
         # print(current_node)
         try:
             nodes.remove(current_node)
@@ -51,17 +55,16 @@ def mazeGen(m, maxX, maxY):
             if proposedNode in nodes and proposedNode not in frontiers:
                 frontiers.append(proposedNode)
                 prev_nodes.append(current_node)
-        
+
         if frontiers:
             # choosing a random (adjacent) node to go next
 
-            index = random.randint(0,len(frontiers)-1)
+            index = random.randint(0, len(frontiers)-1)
             next_node = frontiers.pop(index)
             prev_node = prev_nodes.pop(index)
-            
-            
+
             spanning_tree.append((next_node, prev_node))
-            
+
             # visualisation
             rColour = tuple(colour)
             pygame.draw.rect(screen, rColour, pygame.Rect(
@@ -71,20 +74,25 @@ def mazeGen(m, maxX, maxY):
             join_y = ((prev_node[1] - next_node[1])/2) + next_node[1]
             pygame.draw.rect(screen, rColour, pygame.Rect(
                 (join_x-1)*(m*2), (join_y-1)*(m*2), m, m))
-            
+
             # colours
-            if count%((maxX*maxY)//150 + (maxX*maxY)//10500) == 0:
-                colour[step] -= 1; colour[step-1] -= 1
-                if colour[step] < 50: colour[step] = 250; step += 1
-                if colour[step-1] < 50: colour[step-1] = 250
-                if step > 2: step = 0
+            if count % ((maxX*maxY)//150 + (maxX*maxY)//10500) == 0:
+                colour[step] -= 1
+                colour[step-1] -= 1
+                if colour[step] < 50:
+                    colour[step] = 250
+                    step += 1
+                if colour[step-1] < 50:
+                    colour[step-1] = 250
+                if step > 2:
+                    step = 0
             count += 1
 
         else:
             end_time = time.perf_counter()-start_time
             print(
                 (str(end_time)[:-(len(str(end_time).split('.')[1])-2)]) + 's')
-            #print(spanning_tree)
+            # print(spanning_tree)
             break
     running = True
     while running:
@@ -94,11 +102,12 @@ def mazeGen(m, maxX, maxY):
                 running = False
 
         pygame.display.flip()
-        
+
         time.sleep(1)
         running = False
 
     pygame.quit()
 
+
 while True:
-    mazeGen(8,75,50)
+    mazeGen(8, 120, 70)
