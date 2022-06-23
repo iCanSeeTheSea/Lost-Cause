@@ -76,7 +76,7 @@ class Maze {
                 walls.bottom = parseInt(bin[1])
                 walls.left = parseInt(bin[2])
                 walls.right = parseInt(bin[3])
-                let node = Node(row, column, walls);
+                let node = new Node(row, column, walls);
 
                 rowList.push(node)
 
