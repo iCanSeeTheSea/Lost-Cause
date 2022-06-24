@@ -107,9 +107,9 @@ class Maze {
 
     getNode(currentTile){
         if (currentTile.x % 1 !== 0){
-            return HorizontalEdge(currentTile.y, currentTile.x)
+            return new HorizontalEdge(currentTile.y, currentTile.x)
         } else if (currentTile.y % 1 !== 0){
-            return VerticalEdge(currentTile.y, currentTile.x)
+            return new VerticalEdge(currentTile.y, currentTile.x)
         } else {
             return this.adjacencyList[currentTile.y -1][currentTile.x -1]
         }
