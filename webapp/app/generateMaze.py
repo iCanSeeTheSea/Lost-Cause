@@ -4,7 +4,7 @@ import time
 from PIL import Image
 from pathlib import Path
 from string import hexdigits
-from base64 import b64decode
+from base64 import b64decode, b64encode
 
 
 @dataclass
@@ -261,26 +261,29 @@ class MazeGenerator:
 
         return self._drawMaze()
 
-# class Base64Converter(MazeGenerator):
-#     def __init__(self, base64String):
-#         # remove and save width and height from start of base 64 num
-#         maxX = int(base64String[0:2])
-#         maxY = int(base64String[2:4])
-#         base64String = base64String[4:]
 
-#         super().__init__(maxX, maxY)
+class SeedGenerator:
+    def __init__(self, height, width):
+        self._height = self._twoDigitNumber(height)
+        self._width = self._twoDigitNumber(width)
+        self._mazeGenerator = MazeGenerator(self._height, self._width)
+        self._mazeHex = None
+        self._seed = None
 
-#         # convert the rest of the base 64 into hex
-#         self._hexString = b64decode(base64String).hex()
+    def _twoDigitNumber(self, number):
+        if len(number) < 2:
+            return int('0' + str(number))
+        return number
 
-#     def mazeFromHex(self):
-#         # each hex digit corresponds to one of the nodes
-#         for index, node in enumerate(self._nodes):
-#             hexDigit = self._hexString[index]
-#             # converts the hex digit to binary
-#             wallBin = bin(int(hexDigit, 16))[2:].zfill(4)
-#             nodeObj = Node(node)
-#             nodeObj.wallsFromBinary(wallBin)
-#             self._maze.insert(nodeObj)
+    def createBase64Seed(self):
+        self._mazeHex = f'{self._height}{self._width}{self._mazeGenerator.recursiveBacktracking()}'
+        mazeHexBytes = self._mazeHex.encode()
+        self._seed = b64encode(mazeHexBytes)
+        return self._seed
 
-#         return self._drawMaze()
+    def drawMazeFromSeed(self, seed):
+        self._seed = seed
+
+
+
+
