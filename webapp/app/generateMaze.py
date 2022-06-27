@@ -102,7 +102,7 @@ class Maze:
 
 
 class MazeGenerator:
-    def __init__(self, maxX, maxY):
+    def __init__(self, maxX, maxY, mazeHex):
         self._maze = Maze(maxX, maxY)
 
         self._nodes = []
@@ -116,6 +116,7 @@ class MazeGenerator:
 
         self._maxX = maxX
         self._maxY = maxY
+        self._mazeHex = mazeHex
 
         # number corresponds to hex value of the node's key
         self._tileNames = {'0': 'no-walls.png', '1': 'right-wall.png', '2': 'left-wall.png', '3': 'left-right-wall.png',
@@ -137,11 +138,19 @@ class MazeGenerator:
 
         # debug = Image.open(mazePath / 'debug-tile.png')
 
-        mazeHex = ''
-
+        count = 0
         for row in range(1, self._maxY + 1):
             for column in range(1, self._maxX + 1):
-                node = self._maze.node([row, column])
+                if self._mazeHex is not None:
+                    node = Node([row, column])
+                    tileHex = self._mazeHex[count]
+                    tileBin = str(bin(int(tileHex, 16))[2:].zfill(4))
+                    node.top = tileBin[0]
+                    node.bottom = tileBin[1]
+                    node.left = tileBin[2]
+                    node.right = tileBin[3]
+                else:
+                    node = self._maze.node([row, column])
 
                 adjNodes = []
                 # getting the list of adjacent nodes from the dictionary
@@ -262,13 +271,22 @@ class MazeGenerator:
         return self._drawMaze()
 
 
+
 class SeedGenerator:
     def __init__(self, height, width):
         self._height = self._twoDigitNumber(height)
         self._width = self._twoDigitNumber(width)
-        self._mazeGenerator = MazeGenerator(self._height, self._width)
+        self._mazeGenerator = MazeGenerator(self._height, self._width, None)
         self._mazeHex = None
         self._seed = None
+
+    @property
+    def seed(self):
+        return self._seed
+
+    @seed.setter
+    def seed(self, seed):
+        self._seed = seed
 
     def _twoDigitNumber(self, number):
         if len(number) < 2:
@@ -279,10 +297,10 @@ class SeedGenerator:
         self._mazeHex = f'{self._height}{self._width}{self._mazeGenerator.recursiveBacktracking()}'
         mazeHexBytes = self._mazeHex.encode()
         self._seed = b64encode(mazeHexBytes)
-        return self._seed
 
     def drawMazeFromSeed(self, seed):
         self._seed = seed
+
 
 
 
