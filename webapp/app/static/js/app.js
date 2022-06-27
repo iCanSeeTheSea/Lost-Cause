@@ -59,6 +59,7 @@ class Maze {
         }
 
     createTree() {
+        // TODO get the maze from base64 seed
         // converting hex back into the spanning tree
         let index = 0;
         for (let row = 1; row <= mapHeight; row++) {

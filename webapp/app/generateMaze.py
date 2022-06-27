@@ -126,7 +126,15 @@ class MazeGenerator:
                            'c': 'top-bottom-wall.png', 'd': 'right-dead.png',
                            'e': 'left-dead.png', 'f': 'all-walls.png'}
 
-    def _drawMaze(self):
+    @property
+    def mazeHex(self):
+        return self._mazeHex
+
+    @mazeHex.setter
+    def mazeHex(self, mazeHex):
+        self._mazeHex = mazeHex
+
+    def drawMaze(self):
 
         mazePath = Path('app/static/img/maze/')
 
@@ -139,9 +147,14 @@ class MazeGenerator:
         # debug = Image.open(mazePath / 'debug-tile.png')
 
         count = 0
+        print(self._mazeHex)
+        drawMazeFromHex = False
+        if self._mazeHex:
+            drawMazeFromHex = True
+
         for row in range(1, self._maxY + 1):
             for column in range(1, self._maxX + 1):
-                if self._mazeHex is not None:
+                if drawMazeFromHex:
                     node = Node([row, column])
                     tileHex = self._mazeHex[count]
                     tileBin = str(bin(int(tileHex, 16))[2:].zfill(4))
@@ -185,15 +198,14 @@ class MazeGenerator:
                     tileImg = Image.open(tile)
                     img.paste(tileImg, (int((join_x - 1) * 64), int((join_y - 1) * 64)))
 
-                mazeHex += node.key
+                self._mazeHex += node.key
+                count += 1
 
         img.save(mazePath / 'fullmaze.png')
 
-        print(mazeHex)
+        print(self._mazeHex)
 
-        return mazeHex
-
-        # recursive backtracking | 19/09/21
+    # recursive backtracking | 19/09/21
 
     def recursiveBacktracking(self):
 
@@ -268,16 +280,13 @@ class MazeGenerator:
         # end_time = time.time()-start_time
         # print((str(end_time)[:-(len(str(end_time).split('.')[1])-2)]) + 's')
 
-        return self._drawMaze()
-
-
 
 class SeedGenerator:
     def __init__(self, height, width):
         self._height = self._twoDigitNumber(height)
         self._width = self._twoDigitNumber(width)
-        self._mazeGenerator = MazeGenerator(self._height, self._width, None)
-        self._mazeHex = None
+        self._mazeGenerator = MazeGenerator(self._height, self._width, '')
+        self._mazeHex = ''
         self._seed = None
 
     @property
@@ -289,19 +298,26 @@ class SeedGenerator:
         self._seed = seed
 
     def _twoDigitNumber(self, number):
-        if len(number) < 2:
+        if len(str(number)) < 2:
             return int('0' + str(number))
         return number
 
     def createBase64Seed(self):
-        self._mazeHex = f'{self._height}{self._width}{self._mazeGenerator.recursiveBacktracking()}'
+        self._mazeGenerator.recursiveBacktracking()
+        self._mazeGenerator.drawMaze()
+        self._mazeHex = f'{self._height}{self._width}{self._mazeGenerator.mazeHex}'
         mazeHexBytes = self._mazeHex.encode()
         self._seed = b64encode(mazeHexBytes)
+        print(self._seed)
 
     def drawMazeFromSeed(self, seed):
         self._seed = seed
-
-
+        hexString = str(b64decode(self._seed))
+        self._height = hexString[:2]
+        self._width = hexString[2:4]
+        self._mazeHex = hexString[4:]
+        self._mazeGenerator.mazeHex = self._mazeHex
+        self._mazeGenerator.drawMaze()
 
 
 
