@@ -88,23 +88,26 @@ class Node:
 class Maze:
     def __init__(self, maxX, maxY):
         # 2D list to store node objects - index matches coordinate in the maze
-        self._list = [[None for _ in range(maxX)] for _ in range(maxY)]
-        self._binaryString = ''
+        self._maxX = maxX
+        self._maxY = maxY
+        self._nodeList = [[None for _ in range(maxX)] for _ in range(maxY)]
+        self._binaryList = ['' for _ in range(maxY * maxX)]
 
     def insert(self, nodeObj):
         row = nodeObj.row
         column = nodeObj.column
         # maze starts at 1,1 but list indexing starts at [0][0]
-        self._list[row - 1][column - 1] = nodeObj
-        self._binaryString += f'{nodeObj.top}{nodeObj.bottom}{nodeObj.left}{nodeObj.right}'
+        self._nodeList[row - 1][column - 1] = nodeObj
+        # calculates relative position
+        self._binaryList[self._maxX*(row - 1) + (column - 1)] = f'{nodeObj.top}{nodeObj.bottom}{nodeObj.left}{nodeObj.right}'
 
     def node(self, coord):
-        node = self._list[coord[0] - 1][coord[1] - 1]  # Changed
+        node = self._nodeList[coord[0] - 1][coord[1] - 1]  # Changed
         return node
 
     @property
     def binaryString(self):
-        return self._binaryString
+        return ''.join(self._binaryList)
 
 class MazeGenerator:
     def __init__(self, maxX, maxY, mazeHex):
@@ -207,8 +210,6 @@ class MazeGenerator:
                 count += 1
 
         img.save(mazePath / 'fullmaze.png')
-
-        print(self._mazeHex)
 
     # recursive backtracking | 19/09/21
 
@@ -343,8 +344,7 @@ class SeedGenerator:
         self._maze = self._mazeGenerator.recursiveBacktracking()
         self._mazeGenerator.drawMaze()
         sizeBin = str(bin(int(self._height)))[2:].zfill(8) + str(bin(int(self._width)))[2:].zfill(8)
-        print(sizeBin)
-        binaryString = self._maze.binaryString
+        binaryString = sizeBin + self._maze.binaryString
 
         padding = 0
         while len(binaryString) % 24 != 0:
