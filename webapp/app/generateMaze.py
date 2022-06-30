@@ -3,8 +3,6 @@ import random
 import time
 from PIL import Image
 from pathlib import Path
-from string import hexdigits
-from base64 import b64decode, b64encode
 
 
 @dataclass
@@ -25,12 +23,6 @@ class Node:
             return True
         else:
             raise ValueError("wall value should be either \"1\" or \"0\"")
-
-    def wallsFromBinary(self, wallBin):
-        self._top = wallBin[0]
-        self._bottom = wallBin[1]
-        self._left = wallBin[2]
-        self._right = wallBin[3]
 
     def debug(self):
         return [self.__pos, (self._top, self._bottom, self._left, self._right), self.key]
@@ -82,7 +74,7 @@ class Node:
     @property
     def key(self):
         wallsStr = self._top + self._bottom + self._left + self._right
-        return hex(int(wallsStr, 2))[2:]
+        return wallsStr
 
 
 class Maze:
@@ -110,7 +102,7 @@ class Maze:
         return ''.join(self._binaryList)
 
 class MazeGenerator:
-    def __init__(self, maxX, maxY, mazeHex):
+    def __init__(self, maxX, maxY):
         self._maze = Maze(maxX, maxY)
 
         self._nodes = []
@@ -124,25 +116,16 @@ class MazeGenerator:
 
         self._maxX = maxX
         self._maxY = maxY
-        self._mazeHex = mazeHex
 
-        # number corresponds to hex value of the node's key
-        self._tileNames = {'0': 'no-walls.png', '1': 'right-wall.png', '2': 'left-wall.png', '3': 'left-right-wall.png',
-                           '4': 'bottom-wall.png', '5': 'bottom-right-corner.png', '6': 'bottom-left-corner.png',
-                           '7': 'bottom-dead.png', '8': 'top-wall.png',
-                           '9': 'top-right-corner.png', 'a': 'top-left-corner.png', 'b': 'top-dead.png',
-                           'c': 'top-bottom-wall.png', 'd': 'right-dead.png',
-                           'e': 'left-dead.png', 'f': 'all-walls.png'}
+        # number corresponds to binary value of the node's key
+        self._tileNames = {'0000': 'no-walls.png', '0001': 'right-wall.png', '0010': 'left-wall.png', '0011': 'left-right-wall.png',
+                           '0100': 'bottom-wall.png', '0101': 'bottom-right-corner.png', '0110': 'bottom-left-corner.png',
+                           '0111': 'bottom-dead.png', '1000': 'top-wall.png',
+                           '1001': 'top-right-corner.png', '1010': 'top-left-corner.png', '1011': 'top-dead.png',
+                           '1100': 'top-bottom-wall.png', '1101': 'right-dead.png',
+                           '1110': 'left-dead.png', '1111': 'all-walls.png'}
 
-    @property
-    def mazeHex(self):
-        return self._mazeHex
-
-    @mazeHex.setter
-    def mazeHex(self, mazeHex):
-        self._mazeHex = mazeHex
-
-    def drawMaze(self):
+    def drawMaze(self, binaryString):
 
         mazePath = Path('app/static/img/maze/')
 
@@ -154,22 +137,17 @@ class MazeGenerator:
 
         # debug = Image.open(mazePath / 'debug-tile.png')
 
-        count = 0
-        print(self._mazeHex)
-        drawMazeFromHex = False
-        if self._mazeHex:
-            drawMazeFromHex = True
-
         for row in range(1, self._maxY + 1):
             for column in range(1, self._maxX + 1):
-                if drawMazeFromHex:
+                if binaryString:
+                    wallStr = binaryString[:4]
+                    binaryString = binaryString[4:]
                     node = Node([row, column])
-                    tileHex = self._mazeHex[count]
-                    tileBin = str(bin(int(tileHex, 16))[2:].zfill(4))
-                    node.top = tileBin[0]
-                    node.bottom = tileBin[1]
-                    node.left = tileBin[2]
-                    node.right = tileBin[3]
+                    node.top = wallStr[0]
+                    node.bottom = wallStr[1]
+                    node.left = wallStr[2]
+                    node.right = wallStr[3]
+                    self._maze.insert(node)
                 else:
                     node = self._maze.node([row, column])
 
@@ -205,9 +183,6 @@ class MazeGenerator:
 
                     tileImg = Image.open(tile)
                     img.paste(tileImg, (int((join_x - 1) * 64), int((join_y - 1) * 64)))
-
-                self._mazeHex += node.key
-                count += 1
 
         img.save(mazePath / 'fullmaze.png')
 
@@ -293,8 +268,7 @@ class SeedGenerator:
     def __init__(self, height, width):
         self._height = self._twoDigitNumber(height)
         self._width = self._twoDigitNumber(width)
-        self._mazeGenerator = MazeGenerator(self._height, self._width, '')
-        self._mazeHex = ''
+        self._mazeGenerator = MazeGenerator(self._height, self._width)
         self._seed = None
         self._maze = None
 
@@ -342,8 +316,8 @@ class SeedGenerator:
 
     def createBase64Seed(self):
         self._maze = self._mazeGenerator.recursiveBacktracking()
-        self._mazeGenerator.drawMaze()
-        sizeBin = str(bin(int(self._height)))[2:].zfill(8) + str(bin(int(self._width)))[2:].zfill(8)
+        self._mazeGenerator.drawMaze('')
+        sizeBin = str(bin(self._height))[2:].zfill(8) + str(bin(self._width))[2:].zfill(8)
         binaryString = sizeBin + self._maze.binaryString
 
         padding = 0
@@ -365,12 +339,16 @@ class SeedGenerator:
 
     def drawMazeFromSeed(self, seed):
         self._seed = seed
-        hexString = str(b64decode(self._seed))
-        self._height = hexString[:2]
-        self._width = hexString[2:4]
-        self._mazeHex = hexString[4:]
-        self._mazeGenerator.mazeHex = self._mazeHex
-        self._mazeGenerator.drawMaze()
+        base64String = seed.rstrip('=')
+        binaryString = ''
+        for value in base64String:
+            binaryString += self._toBinary[value]
+        padding = seed.count('=')
+        self._height = int(binaryString[:8], 2)
+        self._width = int(binaryString[8:16], 2)
+        binaryString = binaryString[16:padding*8]
+        self._mazeGenerator.drawMaze(binaryString)
+
 
 
 
