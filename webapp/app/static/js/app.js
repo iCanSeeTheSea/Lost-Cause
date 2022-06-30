@@ -1,6 +1,5 @@
 // debug
-console.log(mazeHex)
-console.log(mapWidth, mapHeight)
+console.log(mazeSeed)
 const mazeScale = 128
 
 // mapping keys to movement directions
@@ -20,6 +19,23 @@ const keys = {
     'ArrowRight': directions.right,
     'ArrowDown': directions.down,
 }
+
+const toBinary = {'A': '000000', 'B': '000001', 'C': '000010', 'D': '000011', 'E': '000100', 'F': '000101',
+                    'G': '000110', 'H': '000111',
+                    'I': '001000', 'J': '001001', 'K': '001010', 'L': '001011', 'M': '001100', 'N': '001101',
+                    'O': '001110', 'P': '001111',
+                    'Q': '010000', 'R': '010001', 'S': '010010', 'T': '010011', 'U': '010100', 'V': '010101',
+                    'W': '010110', 'X': '010111',
+                    'Y': '011000', 'Z': '011001', 'a': '011010', 'b': '011011', 'c': '011100', 'd': '011101',
+                    'e': '011110', 'f': '011111',
+                    'g': '100000', 'h': '100001', 'i': '100010', 'j': '100011', 'k': '100100', 'l': '100101',
+                    'm': '100110', 'n': '100111',
+                    'o': '101000', 'p': '101001', 'q': '101010', 'r': '101011', 's': '101100', 't': '101101',
+                    'u': '101110', 'v': '101111',
+                    'w': '110000', 'x': '110001', 'y': '110010', 'z': '110011', '0': '110100', '1': '110101',
+                    '2': '110110', '3': '110111',
+                    '4': '111000', '5': '111001', '6': '111010', '7': '111011', '8': '111100', '9': '111101',
+                    '-': '111110', '_': '111111'}
 
 class Node{
     constructor(y, x, walls) {
@@ -50,37 +66,33 @@ class VerticalEdge extends Node{
 
 class Maze {
 
-    constructor(mapHeight, mapWidth, mazeHex) {
-        this.adjacencyList = [];
-        this.height = mapHeight;
-        this.width = mapWidth;
-        this.mazeHex = mazeHex;
-        this.createTree()
+    constructor(seed) {
+        this.seed = seed;
+
+        let base64String = this.seed.replace(/=/g, '')
+        console.log(base64String)
+        let binaryString = ''
+        for (let i = 0; i < base64String.length; i++){
+            binaryString += toBinary[base64String[i]]
         }
+        let padding = (this.seed.length - base64String.length)*8
+        this.height = parseInt(binaryString.slice(0,8), 2);
+        this.width = parseInt(binaryString.slice(8,16), 2);
+        binaryString = binaryString.slice(16, binaryString.length - padding)
+        console.log(binaryString,this.height, this.width)
 
-    createTree() {
-        // TODO get the maze from base64 seed
-        // converting hex back into the spanning tree
+        this.adjacencyList = [];
+
+        // populating tree
         let index = 0;
-        for (let row = 1; row <= mapHeight; row++) {
+        for (let row = 1; row <= this.height; row++) {
             let rowList = [];
-            for (let column = 1; column <= mapWidth; column++) {
-
-                // each hex character corresponds to one node of the maze
-                let hex = this.mazeHex[index]
-
-                let walls = {top: 1, bottom: 1, left: 1, right: 1}
-
-                // converting hex to binary, nibble will represent the walls of the node
-                let bin = (parseInt(hex, 16).toString(2)).padStart(4, '0')
-                walls.top = parseInt(bin[0])
-                walls.bottom = parseInt(bin[1])
-                walls.left = parseInt(bin[2])
-                walls.right = parseInt(bin[3])
+            for (let column = 1; column <= this.width; column++) {
+                let bin = binaryString.slice(0,4)
+                let walls = {top: parseInt(bin[0]), bottom: parseInt(bin[1]), left: parseInt(bin[2]), right: parseInt(bin[3])}
                 let node = new Node(row, column, walls);
-
                 rowList.push(node)
-
+                binaryString = binaryString.slice(4)
                 index += 1
             }
             this.adjacencyList.push(rowList)
@@ -384,7 +396,7 @@ class Enemy extends Entity {
     }
 }
 
-const maze = new Maze(mapHeight, mapWidth, mazeHex)
+const maze = new Maze(mazeSeed)
 maze.output()
 
 let player = new Player()
@@ -394,8 +406,8 @@ enemy.spawn(2, 2)
 
 // setting css properties to correct values
 let root = document.querySelector(':root');
-root.style.setProperty('--map-width', mapWidth);
-root.style.setProperty('--map-height', mapHeight);
+root.style.setProperty('--map-width', maze.width);
+root.style.setProperty('--map-height', maze.height);
 
 // initial variable declarations
 let held_directions = [];

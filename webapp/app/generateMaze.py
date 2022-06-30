@@ -338,11 +338,11 @@ class SeedGenerator:
 
 
     def drawMazeFromSeed(self):
-        base64String = seed.rstrip('=')
+        base64String = self._seed.rstrip('=')
         binaryString = ''
         for value in base64String:
             binaryString += self._toBinary[value]
-        padding = seed.count('=')
+        padding = self._seed.count('=')
         self._height = int(binaryString[:8], 2)
         self._width = int(binaryString[8:16], 2)
         binaryString = binaryString[16:padding*8]
