@@ -337,8 +337,7 @@ class SeedGenerator:
         self._seed = base64String
 
 
-    def drawMazeFromSeed(self, seed):
-        self._seed = seed
+    def drawMazeFromSeed(self):
         base64String = seed.rstrip('=')
         binaryString = ''
         for value in base64String:
