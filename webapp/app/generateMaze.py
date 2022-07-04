@@ -261,7 +261,7 @@ class MazeGenerator:
         # end_time = time.time()-start_time
         # print((str(end_time)[:-(len(str(end_time).split('.')[1])-2)]) + 's')
 
-        return(self._maze)
+        return self._maze
 
 
 class SeedGenerator:

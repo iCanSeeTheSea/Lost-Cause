@@ -14,6 +14,5 @@ def about():
     map_width = 10
     seedGenerator = generateMaze.SeedGenerator(map_height, map_width)
     seedGenerator.createBase64Seed()
-    seedGenerator.drawMazeFromSeed()
 
     return render_template('public/play.html', mazeSeed=seedGenerator.seed)
