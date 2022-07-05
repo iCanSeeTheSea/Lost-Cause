@@ -118,14 +118,36 @@ class Maze {
     //     return node
     // }
 
-    getNode(currentTile){
-        if (currentTile.x % 1 !== 0){
-            return new HorizontalEdge(currentTile.y, currentTile.x)
-        } else if (currentTile.y % 1 !== 0){
-            return new VerticalEdge(currentTile.y, currentTile.x)
-        } else {
-            return this.adjacencyList[currentTile.y -1][currentTile.x -1]
+    checkTileInMaze(tile){
+        if (tile.x % 1 === 0 && tile.y % 1 === 0 && 0 < tile.x <= this.width && 0 < tile.y <= this.height){
+            return true;
         }
+        if (tile.y % 1 !== 0 && tile.x % 1 === 0){
+            let adjTile = this.getNode({y:Math.floor(tile.y), x:tile.x})
+            if (adjTile.bottom === 0){
+                return true
+            }
+        }
+        if (tile.x % 1 !== 0 && tile.y % 1 === 0){
+            let adjTile = this.getNode({y:tile.y, x:Math.floor(tile.x)})
+            if (adjTile.right === 0){
+                return true
+            }
+        }
+        return false
+    }
+
+    getNode(currentTile){
+        if (this.checkTileInMaze(currentTile)) {
+            if (currentTile.x % 1 !== 0) {
+                return new HorizontalEdge(currentTile.y, currentTile.x)
+            } else if (currentTile.y % 1 !== 0) {
+                return new VerticalEdge(currentTile.y, currentTile.x)
+            } else {
+                return this.adjacencyList[currentTile.y - 1][currentTile.x - 1]
+            }
+        }
+        return false
     }
 
     output(){
@@ -298,69 +320,10 @@ class Enemy extends Entity {
         let min = {y: this.currentTile.y - this.range/2, x: this.currentTile.x - this.range/2};
         let max = {y: this.currentTile.y + this.range/2, x: this.currentTile.x + this.range/2};
         if (min.y <= this.targetTile.y <= max.y && min.x <= this.targetTile.x <= max.x){
-            let checkTile = this.targetTile
-            let prevCheckTile = checkTile
             let tilesInRange = []
-            let adjacentTiles = []
-            let visitedTiles = []
-            this.path = []
             console.log('search start', this.currentTile)
+            // ! plan this properly
 
-            for (let row = min.y; row <= max.y; row += 0.5){
-                for (let column = min.x; column <= max.x; column += 0.5){
-
-                }
-            }
-
-
-            while (checkTile !== this.currentTile){
-
-
-            }
-        }
-    }
-
-
-    // ! doesn't work WILL NOT BE USED
-    depthFirstSearch(checkTile, prevCheckTile, walls, depth){
-        walls = maze.getWalls(checkTile, prevCheckTile, walls);
-        console.log(prevCheckTile, checkTile, this.targetTile, walls, depth, this.path)
-        if (depth < this.range) {
-            if (this.walls.top === 0 && prevCheckTile.y >= checkTile.y) {
-                if (checkTile.y - 0.5 === this.targetTile.y) {
-                    return true;
-                } else if (this.depthFirstSearch({y: checkTile.y - 0.5, x: checkTile.x}, checkTile, walls,+ 0.5)) {
-                    this.path.unshift(directions.up)
-                    return true
-                }
-            }
-            if (this.walls.bottom === 0 && prevCheckTile.y <= checkTile.y) {
-                if (checkTile.y + 0.5 === this.targetTile.y) {
-                    return true;
-                } else if(this.depthFirstSearch({y: checkTile.y + 0.5, x: checkTile.x}, checkTile, walls,depth + 0.5)){
-                    this.path.unshift(directions.down)
-                    return true
-                }
-            }
-            if (this.walls.left === 0 && prevCheckTile.x >= checkTile.x) {
-                if (checkTile.x - 0.5 === this.targetTile.x) {
-                    return true;
-                } else if(this.depthFirstSearch({y: checkTile.y, x: checkTile.x - 0.5}, checkTile, walls,depth + 0.5)) {
-                    this.path.unshift(directions.left)
-                    return true
-                }
-            }
-            if (this.walls.right === 0 && prevCheckTile.x <= checkTile.x) {
-                if (checkTile.x + 0.5 === this.targetTile.x) {
-                    return true;
-                } else if(this.depthFirstSearch({y: checkTile.y, x: checkTile.x + 0.5}, checkTile, walls,depth + 0.5)) {
-                    this.path.unshift(directions.right)
-                    return true
-                }
-            }
-            return false
-        } else {
-            return false
         }
     }
 
