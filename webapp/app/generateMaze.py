@@ -265,12 +265,12 @@ class MazeGenerator:
 
 
 class SeedGenerator:
-    def __init__(self, height, width):
-        self._height = self._twoDigitNumber(height)
-        self._width = self._twoDigitNumber(width)
+    def __init__(self):
         self._mazeGenerator = MazeGenerator(self._height, self._width)
         self._seed = None
         self._maze = None
+        self._height = None
+        self._width = None
 
         self._toBinary = {'A': '000000', 'B': '000001', 'C': '000010', 'D': '000011', 'E': '000100', 'F': '000101',
                     'G': '000110', 'H': '000111',
@@ -309,10 +309,27 @@ class SeedGenerator:
     def seed(self, seed):
         self._seed = seed
 
-    def _twoDigitNumber(self, number):
-        if len(str(number)) < 2:
-            return int('0' + str(number))
-        return number
+    @property
+    def height(self):
+        return self.height
+
+    @height.setter
+    def height(self, height):
+        if len(str(height)) < 2:
+            self._height = int('0' + str(height))
+        else:
+            self._height = height
+
+    @property
+    def width(self):
+        return self.width
+
+    @width.setter
+    def width(self, width):
+        if len(str(width)) < 2:
+            self._width = int('0' + str(width))
+        else:
+            self._width = width
 
     def createBase64Seed(self):
         self._maze = self._mazeGenerator.recursiveBacktracking()
