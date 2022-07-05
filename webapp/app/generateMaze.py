@@ -266,7 +266,7 @@ class MazeGenerator:
 
 class SeedGenerator:
     def __init__(self):
-        self._mazeGenerator = MazeGenerator(self._height, self._width)
+        self._mazeGenerator = None
         self._seed = None
         self._maze = None
         self._height = None
@@ -332,6 +332,8 @@ class SeedGenerator:
             self._width = width
 
     def createBase64Seed(self):
+        if self._mazeGenerator is None:
+            self._mazeGenerator = MazeGenerator(self._height, self._width)
         self._maze = self._mazeGenerator.recursiveBacktracking()
         self._mazeGenerator.drawMaze('')
         sizeBin = str(bin(self._height))[2:].zfill(8) + str(bin(self._width))[2:].zfill(8)
@@ -362,7 +364,9 @@ class SeedGenerator:
         padding = self._seed.count('=')
         self._height = int(binaryString[:8], 2)
         self._width = int(binaryString[8:16], 2)
-        binaryString = binaryString[16:padding*8]
+        binaryString = binaryString[16:-padding*8]
+        if self._mazeGenerator is None:
+            self._mazeGenerator = MazeGenerator(self._height, self._width)
         self._mazeGenerator.drawMaze(binaryString)
 
 
