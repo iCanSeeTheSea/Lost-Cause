@@ -45,8 +45,16 @@ class Node{
         this.bottom = walls.bottom;
         this.left = walls.left;
         this.right = walls.right;
-        this.wallString = this.top.toString() + this.bottom.toString() + this.left.toString() + this.right.toString();
     }
+
+    wallString(){
+        return this.top.toString() + this.bottom.toString() + this.left.toString() + this.right.toString();
+    }
+
+    position(){
+        return {y: this.y, x: this.x}
+    }
+    
 }
 
 class HorizontalEdge extends Node{
@@ -320,10 +328,23 @@ class Enemy extends Entity {
         let min = {y: this.currentTile.y - this.range/2, x: this.currentTile.x - this.range/2};
         let max = {y: this.currentTile.y + this.range/2, x: this.currentTile.x + this.range/2};
         if (min.y <= this.targetTile.y <= max.y && min.x <= this.targetTile.x <= max.x){
-            let tilesInRange = []
+            let nodesInRange = []
+            let positionsInRange = []
             console.log('search start', this.currentTile)
             // ! plan this properly
-
+            for (let row = min.y; row <= max.y; row += 0.5){
+                for (let column = min.x; column <= max.x; column += 0.5){
+                    let node = maze.getNode({row, column})
+                    if (node){
+                        nodesInRange.push(node)
+                        positionsInRange.push(node.position)
+                    }
+                }
+            }
+            let checkTile = this.targetTile
+            let checkPosition = checkTile.position
+            while(true){
+            }
         }
     }
 
