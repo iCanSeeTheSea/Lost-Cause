@@ -286,6 +286,7 @@ class Player extends Entity {
         let held_direction = held_directions[0];
         if (held_direction){
             super.move(held_direction)
+            // * this will need to move to Entity
             this.self.setAttribute("facing", held_direction)
             this.self.setAttribute("walking", "true");
         } else {
@@ -324,26 +325,71 @@ class Enemy extends Entity {
     }
 
     pathFind(){
+        if (this.path.length > 0){
+            return
+        }
         this.targetTile = player.getCurrentTile()
         let min = {y: this.currentTile.y - this.range/2, x: this.currentTile.x - this.range/2};
         let max = {y: this.currentTile.y + this.range/2, x: this.currentTile.x + this.range/2};
         if (min.y <= this.targetTile.y <= max.y && min.x <= this.targetTile.x <= max.x){
-            let nodesInRange = []
-            let positionsInRange = []
-            console.log('search start', this.currentTile)
+            let nodesInRange = [];
+            let positionsInRange = [];
+            console.log('search start', this.currentTile);
             // ! plan this properly
             for (let row = min.y; row <= max.y; row += 0.5){
                 for (let column = min.x; column <= max.x; column += 0.5){
                     let node = maze.getNode({row, column})
                     if (node){
-                        nodesInRange.push(node)
-                        positionsInRange.push(node.position)
+                        nodesInRange.push(node);
+                        positionsInRange.push(node.position());
                     }
                 }
             }
-            let checkTile = this.targetTile
-            let checkPosition = checkTile.position
+            let checkTile = this.targetTile;
+            let checkPosition = checkTile.position;
+            let visitedNodes = []
+            let visitedPositions = []
             while(true){
+                console.log(checkTile, checkPosition, this.path)
+                if (checkTile === this.currentTile){
+                    // has found player
+                    break;
+                }
+                let index = positionsInRange.indexOf(checkPosition);
+                positionsInRange.splice(index);
+                nodesInRange.splice(index);
+                let nextPosition = checkPosition;
+                let direction = false;
+                if (checkTile.top === 0){
+                    nextPosition.y -= 0.5;
+                    direction = "down";
+                    checkTile.top = 1;
+                } else if (checkTile.bottom === 0){
+                    nextPosition.y += 0.5;
+                    direction = "up";
+                    checkTile.bottom = 1;
+                } else if (checkTile.left === 0){
+                    nextPosition.x -= 0.5;
+                    direction = "right";
+                    checkTile.left = 1;
+                } else if (checkTile.right === 0){
+                    nextPosition.x += 0.5;
+                    direction = "left";
+                    checkTile.right = 1;
+                }
+                if (nextPosition in positionsInRange){
+                    this.path.push(direction);
+                    visitedNodes.push(checkTile)
+                    visitedPositions.push(checkPosition)
+                    checkPosition = nextPosition;
+                    index = positionsInRange.indexOf(checkPosition)
+                    checkTile = nodesInRange[index]
+                } else {
+                    // can't find player
+                    this.path.pop()
+                    checkTile = visitedNodes.pop()
+                    checkPosition = visitedPositions.pop()
+                }
             }
         }
     }
@@ -408,7 +454,7 @@ const gameLoop = function () {
 
     player.move(pixelSize)
 
-    // enemy.pathFind();
+    enemy.pathFind();
     // enemy.move(pixelSize)
 
 }
