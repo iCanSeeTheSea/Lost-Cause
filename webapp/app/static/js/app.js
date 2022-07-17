@@ -100,6 +100,7 @@ class Maze {
                 let walls = {top: parseInt(bin[0]), bottom: parseInt(bin[1]), left: parseInt(bin[2]), right: parseInt(bin[3])}
                 let node = new Node(row, column, walls);
                 rowList.push(node)
+                console.log(walls.bottom, node.bottom, node)
                 binaryString = binaryString.slice(4)
                 index += 1
             }
@@ -376,19 +377,22 @@ class Enemy extends Entity {
                     nextPosition.x += 0.5;
                     direction = "left";
                     checkTile.right = 1;
-                }
-                if (nextPosition in positionsInRange){
-                    this.path.push(direction);
-                    visitedNodes.push(checkTile)
-                    visitedPositions.push(checkPosition)
-                    checkPosition = nextPosition;
-                    index = positionsInRange.indexOf(checkPosition)
-                    checkTile = nodesInRange[index]
                 } else {
                     // can't find player
                     this.path.pop()
                     checkTile = visitedNodes.pop()
                     checkPosition = visitedPositions.pop()
+                }
+                if (nextPosition in positionsInRange) {
+                    this.path.push(direction);
+                    visitedNodes.push(checkTile)
+                    visitedPositions.push(checkPosition)
+                    console.log(this.path, visitedPositions)
+                    checkPosition = nextPosition;
+                    index = positionsInRange.indexOf(checkPosition)
+                    checkTile = nodesInRange[index]
+                } else {
+                    break
                 }
             }
         }

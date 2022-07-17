@@ -12,8 +12,8 @@ def index():
 
 @app.route('/play')
 def play():
-    seedGenerator.height = 6
-    seedGenerator.width = 6
+    seedGenerator.height = 10
+    seedGenerator.width = 10
     seedGenerator.createBase64Seed()
 
     return redirect(f'/play/{seedGenerator.seed}')

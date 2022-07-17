@@ -10,6 +10,7 @@ class Node:
     __pos: list
 
     def __post_init__(self):
+        # pre-defining parameters after initialisation to be defined later
         self._top = "1"
         self._bottom = "1"
         self._left = "1"
@@ -73,6 +74,7 @@ class Node:
 
     @property
     def key(self):
+        # key for each node is a 4 digit binary string
         wallsStr = self._top + self._bottom + self._left + self._right
         return wallsStr
 
@@ -91,15 +93,18 @@ class Maze:
         # maze starts at 1,1 but list indexing starts at [0][0]
         self._nodeList[row - 1][column - 1] = nodeObj
         # calculates relative position
-        self._binaryList[self._maxX*(row - 1) + (column - 1)] = f'{nodeObj.top}{nodeObj.bottom}{nodeObj.left}{nodeObj.right}'
+        self._binaryList[
+            self._maxX * (row - 1) + (column - 1)] = f'{nodeObj.top}{nodeObj.bottom}{nodeObj.left}{nodeObj.right}'
 
     def node(self, coord):
-        node = self._nodeList[coord[0] - 1][coord[1] - 1]  # Changed
+        node = self._nodeList[coord[0] - 1][coord[1] - 1]
         return node
 
+    # storing the sequence of node keys as a property that the seed generator can access
     @property
     def binaryString(self):
         return ''.join(self._binaryList)
+
 
 class MazeGenerator:
     def __init__(self, maxX, maxY):
@@ -107,19 +112,23 @@ class MazeGenerator:
 
         self._nodes = []
 
+        # nodes is a 2D list, [row][column]
         for row in range(1, maxY + 1):
             for column in range(1, maxX + 1):
                 self._nodes.append([row, column])
         self._saveNodes = self._nodes.copy()
 
+        # allows easy calculation of the nodes around any given node
         self._adjacentCoords = ((-1, 0), (1, 0), (0, 1), (0, -1))
 
         self._maxX = maxX
         self._maxY = maxY
 
         # number corresponds to binary value of the node's key
-        self._tileNames = {'0000': 'no-walls.png', '0001': 'right-wall.png', '0010': 'left-wall.png', '0011': 'left-right-wall.png',
-                           '0100': 'bottom-wall.png', '0101': 'bottom-right-corner.png', '0110': 'bottom-left-corner.png',
+        self._tileNames = {'0000': 'no-walls.png', '0001': 'right-wall.png', '0010': 'left-wall.png',
+                           '0011': 'left-right-wall.png',
+                           '0100': 'bottom-wall.png', '0101': 'bottom-right-corner.png',
+                           '0110': 'bottom-left-corner.png',
                            '0111': 'bottom-dead.png', '1000': 'top-wall.png',
                            '1001': 'top-right-corner.png', '1010': 'top-left-corner.png', '1011': 'top-dead.png',
                            '1100': 'top-bottom-wall.png', '1101': 'right-dead.png',
@@ -132,14 +141,15 @@ class MazeGenerator:
         base = mazePath / 'base.png'
         img = Image.open(base)
 
-        img = img.resize((self._maxX * 32 * 2 - 32, self._maxY * 32 * 2 - 32))
         # tiles are 32x32
+        img = img.resize((self._maxX * 32 * 2 - 32, self._maxY * 32 * 2 - 32))
 
         # debug = Image.open(mazePath / 'debug-tile.png')
 
         for row in range(1, self._maxY + 1):
             for column in range(1, self._maxX + 1):
                 if binaryString:
+                    # uses the binaryString if generating from a seed
                     wallStr = binaryString[:4]
                     binaryString = binaryString[4:]
                     node = Node([row, column])
@@ -185,6 +195,8 @@ class MazeGenerator:
                     img.paste(tileImg, (int((join_x - 1) * 64), int((join_y - 1) * 64)))
 
         img.save(mazePath / 'fullmaze.png')
+
+        print(self._maze.binaryString)
 
     # recursive backtracking | 19/09/21
 
@@ -272,35 +284,43 @@ class SeedGenerator:
         self._height = None
         self._width = None
 
+        # base 64 conversion tables
         self._toBinary = {'A': '000000', 'B': '000001', 'C': '000010', 'D': '000011', 'E': '000100', 'F': '000101',
-                    'G': '000110', 'H': '000111',
-                    'I': '001000', 'J': '001001', 'K': '001010', 'L': '001011', 'M': '001100', 'N': '001101',
-                    'O': '001110', 'P': '001111',
-                    'Q': '010000', 'R': '010001', 'S': '010010', 'T': '010011', 'U': '010100', 'V': '010101',
-                    'W': '010110', 'X': '010111',
-                    'Y': '011000', 'Z': '011001', 'a': '011010', 'b': '011011', 'c': '011100', 'd': '011101',
-                    'e': '011110', 'f': '011111',
-                    'g': '100000', 'h': '100001', 'i': '100010', 'j': '100011', 'k': '100100', 'l': '100101',
-                    'm': '100110', 'n': '100111',
-                    'o': '101000', 'p': '101001', 'q': '101010', 'r': '101011', 's': '101100', 't': '101101',
-                    'u': '101110', 'v': '101111',
-                    'w': '110000', 'x': '110001', 'y': '110010', 'z': '110011', '0': '110100', '1': '110101',
-                    '2': '110110', '3': '110111',
-                    '4': '111000', '5': '111001', '6': '111010', '7': '111011', '8': '111100', '9': '111101',
-                    '-': '111110', '_': '111111'}
+                          'G': '000110', 'H': '000111',
+                          'I': '001000', 'J': '001001', 'K': '001010', 'L': '001011', 'M': '001100', 'N': '001101',
+                          'O': '001110', 'P': '001111',
+                          'Q': '010000', 'R': '010001', 'S': '010010', 'T': '010011', 'U': '010100', 'V': '010101',
+                          'W': '010110', 'X': '010111',
+                          'Y': '011000', 'Z': '011001', 'a': '011010', 'b': '011011', 'c': '011100', 'd': '011101',
+                          'e': '011110', 'f': '011111',
+                          'g': '100000', 'h': '100001', 'i': '100010', 'j': '100011', 'k': '100100', 'l': '100101',
+                          'm': '100110', 'n': '100111',
+                          'o': '101000', 'p': '101001', 'q': '101010', 'r': '101011', 's': '101100', 't': '101101',
+                          'u': '101110', 'v': '101111',
+                          'w': '110000', 'x': '110001', 'y': '110010', 'z': '110011', '0': '110100', '1': '110101',
+                          '2': '110110', '3': '110111',
+                          '4': '111000', '5': '111001', '6': '111010', '7': '111011', '8': '111100', '9': '111101',
+                          '-': '111110', '_': '111111'}
 
         self._to64 = {'000000': 'A', '000001': 'B', '000010': 'C', '000011': 'D', '000100': 'E', '000101': 'F',
-                '000110': 'G',
-                '000111': 'H', '001000': 'I', '001001': 'J', '001010': 'K', '001011': 'L', '001100': 'M', '001101': 'N',
-                '001110': 'O', '001111': 'P', '010000': 'Q', '010001': 'R', '010010': 'S', '010011': 'T', '010100': 'U',
-                '010101': 'V', '010110': 'W', '010111': 'X', '011000': 'Y', '011001': 'Z', '011010': 'a', '011011': 'b',
-                '011100': 'c', '011101': 'd', '011110': 'e', '011111': 'f', '100000': 'g', '100001': 'h', '100010': 'i',
-                '100011': 'j', '100100': 'k', '100101': 'l', '100110': 'm', '100111': 'n', '101000': 'o', '101001': 'p',
-                '101010': 'q', '101011': 'r', '101100': 's', '101101': 't', '101110': 'u', '101111': 'v', '110000': 'w',
-                '110001': 'x', '110010': 'y', '110011': 'z', '110100': '0', '110101': '1', '110110': '2', '110111': '3',
-                '111000': '4', '111001': '5', '111010': '6', '111011': '7', '111100': '8', '111101': '9', '111110': '-',
-                '111111': '_'}
-
+                      '000110': 'G',
+                      '000111': 'H', '001000': 'I', '001001': 'J', '001010': 'K', '001011': 'L', '001100': 'M',
+                      '001101': 'N',
+                      '001110': 'O', '001111': 'P', '010000': 'Q', '010001': 'R', '010010': 'S', '010011': 'T',
+                      '010100': 'U',
+                      '010101': 'V', '010110': 'W', '010111': 'X', '011000': 'Y', '011001': 'Z', '011010': 'a',
+                      '011011': 'b',
+                      '011100': 'c', '011101': 'd', '011110': 'e', '011111': 'f', '100000': 'g', '100001': 'h',
+                      '100010': 'i',
+                      '100011': 'j', '100100': 'k', '100101': 'l', '100110': 'm', '100111': 'n', '101000': 'o',
+                      '101001': 'p',
+                      '101010': 'q', '101011': 'r', '101100': 's', '101101': 't', '101110': 'u', '101111': 'v',
+                      '110000': 'w',
+                      '110001': 'x', '110010': 'y', '110011': 'z', '110100': '0', '110101': '1', '110110': '2',
+                      '110111': '3',
+                      '111000': '4', '111001': '5', '111010': '6', '111011': '7', '111100': '8', '111101': '9',
+                      '111110': '-',
+                      '111111': '_'}
 
     @property
     def seed(self):
@@ -335,17 +355,22 @@ class SeedGenerator:
     def createBase64Seed(self):
         if self._mazeGenerator is None:
             self._mazeGenerator = MazeGenerator(self._height, self._width)
+
         self._maze = self._mazeGenerator.recursiveBacktracking()
         self._mazeGenerator.drawMaze('')
+
+        # turns the width and height of the maze into two bytes
         sizeBin = str(bin(self._height))[2:].zfill(8) + str(bin(self._width))[2:].zfill(8)
         binaryString = sizeBin + self._maze.binaryString
 
         padding = 0
+        # one '=' is added for every byte of padding
         while len(binaryString) % 24 != 0:
             binaryString += '0'
             padding += 1
         padding //= 8
 
+        # splits binaryString every 6 characters for easier conversion to base 64
         binaryList = [binaryString[i:i + 6] for i in range(0, len(binaryString), 6)]
 
         base64String = ''
@@ -356,20 +381,20 @@ class SeedGenerator:
         print(base64String)
         self._seed = base64String
 
-
     def drawMazeFromSeed(self):
+        # removing padding before conversion
         base64String = self._seed.rstrip('=')
         binaryString = ''
+
         for value in base64String:
             binaryString += self._toBinary[value]
+
+        # splitting converted string into height, width, and binaryString
         padding = self._seed.count('=')
         self._height = int(binaryString[:8], 2)
         self._width = int(binaryString[8:16], 2)
-        binaryString = binaryString[16:-padding*8]
+        binaryString = binaryString[16:-padding * 8]
+
         if self._mazeGenerator is None:
             self._mazeGenerator = MazeGenerator(self._height, self._width)
         self._mazeGenerator.drawMaze(binaryString)
-
-
-
-
