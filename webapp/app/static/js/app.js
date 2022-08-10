@@ -37,6 +37,29 @@ const toBinary = {'A': '000000', 'B': '000001', 'C': '000010', 'D': '000011', 'E
                     '4': '111000', '5': '111001', '6': '111010', '7': '111011', '8': '111100', '9': '111101',
                     '-': '111110', '_': '111111'}
 
+class NodeList{
+    constructor() {
+        this.dict = {}
+        this.keys = []
+    }
+
+    push(node){
+        this.dict[node.position()] = node
+        this.keys.push(node.position())
+    }
+
+    pop(){
+        let position = this.keys.pop()
+        delete this.dict[position]
+        return position
+    }
+
+    delete(position){
+        delete this.dict[position]
+        this.keys = this.keys.filter(function(node) { return node.position() !== position})
+    }
+}
+
 class Node{
     constructor(y, x, walls) {
         this.x = x;
@@ -329,68 +352,74 @@ class Enemy extends Entity {
         if (this.path.length > 0){
             return
         }
+
         this.targetTile = player.getCurrentTile()
         let min = {y: this.currentTile.y - this.range/2, x: this.currentTile.x - this.range/2};
         let max = {y: this.currentTile.y + this.range/2, x: this.currentTile.x + this.range/2};
+
+        // enemy should only find a path if the target is within its range
         if (min.y <= this.targetTile.y <= max.y && min.x <= this.targetTile.x <= max.x){
-            let nodesInRange = [];
-            let positionsInRange = [];
+
+            let nodesInRange = new NodeList();
             console.log('search start', this.currentTile);
-            // ! plan this properly
+
+
             for (let row = min.y; row <= max.y; row += 0.5){
                 for (let column = min.x; column <= max.x; column += 0.5){
                     let node = maze.getNode({row, column})
                     if (node){
                         nodesInRange.push(node);
-                        positionsInRange.push(node.position());
                     }
                 }
             }
+
+            // recursive backtracking starts at target for better efficiency
+            // * explain in design
             let checkTile = this.targetTile;
-            let checkPosition = checkTile.position;
-            let visitedNodes = []
-            let visitedPositions = []
+            let checkPosition = checkTile.position();
+            let visitedNodes = new NodeList();
+
             while(true){
                 console.log(checkTile, checkPosition, this.path)
                 if (checkTile === this.currentTile){
                     // has found player
                     break;
                 }
-                let index = positionsInRange.indexOf(checkPosition);
-                positionsInRange.splice(index);
-                nodesInRange.splice(index);
+
+                // ensures a node is not checked twice
+                nodesInRange.delete(checkPosition)
                 let nextPosition = checkPosition;
                 let direction = false;
-                if (checkTile.top === 0){
+
+                if (checkTile.top === 0 && {y: checkPosition.y -= 0.5, x: checkPosition.x} in nodesInRange){
                     nextPosition.y -= 0.5;
                     direction = "down";
-                    checkTile.top = 1;
-                } else if (checkTile.bottom === 0){
+
+                } else if (checkTile.bottom === 0 && {y: checkPosition.y += 0.5, x: checkPosition.x} in nodesInRange){
                     nextPosition.y += 0.5;
                     direction = "up";
-                    checkTile.bottom = 1;
-                } else if (checkTile.left === 0){
+
+                } else if (checkTile.left === 0 && {y: checkPosition.y, x: checkPosition.x -= 0.5} in nodesInRange){
                     nextPosition.x -= 0.5;
                     direction = "right";
-                    checkTile.left = 1;
-                } else if (checkTile.right === 0){
+
+                } else if (checkTile.right === 0 && {y: checkPosition.y, x: checkPosition.x += 0.5} in nodesInRange){
                     nextPosition.x += 0.5;
                     direction = "left";
-                    checkTile.right = 1;
+
                 } else {
                     // can't find player
                     this.path.pop()
-                    checkTile = visitedNodes.pop()
-                    checkPosition = visitedPositions.pop()
+                    checkPosition = visitedNodes.pop()
+
                 }
-                if (nextPosition in positionsInRange) {
+
+                if (nextPosition in nodesInRange) {
                     this.path.push(direction);
                     visitedNodes.push(checkTile)
-                    visitedPositions.push(checkPosition)
-                    console.log(this.path, visitedPositions)
+                    console.log(this.path, visitedNodes)
                     checkPosition = nextPosition;
-                    index = positionsInRange.indexOf(checkPosition)
-                    checkTile = nodesInRange[index]
+                    checkTile = nodesInRange.dict[checkPosition]
                 } else {
                     break
                 }
@@ -458,7 +487,7 @@ const gameLoop = function () {
 
     player.move(pixelSize)
 
-    enemy.pathFind();
+   enemy.pathFind();
     // enemy.move(pixelSize)
 
 }
