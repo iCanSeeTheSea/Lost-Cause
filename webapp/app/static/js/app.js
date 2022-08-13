@@ -43,20 +43,36 @@ class NodeList{
         this.keys = []
     }
 
+    getKeyFromPos(position){
+        return 'y' + String(position.y) + 'x' + String(position.x)
+    }
+
     push(node){
-        this.dict[node.position()] = node
+        let position = node.position()
+        this.dict[this.getKeyFromPos(position)] = node
         this.keys.push(node.position())
     }
 
     pop(){
-        let position = this.keys.pop()
-        delete this.dict[position]
-        return position
+        if (this.keys){
+            let position = this.keys.pop()
+            let key = this.getKeyFromPos(position)
+            delete this.dict[key]
+            return position
+        } else {
+            return undefined
+        }
     }
 
     delete(position){
-        delete this.dict[position]
-        this.keys = this.keys.filter(function(node) { return node.position() !== position})
+        let key = this.getKeyFromPos(position)
+        delete this.dict[key]
+        this.keys = this.keys.filter(function(e) { return e !== key})
+    }
+
+    contains(position){
+        let key = this.getKeyFromPos(position)
+        return key in this.dict
     }
 }
 
@@ -68,10 +84,11 @@ class Node{
         this.bottom = walls.bottom;
         this.left = walls.left;
         this.right = walls.right;
+        this.walls = walls
     }
 
     wallString(){
-        return this.top.toString() + this.bottom.toString() + this.left.toString() + this.right.toString();
+        return this.walls.toString()
     }
 
     position(){
@@ -123,7 +140,6 @@ class Maze {
                 let walls = {top: parseInt(bin[0]), bottom: parseInt(bin[1]), left: parseInt(bin[2]), right: parseInt(bin[3])}
                 let node = new Node(row, column, walls);
                 rowList.push(node)
-                console.log(walls.bottom, node.bottom, node)
                 binaryString = binaryString.slice(4)
                 index += 1
             }
@@ -131,42 +147,25 @@ class Maze {
         }
     }
 
-    getNodeFromCoordinate(y, x){
-        return this.adjacencyList[y - 1][x - 1]
-    }
-
-    // getNode(currentTile, prevTile){
-    //     let node = currentTile;
-    //     // if the next node is going to be between two nodes
-    //     if (Math.floor(currentTile.x) !== currentTile.x && prevTile.x !== currentTile.x) {
-    //         node = HorizontalEdge(currentTile.y, currentTile.x)
-    //
-    //     } else if (Math.floor(currentTile.y) !== currentTile.y && prevTile.y !== currentTile.y) {
-    //         node = VerticalEdge(currentTile.y, currentTile.x)
-    //
-    //     } else if (prevTile.y !== currentTile.y || prevTile.x !== currentTile.x) {
-    //         node = this.adjacencyList[currentTile.y - 1][currentTile.x - 1]
-    //     }
-    //     return node
-    // }
 
     checkTileInMaze(tile){
-        if (tile.x % 1 === 0 && tile.y % 1 === 0 && 0 < tile.x <= this.width && 0 < tile.y <= this.height){
+        if ((1 > tile.x || tile.x > this.width) || (1 > tile.y || tile.y > this.height)){
+            return false
+        } else if (tile.x % 1 === 0 && tile.y % 1 === 0){
             return true;
-        }
-        if (tile.y % 1 !== 0 && tile.x % 1 === 0){
-            let adjTile = this.getNode({y:Math.floor(tile.y), x:tile.x})
+        } else if (tile.y % 1 !== 0 && tile.x % 1 === 0){
+            let adjTile = this.adjacencyList[Math.floor(tile.y) - 1][tile.x - 1]
             if (adjTile.bottom === 0){
                 return true
             }
-        }
-        if (tile.x % 1 !== 0 && tile.y % 1 === 0){
-            let adjTile = this.getNode({y:tile.y, x:Math.floor(tile.x)})
+        } else if (tile.x % 1 !== 0 && tile.y % 1 === 0){
+            let adjTile = this.adjacencyList[tile.y - 1][Math.floor(tile.x) - 1]
             if (adjTile.right === 0){
                 return true
             }
+        } else {
+            return false
         }
-        return false
     }
 
     getNode(currentTile){
@@ -176,7 +175,8 @@ class Maze {
             } else if (currentTile.y % 1 !== 0) {
                 return new VerticalEdge(currentTile.y, currentTile.x)
             } else {
-                return this.adjacencyList[currentTile.y - 1][currentTile.x - 1]
+                let node = this.adjacencyList[currentTile.y - 1][currentTile.x - 1]
+                return new Node(node.y, node.x, node.walls)
             }
         }
         return false
@@ -219,6 +219,13 @@ class Entity {
         this.currentTile.y = this.roundTileCoord((this.y / mazeScale) + 1);
 
         this.currentTile = maze.getNode(this.currentTile, this.prevTile)
+        this.determineTileOrigin()
+    }
+
+    determineTileOrigin(){
+        // get the coordinates of the tile and data from spanning tree
+        this.tileOrigin.x = (this.currentTile.x - 1) * mazeScale;
+        this.tileOrigin.y = (this.currentTile.y - 1) * mazeScale;
     }
 
     checkCollision(originalX, originalY) {
@@ -228,64 +235,71 @@ class Entity {
         this.determineCurrentTile()
 
         // left
-        if (this.x < this.tileOriginX + 1) {
+        if (this.x < this.tileOrigin.x + 1) {
             if (this.currentTile.left === 1) {
                 this.x = originalX;
-            } else if (this.currentTile.left === 0 && this.y < this.tileOriginY + 1) {
+            } else if (this.currentTile.left === 0 && this.y < this.tileOrigin.y + 1) {
                 // corner correction
                 this.x = originalX;
             }
         }
         // right
-        if (this.x > this.tileOriginX + 32) {
+        if (this.x > this.tileOrigin.x + 32) {
             if (this.currentTile.right === 1) {
                 this.x = originalX;
-            } else if (this.currentTile.right === 0 && this.y > this.tileOriginY + 41) {
+            } else if (this.currentTile.right === 0 && this.y > this.tileOrigin.y + 41) {
                 this.x = originalX;
             }
         }
         // top
-        if (this.y < this.tileOriginY + 1) {
+        if (this.y < this.tileOrigin.y + 1) {
             if (this.currentTile.top === 1) {
                 this.y = originalY;
-            } else if (this.currentTile.top === 0 && this.x < this.tileOriginX + 1) {
+            } else if (this.currentTile.top === 0 && this.x < this.tileOrigin.x + 1) {
                 this.y = originalY;
             }
         }
         // bottom
-        if (this.y > this.tileOriginY + 41) {
+        if (this.y > this.tileOrigin.y + 41) {
             if (this.currentTile.bottom === 1) {
                 this.y = originalY;
-            } else if (this.currentTile.bottom === 0 && this.x > this.tileOriginX + 32) {
+            } else if (this.currentTile.bottom === 0 && this.x > this.tileOrigin.x + 32) {
                 this.y = originalY;
             }
         }
     }
 
     move(direction) {
-        // storing position from previous frame in case new position is blocked
-        let originalX = this.x;
-        let originalY = this.y;
+        if (direction){
+            // storing position from previous frame in case new position is blocked
+            let originalX = this.x;
+            let originalY = this.y;
 
-        // get the coordinates of the tile and data from spanning tree
-        this.tileOriginX = (this.currentTile.x - 1) * mazeScale;
-        this.tileOriginY = (this.currentTile.y - 1) * mazeScale;
+            this.determineTileOrigin()
 
-        switch (direction) {
-            case directions.right:
-                this.x += this.speed;
-                break;
-            case directions.left:
-                this.x -= this.speed;
-                break;
-            case directions.down:
-                this.y += this.speed;
-                break;
-            case directions.up:
-                this.y -= this.speed;
-                break;
+            switch (direction) {
+                case directions.right:
+                    this.x += this.speed;
+                    break;
+                case directions.left:
+                    this.x -= this.speed;
+                    break;
+                case directions.down:
+                    this.y += this.speed;
+                    break;
+                case directions.up:
+                    this.y -= this.speed;
+                    break;
+            }
+
+            this.checkCollision(originalX, originalY)
+
+            this.self.setAttribute("facing", direction)
+            this.self.setAttribute("walking", "true");
+
+        } else {
+            this.self.setAttribute("walking", "false");
         }
-        this.checkCollision(originalX, originalY)
     }
 
     getCurrentTile(){
@@ -308,14 +322,7 @@ class Player extends Entity {
         //console.log(this.y, this.x, this.currentTileY, this.currentTileX, this.walls)
 
         let held_direction = held_directions[0];
-        if (held_direction){
-            super.move(held_direction)
-            // * this will need to move to Entity
-            this.self.setAttribute("facing", held_direction)
-            this.self.setAttribute("walking", "true");
-        } else {
-            this.self.setAttribute("walking", "false");
-        }
+        super.move(held_direction)
 
         // smooth camera movement - moves the map against the player while the player is in the centre of the map
         if (mapX < 112) { mapX = 112; } // left
@@ -334,7 +341,7 @@ class Player extends Entity {
 
 class Enemy extends Entity {
     constructor(range) {
-        super(0, 0, '.enemy');
+        super(27, 16, '.enemy');
         this.speed = 1;
         this.range = range
         this.path = [];
@@ -345,34 +352,33 @@ class Enemy extends Entity {
     spawn(tileY, tileX){
         this.x = (tileX -1) * mazeScale + 20
         this.y = (tileY -1) * mazeScale + 40
-        this.currentTile = this.prevTile = {y: tileY, x: tileX}
+        this.currentTile = {y: tileY, x: tileX}
     }
 
     pathFind(){
-        if (this.path.length > 0){
+        this.targetTile = player.getCurrentTile()
+        let targetPosition = this.targetTile.position()
+        if (this.path.length > 0 || (targetPosition.y === this.currentTile.y && targetPosition.x === this.currentTile.x)){
             return
         }
-
-        this.targetTile = player.getCurrentTile()
         let min = {y: this.currentTile.y - this.range/2, x: this.currentTile.x - this.range/2};
         let max = {y: this.currentTile.y + this.range/2, x: this.currentTile.x + this.range/2};
 
         // enemy should only find a path if the target is within its range
-        if (min.y <= this.targetTile.y <= max.y && min.x <= this.targetTile.x <= max.x){
+        if (min.y <= this.targetTile.y && this.targetTile.y <= max.y && min.x <= this.targetTile.x && this.targetTile.x <= max.x){
 
             let nodesInRange = new NodeList();
-            console.log('search start', this.currentTile);
+            //console.log('search start', this.currentTile, this.targetTile.position());
 
 
             for (let row = min.y; row <= max.y; row += 0.5){
                 for (let column = min.x; column <= max.x; column += 0.5){
-                    let node = maze.getNode({row, column})
+                    let node = maze.getNode({y: row, x: column})
                     if (node){
                         nodesInRange.push(node);
                     }
                 }
             }
-
             // recursive backtracking starts at target for better efficiency
             // * explain in design
             let checkTile = this.targetTile;
@@ -380,79 +386,102 @@ class Enemy extends Entity {
             let visitedNodes = new NodeList();
 
             while(true){
-                console.log(checkTile, checkPosition, this.path)
-                if (checkTile === this.currentTile){
+                if (checkPosition.y === this.currentTile.y && checkPosition.x === this.currentTile.x){
                     // has found player
+                    //console.log('player found', this.path)
                     break;
                 }
 
                 // ensures a node is not checked twice
                 nodesInRange.delete(checkPosition)
                 let nextPosition = checkPosition;
-                let direction = false;
+                let direction = undefined;
 
-                if (checkTile.top === 0 && {y: checkPosition.y -= 0.5, x: checkPosition.x} in nodesInRange){
+                // if the player is in an adjacent tile, the correct direction is known
+                if (nextPosition.x === this.currentTile.x && nextPosition.y + 0.5 === this.currentTile.y){
+                    nextPosition.y += 0.5
+                    direction = "up"
+
+                } else if (nextPosition.x === this.currentTile.x && nextPosition.y - 0.5 === this.currentTile.y){
+                    nextPosition.y -= 0.5
+                    direction = "down"
+
+                } else if (nextPosition.y === this.currentTile.y && nextPosition.x - 0.5 === this.currentTile.x){
+                    nextPosition.x -= 0.5
+                    direction = "right"
+
+                } else if (nextPosition.y === this.currentTile.y && nextPosition.x + 0.5 === this.currentTile.x){
+                    nextPosition.x += 0.5
+                    direction = "left"
+
+                // when the player is not in an adjacent tile, tiles are checked using recursive backtracking
+                } else if (checkTile.top === 0 && nodesInRange.contains({y: nextPosition.y - 0.5, x: nextPosition.x})){
                     nextPosition.y -= 0.5;
                     direction = "down";
 
-                } else if (checkTile.bottom === 0 && {y: checkPosition.y += 0.5, x: checkPosition.x} in nodesInRange){
+                } else if (checkTile.bottom === 0 && nodesInRange.contains({y: nextPosition.y + 0.5, x: nextPosition.x})){
                     nextPosition.y += 0.5;
                     direction = "up";
 
-                } else if (checkTile.left === 0 && {y: checkPosition.y, x: checkPosition.x -= 0.5} in nodesInRange){
+                } else if (checkTile.left === 0 && nodesInRange.contains({y: nextPosition.y, x: nextPosition.x - 0.5})){
                     nextPosition.x -= 0.5;
                     direction = "right";
 
-                } else if (checkTile.right === 0 && {y: checkPosition.y, x: checkPosition.x += 0.5} in nodesInRange){
+                } else if (checkTile.right === 0 && nodesInRange.contains({y: nextPosition.y, x: nextPosition.x + 0.5})){
                     nextPosition.x += 0.5;
                     direction = "left";
 
                 } else {
                     // can't find player
-                    this.path.pop()
-                    checkPosition = visitedNodes.pop()
-
+                    if (this.path.length !== 0) {
+                        this.path.pop()
+                        checkPosition = visitedNodes.pop()
+                    } else {
+                        break
+                    }
                 }
-
-                if (nextPosition in nodesInRange) {
+                if (nodesInRange.contains(nextPosition)){
                     this.path.push(direction);
                     visitedNodes.push(checkTile)
-                    console.log(this.path, visitedNodes)
+
                     checkPosition = nextPosition;
-                    checkTile = nodesInRange.dict[checkPosition]
-                } else {
-                    break
+                    checkTile = nodesInRange.dict[nodesInRange.getKeyFromPos(checkPosition)]
                 }
             }
         }
     }
 
     move(pixelSize){
-        //console.log(this.y, this.x, this.currentTileY, this.currentTileX, this.walls, this.target, this.path)
-        if (this.target !== {}) {
+        this.determineTileOrigin()
+
+        console.log(this.y, this.x, this.currentTile.x, this.currentTile.y, this.tileOrigin, this.target, this.path)
+        if (this.target.x !== -1 && this.target.y !== -1) {
             // move towards target
             if (this.x > this.target.x) {
-                let direction = directions.left
+                super.move(directions.left)
             } else if (this.x < this.target.x) {
-                let direction = directions.right
+                super.move(directions.right)
             } else if (this.y > this.target.y) {
-                let direction = directions.up
+                super.move(directions.up)
             } else if (this.y < this.target.y) {
-                let direction = directions.down
+                super.move(directions.down)
             } else {
-                this.target = {};
-                this.path.shift();
+                console.log(this.target, this.path)
+                this.target.x = this.target.y = -1;
+                this.path.pop();
             }
         }
+        // TODO how to get between tiles?
         if (this.targetTile.x === this.currentTileX && this.targetTile.y === this.currentTileY){
             // set player as target
         } else if (!this.path){
             // random movement
         } else {
             // move to next tile
-            super.move(this.path[0]);
-            if (Math.abs(this.currentTile.x - this.prevTile.x) === 0.5 || Math.abs(this.currentTile.y - this.prevTile.y) === 0.5) {
-                this.target = {y: this.tileOriginX + 20, x: this.tileOriginY + 15}
+            super.move(this.path[-1]);
+            if (this.currentTile.x !== this.prevTile.x || this.currentTile.y !== this.prevTile.y) {
+                this.target = {y: this.tileOrigin.y + 37, x: this.tileOrigin.x + 25}
+                console.log(this.tileOrigin, this.target)
             }
         }
         this.self.style.transform = `translate3d( ${this.x * pixelSize}px, ${this.y * pixelSize}px, 0 )`;
@@ -466,6 +495,7 @@ let player = new Player()
 
 let enemy = new Enemy(3)
 enemy.spawn(2, 2)
+
 
 // setting css properties to correct values
 let root = document.querySelector(':root');
@@ -486,9 +516,9 @@ const gameLoop = function () {
     );
 
     player.move(pixelSize)
+    enemy.pathFind();
 
-   enemy.pathFind();
-    // enemy.move(pixelSize)
+    enemy.move(pixelSize)
 
 }
 
