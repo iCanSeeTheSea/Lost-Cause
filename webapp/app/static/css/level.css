@@ -66,9 +66,10 @@ body {
 
 .enemy{
     image-rendering: pixelated;
-    background-image: url("/static/img/testsprite.png");
-    width: 10px;
-    height: 10px;
+    background-image: url("/static/img/slime.png");
+    background-size: 100%;
+    width: calc(var(--pixel-size) * 20);
+    height: calc(var(--pixel-size) * 20);
 }
 
 .character{
