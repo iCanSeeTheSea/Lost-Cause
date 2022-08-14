@@ -50,12 +50,12 @@ class NodeList{
     push(node){
         let position = node.position()
         this.dict[this.getKeyFromPos(position)] = node
-        this.keys.push(node.position())
+        this.keys.unshift(node.position())
     }
 
     pop(){
         if (this.keys){
-            let position = this.keys.pop()
+            let position = this.keys.shift()
             let key = this.getKeyFromPos(position)
             delete this.dict[key]
             return position
@@ -212,13 +212,14 @@ class Entity {
 
     determineCurrentTile(){
         // store previous node to know where its walls where
-        this.prevTile = this.currentTile;
+        this.prevTile.x = this.currentTile.x;
+        this.prevTile.y = this.currentTile.y
 
         // work out which tile in the spanning tree the entity is in
         this.currentTile.x = this.roundTileCoord((this.x / mazeScale) + 1);
         this.currentTile.y = this.roundTileCoord((this.y / mazeScale) + 1);
 
-        this.currentTile = maze.getNode(this.currentTile, this.prevTile)
+        this.currentTile = maze.getNode(this.currentTile)
         this.determineTileOrigin()
     }
 
@@ -275,7 +276,7 @@ class Entity {
             let originalX = this.x;
             let originalY = this.y;
 
-            this.determineTileOrigin()
+            this.determineCurrentTile()
 
             switch (direction) {
                 case directions.right:
@@ -345,7 +346,7 @@ class Enemy extends Entity {
         this.speed = 1;
         this.range = range
         this.path = [];
-        this.target = {};
+        this.target = {y: -1, x: -1};
         this.targetTile = {};
     }
 
@@ -434,14 +435,14 @@ class Enemy extends Entity {
                 } else {
                     // can't find player
                     if (this.path.length !== 0) {
-                        this.path.pop()
+                        this.path.shift()
                         checkPosition = visitedNodes.pop()
                     } else {
                         break
                     }
                 }
                 if (nodesInRange.contains(nextPosition)){
-                    this.path.push(direction);
+                    this.path.unshift(direction);
                     visitedNodes.push(checkTile)
 
                     checkPosition = nextPosition;
@@ -454,31 +455,32 @@ class Enemy extends Entity {
     move(pixelSize){
         this.determineTileOrigin()
 
-        console.log(this.y, this.x, this.currentTile.x, this.currentTile.y, this.tileOrigin, this.target, this.path)
+        //console.log(this.y, this.x, this.currentTile.x, this.currentTile.y, this.tileOrigin, this.target, this.path)
         if (this.target.x !== -1 && this.target.y !== -1) {
+            console.log(this.target, this.y, this.x)
             // move towards target
-            if (this.x > this.target.x) {
+            if (this.x - 2 > this.target.x) {
                 super.move(directions.left)
-            } else if (this.x < this.target.x) {
+            } else if (this.x + 2 < this.target.x) {
                 super.move(directions.right)
-            } else if (this.y > this.target.y) {
+            } else if (this.y  - 2 > this.target.y) {
                 super.move(directions.up)
-            } else if (this.y < this.target.y) {
+            } else if (this.y + 2 < this.target.y) {
                 super.move(directions.down)
             } else {
-                console.log(this.target, this.path)
+                //console.log(this.target, this.path)
                 this.target.x = this.target.y = -1;
-                this.path.pop();
+                this.path.shift();
             }
         }
-        // TODO how to get between tiles?
         if (this.targetTile.x === this.currentTileX && this.targetTile.y === this.currentTileY){
             // set player as target
         } else if (!this.path){
             // random movement
         } else {
             // move to next tile
-            super.move(this.path[-1]);
+            super.move(this.path[0]);
+            //console.log(this.currentTile, this.prevTile)
             if (this.currentTile.x !== this.prevTile.x || this.currentTile.y !== this.prevTile.y) {
                 this.target = {y: this.tileOrigin.y + 37, x: this.tileOrigin.x + 25}
                 console.log(this.tileOrigin, this.target)
