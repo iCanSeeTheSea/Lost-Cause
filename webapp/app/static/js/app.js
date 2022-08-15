@@ -9,6 +9,7 @@ const directions = {
     left: "left",
     right: "right",
 }
+
 const keys = {
     'w': directions.up,
     'a': directions.left,
@@ -337,6 +338,11 @@ class Player extends Entity {
         this.map.style.transform = `translate3d( ${-mapX * pixelSize + camera_left}px, ${-mapY * pixelSize + camera_top}px, 0 )`;
         this.self.style.transform = `translate3d( ${this.x * pixelSize}px, ${this.y * pixelSize}px, 0 )`;
 
+        if (this.currentTile.x !== this.prevTile.x || this.currentTile.y !== this.prevTile.y){
+            console.log(this.currentTile, this.prevTile)
+            enemy.trackPlayerMove(held_direction)
+        }
+
         }
 }
 
@@ -452,12 +458,27 @@ class Enemy extends Entity {
         }
     }
 
+    trackPlayerMove(held_direction){
+        let opposingDirections = {
+            "left": "right",
+            "right": "left",
+            "up": "down",
+            "down": "up",
+        }
+        if (opposingDirections[held_direction] === this.path[0]){
+            this.path.shift()
+        } else {
+            this.path.unshift(held_direction)
+        }
+    }
+
+
     move(pixelSize){
         this.determineTileOrigin()
 
         //console.log(this.y, this.x, this.currentTile.x, this.currentTile.y, this.tileOrigin, this.target, this.path)
         if (this.target.x !== -1 && this.target.y !== -1) {
-            console.log(this.target, this.y, this.x)
+            //console.log(this.target, this.y, this.x)
             // move towards target
             if (this.x - 2 > this.target.x) {
                 super.move(directions.left)
@@ -483,7 +504,7 @@ class Enemy extends Entity {
             //console.log(this.currentTile, this.prevTile)
             if (this.currentTile.x !== this.prevTile.x || this.currentTile.y !== this.prevTile.y) {
                 this.target = {y: this.tileOrigin.y + 37, x: this.tileOrigin.x + 25}
-                console.log(this.tileOrigin, this.target)
+                //console.log(this.tileOrigin, this.target)
             }
         }
         this.self.style.transform = `translate3d( ${this.x * pixelSize}px, ${this.y * pixelSize}px, 0 )`;
