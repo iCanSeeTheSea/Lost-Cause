@@ -76,27 +76,27 @@ body {
     color: transparent;
     position: absolute;
     overflow: hidden;
-    width: calc(var(--pixel-size) * 20);
-    height: calc(var(--pixel-size) * 20);
+    width: calc(var(--pixel-size) * 17 * 0.5);
+    height: calc(var(--pixel-size) * 27 * 0.5);
 }
 
 .character_spritesheet{
     image-rendering: pixelated;
     background: url('/static/img/player-spritesheet.png') no-repeat no-repeat;
     background-size: 100%;
-    height: calc(var(--pixel-size) * 80);
-    width: calc(var(--pixel-size) * 80);
+    height: calc(var(--pixel-size) * 27 * 2);
+    width: calc(var(--pixel-size) * 17 * 2);
     position: absolute;
 }
 
 .character[facing="down"] .character_spritesheet {
-    background-position-y: calc(var(--pixel-size) * -20);
+    background-position-y: calc(var(--pixel-size) * -13);
 }
 .character[facing="left"] .character_spritesheet {
-    background-position-y: calc(var(--pixel-size) * -40);
+    background-position-y: calc(var(--pixel-size) * -27);
 }
 .character[facing="up"] .character_spritesheet {
-    background-position-y: calc(var(--pixel-size) * -60);
+    background-position-y: calc(var(--pixel-size) * -40);
 }
 .character[walking="true"] .character_spritesheet {
     animation: walkAnimation 0.6s steps(4) infinite; 

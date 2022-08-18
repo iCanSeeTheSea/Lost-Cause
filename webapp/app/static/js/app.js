@@ -237,10 +237,10 @@ class Entity {
         this.determineCurrentTile()
 
         // left
-        if (this.x < this.tileOrigin.x + 1) {
+        if (this.x < this.tileOrigin.x + 2) {
             if (this.currentTile.left === 1) {
                 this.x = originalX;
-            } else if (this.currentTile.left === 0 && this.y < this.tileOrigin.y + 1) {
+            } else if (this.currentTile.left === 0 && this.y < this.tileOrigin.y + 2) {
                 // corner correction
                 this.x = originalX;
             }
@@ -254,10 +254,10 @@ class Entity {
             }
         }
         // top
-        if (this.y < this.tileOrigin.y + 1) {
+        if (this.y < this.tileOrigin.y + 2) {
             if (this.currentTile.top === 1) {
                 this.y = originalY;
-            } else if (this.currentTile.top === 0 && this.x < this.tileOrigin.x + 1) {
+            } else if (this.currentTile.top === 0 && this.x < this.tileOrigin.x + 2) {
                 this.y = originalY;
             }
         }
@@ -271,32 +271,34 @@ class Entity {
         }
     }
 
-    move(direction) {
-        if (direction){
+    move(move_directions) {
+        if (move_directions.length > 0){
             // storing position from previous frame in case new position is blocked
             let originalX = this.x;
             let originalY = this.y;
 
             this.determineCurrentTile()
 
-            switch (direction) {
-                case directions.right:
-                    this.x += this.speed;
-                    break;
-                case directions.left:
-                    this.x -= this.speed;
-                    break;
-                case directions.down:
-                    this.y += this.speed;
-                    break;
-                case directions.up:
-                    this.y -= this.speed;
-                    break;
+            for (let i = 0; i < move_directions.length; i++) {
+                switch (move_directions[i]) {
+                    case directions.right:
+                        this.x += this.speed;
+                        break;
+                    case directions.left:
+                        this.x -= this.speed;
+                        break;
+                    case directions.down:
+                        this.y += this.speed;
+                        break;
+                    case directions.up:
+                        this.y -= this.speed;
+                        break;
+                }
             }
 
             this.checkCollision(originalX, originalY)
 
-            this.self.setAttribute("facing", direction)
+            this.self.setAttribute("facing", move_directions[0])
             this.self.setAttribute("walking", "true");
 
         } else {
@@ -321,10 +323,10 @@ class Player extends Entity {
         let mapX = this.x;
         let mapY = this.y;
 
-        //console.log(this.y, this.x, this.currentTileY, this.currentTileX, this.walls)
+        console.log(this.y, this.x, held_directions)
 
-        let held_direction = held_directions[0];
-        super.move(held_direction)
+
+        super.move(held_directions)
 
         // smooth camera movement - moves the map against the player while the player is in the centre of the map
         if (mapX < 112) { mapX = 112; } // left
@@ -337,11 +339,6 @@ class Player extends Entity {
         // moving the map and player
         this.map.style.transform = `translate3d( ${-mapX * pixelSize + camera_left}px, ${-mapY * pixelSize + camera_top}px, 0 )`;
         this.self.style.transform = `translate3d( ${this.x * pixelSize}px, ${this.y * pixelSize}px, 0 )`;
-
-        if (this.currentTile.x !== this.prevTile.x || this.currentTile.y !== this.prevTile.y){
-            console.log(this.currentTile, this.prevTile)
-            enemy.trackPlayerMove(held_direction)
-        }
 
         }
 }
@@ -458,19 +455,6 @@ class Enemy extends Entity {
         }
     }
 
-    trackPlayerMove(held_direction){
-        let opposingDirections = {
-            "left": "right",
-            "right": "left",
-            "up": "down",
-            "down": "up",
-        }
-        if (opposingDirections[held_direction] === this.path[0]){
-            this.path.shift()
-        } else {
-            this.path.unshift(held_direction)
-        }
-    }
 
 
     move(pixelSize){
