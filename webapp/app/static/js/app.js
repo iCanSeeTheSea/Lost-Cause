@@ -240,13 +240,13 @@ class Entity {
         if (this.x < this.tileOrigin.x + 2) {
             if (this.currentTile.left === 1) {
                 this.x = originalX;
-            } else if (this.currentTile.left === 0 && this.y < this.tileOrigin.y + 2) {
+            } else if (this.currentTile.left === 0 && this.y < this.tileOrigin.y + 1) {
                 // corner correction
                 this.x = originalX;
             }
         }
         // right
-        if (this.x > this.tileOrigin.x + 32) {
+        if (this.x > this.tileOrigin.x + 31) {
             if (this.currentTile.right === 1) {
                 this.x = originalX;
             } else if (this.currentTile.right === 0 && this.y > this.tileOrigin.y + 41) {
@@ -257,12 +257,12 @@ class Entity {
         if (this.y < this.tileOrigin.y + 2) {
             if (this.currentTile.top === 1) {
                 this.y = originalY;
-            } else if (this.currentTile.top === 0 && this.x < this.tileOrigin.x + 2) {
+            } else if (this.currentTile.top === 0 && this.x < this.tileOrigin.x + 1) {
                 this.y = originalY;
             }
         }
         // bottom
-        if (this.y > this.tileOrigin.y + 41) {
+        if (this.y > this.tileOrigin.y + 40) {
             if (this.currentTile.bottom === 1) {
                 this.y = originalY;
             } else if (this.currentTile.bottom === 0 && this.x > this.tileOrigin.x + 32) {
@@ -273,9 +273,12 @@ class Entity {
 
     move(move_directions) {
         if (move_directions.length > 0){
+
+            
             // storing position from previous frame in case new position is blocked
             let originalX = this.x;
             let originalY = this.y;
+
 
             this.determineCurrentTile()
 
@@ -500,8 +503,8 @@ maze.output()
 
 let player = new Player()
 
-let enemy = new Enemy(3)
-enemy.spawn(2, 2)
+//let enemy = new Enemy(3)
+//enemy.spawn(2, 2)
 
 
 // setting css properties to correct values
@@ -523,9 +526,9 @@ const gameLoop = function () {
     );
 
     player.move(pixelSize)
-    enemy.pathFind();
+    //enemy.pathFind();
 
-    enemy.move(pixelSize)
+    //enemy.move(pixelSize)
 
 }
 
