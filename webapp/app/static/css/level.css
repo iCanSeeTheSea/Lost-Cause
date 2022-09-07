@@ -90,13 +90,13 @@ body {
 }
 
 .character[facing="down"] .character_spritesheet {
-    background-position-y: calc(var(--pixel-size) * -13);
+    background-position-y: calc(var(--pixel-size) * -13.5);
 }
 .character[facing="left"] .character_spritesheet {
     background-position-y: calc(var(--pixel-size) * -27);
 }
 .character[facing="up"] .character_spritesheet {
-    background-position-y: calc(var(--pixel-size) * -40);
+    background-position-y: calc(var(--pixel-size) * -40.5);
 }
 .character[walking="true"] .character_spritesheet {
     animation: walkAnimation 0.6s steps(4) infinite; 

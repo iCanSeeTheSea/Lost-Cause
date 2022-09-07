@@ -326,7 +326,7 @@ class Player extends Entity {
         let mapX = this.x;
         let mapY = this.y;
 
-        console.log(this.y, this.x, held_directions)
+        //console.log(this.y, this.x, held_directions)
 
 
         super.move(held_directions)
@@ -467,14 +467,20 @@ class Enemy extends Entity {
         if (this.target.x !== -1 && this.target.y !== -1) {
             //console.log(this.target, this.y, this.x)
             // move towards target
+            let move_directions = []
             if (this.x - 2 > this.target.x) {
-                super.move(directions.left)
+                move_directions.push(directions.left)
             } else if (this.x + 2 < this.target.x) {
-                super.move(directions.right)
-            } else if (this.y  - 2 > this.target.y) {
-                super.move(directions.up)
+                move_directions.push(directions.right)
+            }
+            if (this.y  - 2 > this.target.y) {
+                move_directions.push(directions.up)
             } else if (this.y + 2 < this.target.y) {
-                super.move(directions.down)
+                move_directions.push(directions.down)
+            }
+            if (move_directions.length > 0){
+                console.log(move_directions)
+                super.move(move_directions)
             } else {
                 //console.log(this.target, this.path)
                 this.target.x = this.target.y = -1;
@@ -487,7 +493,9 @@ class Enemy extends Entity {
             // random movement
         } else {
             // move to next tile
-            super.move(this.path[0]);
+            let move_directions = []
+            move_directions.push(this.path[0])
+            super.move(move_directions);
             //console.log(this.currentTile, this.prevTile)
             if (this.currentTile.x !== this.prevTile.x || this.currentTile.y !== this.prevTile.y) {
                 this.target = {y: this.tileOrigin.y + 37, x: this.tileOrigin.x + 25}
@@ -503,8 +511,8 @@ maze.output()
 
 let player = new Player()
 
-//let enemy = new Enemy(3)
-//enemy.spawn(2, 2)
+let enemy = new Enemy(3)
+enemy.spawn(2, 2)
 
 
 // setting css properties to correct values
@@ -526,9 +534,9 @@ const gameLoop = function () {
     );
 
     player.move(pixelSize)
-    //enemy.pathFind();
+    enemy.pathFind();
 
-    //enemy.move(pixelSize)
+    enemy.move(pixelSize)
 
 }
 
