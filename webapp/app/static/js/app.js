@@ -465,7 +465,7 @@ class Enemy extends Entity {
 
         //console.log(this.y, this.x, this.currentTile.x, this.currentTile.y, this.tileOrigin, this.target, this.path)
         if (this.target.x !== -1 && this.target.y !== -1) {
-            //console.log(this.target, this.y, this.x)
+            console.log('1', this.target, this.y, this.x)
             // move towards target
             let move_directions = []
             if (this.x - 2 > this.target.x) {
@@ -473,13 +473,12 @@ class Enemy extends Entity {
             } else if (this.x + 2 < this.target.x) {
                 move_directions.push(directions.right)
             }
-            if (this.y  - 2 > this.target.y) {
+            if (this.y - 2 > this.target.y) {
                 move_directions.push(directions.up)
             } else if (this.y + 2 < this.target.y) {
                 move_directions.push(directions.down)
             }
-            if (move_directions.length > 0){
-                console.log(move_directions)
+            if (move_directions.length > 0) {
                 super.move(move_directions)
             } else {
                 //console.log(this.target, this.path)
@@ -487,11 +486,16 @@ class Enemy extends Entity {
                 this.path.shift();
             }
         }
-        if (this.targetTile.x === this.currentTileX && this.targetTile.y === this.currentTileY){
+        if (this.targetTile.x === this.currentTile.x && this.targetTile.y === this.currentTile.y){
             // set player as target
+            console.log('2', this.target, player.y, player.x)
+            this.target.x = player.x;
+            this.target.y = player.y;
         } else if (!this.path){
             // random movement
         } else {
+            enemy.pathFind();
+            console.log('3', this.path)
             // move to next tile
             let move_directions = []
             move_directions.push(this.path[0])
@@ -534,7 +538,7 @@ const gameLoop = function () {
     );
 
     player.move(pixelSize)
-    enemy.pathFind();
+
 
     enemy.move(pixelSize)
 
