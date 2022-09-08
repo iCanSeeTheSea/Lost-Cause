@@ -197,6 +197,7 @@ class Entity {
         this.prevTile = {y: 0, x:0};
         this.currentTile = {y: 0, x:0};
         this.tileOrigin = {y: 0, x:0}
+        this.move_directions = []
         this.determineCurrentTile()
         this.self = document.querySelector(identifier);
     }
@@ -271,8 +272,8 @@ class Entity {
         }
     }
 
-    move(move_directions) {
-        if (move_directions.length > 0){
+    move() {
+        if (this.move_directions.length > 0){
 
             
             // storing position from previous frame in case new position is blocked
@@ -282,8 +283,8 @@ class Entity {
 
             this.determineCurrentTile()
 
-            for (let i = 0; i < move_directions.length; i++) {
-                switch (move_directions[i]) {
+            for (let i = 0; i < this.move_directions.length; i++) {
+                switch (this.move_directions[i]) {
                     case directions.right:
                         this.x += this.speed;
                         break;
@@ -301,7 +302,7 @@ class Entity {
 
             this.checkCollision(originalX, originalY)
 
-            this.self.setAttribute("facing", move_directions[0])
+            this.self.setAttribute("facing", this.move_directions[0])
             this.self.setAttribute("walking", "true");
 
         } else {
@@ -328,8 +329,8 @@ class Player extends Entity {
 
         //console.log(this.y, this.x, held_directions)
 
-
-        super.move(held_directions)
+        this.move_directions = held_directions
+        super.move()
 
         // smooth camera movement - moves the map against the player while the player is in the centre of the map
         if (mapX < 112) { mapX = 112; } // left
@@ -467,19 +468,19 @@ class Enemy extends Entity {
         if (this.target.x !== -1 && this.target.y !== -1) {
             console.log('1', this.target, this.y, this.x)
             // move towards target
-            let move_directions = []
+            this.move_directions = []
             if (this.x - 2 > this.target.x) {
-                move_directions.push(directions.left)
+                this.move_directions.push(directions.left)
             } else if (this.x + 2 < this.target.x) {
-                move_directions.push(directions.right)
+                this.move_directions.push(directions.right)
             }
             if (this.y - 2 > this.target.y) {
-                move_directions.push(directions.up)
+                this.move_directions.push(directions.up)
             } else if (this.y + 2 < this.target.y) {
-                move_directions.push(directions.down)
+                this.move_directions.push(directions.down)
             }
-            if (move_directions.length > 0) {
-                super.move(move_directions)
+            if (this.move_directions.length > 0) {
+                super.move()
             } else {
                 //console.log(this.target, this.path)
                 this.target.x = this.target.y = -1;
@@ -497,9 +498,9 @@ class Enemy extends Entity {
             enemy.pathFind();
             console.log('3', this.path)
             // move to next tile
-            let move_directions = []
-            move_directions.push(this.path[0])
-            super.move(move_directions);
+            this.move_directions = []
+            this.move_directions.push(this.path[0])
+            super.move();
             //console.log(this.currentTile, this.prevTile)
             if (this.currentTile.x !== this.prevTile.x || this.currentTile.y !== this.prevTile.y) {
                 this.target = {y: this.tileOrigin.y + 37, x: this.tileOrigin.x + 25}
