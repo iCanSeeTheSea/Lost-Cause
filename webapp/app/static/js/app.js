@@ -316,11 +316,38 @@ class Entity {
 
 }
 
+class Inventory {
+    constructor(){
+        this.size = 5
+        this.contents = [undefined, undefined, undefined, undefined, undefined];
+    }
+
+    getItemFromSlot(slot){
+        if (this.contents[slot-1] !== undefined){
+            return this.contents[slot-1]
+        } else {
+            return false
+        }
+    }
+
+    insertItem(item, activeSlot){
+        for (let index = 0; index < this.size-1; index++){
+            if (this.contents[index] === undefined){
+                this.contents[index] = item
+                return
+            }
+        }
+        //this.contents[activeSlot].drop()
+        this.contents[activeSlot] = item
+    }
+}
+
 class Player extends Entity {
     constructor() {
         super(27, 16, '.character');
         this.speed = 1
         this.map = document.querySelector('.map')
+        this.inventory = new Inventory()
     }
 
     move(pixelSize){
@@ -346,6 +373,7 @@ class Player extends Entity {
 
         }
 }
+
 
 class Enemy extends Entity {
     constructor(range) {
@@ -510,6 +538,8 @@ class Enemy extends Entity {
         this.self.style.transform = `translate3d( ${this.x * pixelSize}px, ${this.y * pixelSize}px, 0 )`;
     }
 }
+
+
 
 const maze = new Maze(mazeSeed)
 maze.output()
