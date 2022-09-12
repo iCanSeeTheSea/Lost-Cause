@@ -238,36 +238,36 @@ class Entity {
         this.determineCurrentTile()
 
         // left
-        if (this.x < this.tileOrigin.x + 2) {
+        if (this.x < this.tileOrigin.x + 3) {
             if (this.currentTile.left === 1) {
                 this.x = originalX;
-            } else if (this.currentTile.left === 0 && this.y < this.tileOrigin.y + 1) {
+            } else if (this.currentTile.left === 0 && (this.y > this.tileOrigin.y + 46 || this.y < this.tileOrigin.y + 5)) {
                 // corner correction
-                this.x = originalX;
+                this.y = originalY;
             }
         }
         // right
-        if (this.x > this.tileOrigin.x + 31) {
+        if (this.x > this.tileOrigin.x + 38) {
             if (this.currentTile.right === 1) {
                 this.x = originalX;
-            } else if (this.currentTile.right === 0 && this.y > this.tileOrigin.y + 41) {
-                this.x = originalX;
+            } else if (this.currentTile.right === 0 && (this.y > this.tileOrigin.y + 46 || this.y < this.tileOrigin.y + 5)) {
+                this.y = originalY;
             }
         }
         // top
-        if (this.y < this.tileOrigin.y + 2) {
+        if (this.y < this.tileOrigin.y + 5) {
             if (this.currentTile.top === 1) {
                 this.y = originalY;
-            } else if (this.currentTile.top === 0 && this.x < this.tileOrigin.x + 1) {
-                this.y = originalY;
+            } else if (this.currentTile.top === 0 && (this.x < this.tileOrigin.x + 3 || this.x > this.tileOrigin.x + 38)) {
+                this.x = originalX;
             }
         }
         // bottom
-        if (this.y > this.tileOrigin.y + 40) {
+        if (this.y > this.tileOrigin.y + 46) {
             if (this.currentTile.bottom === 1) {
                 this.y = originalY;
-            } else if (this.currentTile.bottom === 0 && this.x > this.tileOrigin.x + 32) {
-                this.y = originalY;
+            } else if (this.currentTile.bottom === 0 && (this.x < this.tileOrigin.x + 3 || this.x > this.tileOrigin.x + 38)) {
+                this.x = originalX;
             }
         }
     }
