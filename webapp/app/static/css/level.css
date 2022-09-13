@@ -4,13 +4,13 @@
     --grid-cell: calc( var(--pixel-size) * 64);
  }
 
-@media( min-width: 700px ) {
+@media( min-width: 810px ) {
     :root {
        --pixel-size: 3px;
     }
  }
 
-@media( min-width: 1000px ) {
+@media( min-width: 1100px ) {
     :root {
        --pixel-size: 4px;
     }
@@ -35,8 +35,22 @@ body {
     margin-right: auto;
     width: 3%;
     padding: 10px;
+    overflow: hidden;
   }
 
+.inventory{
+    background-color: #261307;
+    width: calc(var(--pixel-size) * 30);
+    height: calc(var(--pixel-size) * 150);
+    margin-left: calc(var(--pixel-size) * 10);
+    float: left;
+    position: relative;
+}
+
+.slot{
+    width: calc(var(--pixel-size) * 30);
+    height: calc(var(--pixel-size) * 30);
+}
   
   button {
       background-color: #822510;
@@ -46,12 +60,13 @@ body {
     }
     
     .camera {
+        float: left;
         width: calc(var(--pixel-size) * 224);
         height: calc(var(--pixel-size) * 224);
         overflow: hidden;
         background: #502102;
         position:relative;
-        margin: auto;
+        margin-left: 10px;
         cursor: none;
     }
     

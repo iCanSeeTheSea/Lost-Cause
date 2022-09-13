@@ -6,14 +6,26 @@
 
 <p>use wasd to move</p>
 <div class='level'>
-  <div class='camera'>
-    <div class='map'>
-      <div class='character' facing='down' walking='false'>
-        <div class="character_spritesheet"></div>
-      </div>
-        <div class="enemy"></div>
+    <div class='inventory'>
+        <div class="slot" id="slot-1">
+        </div>
+        <div class="slot" id="slot-2">
+        </div>
+        <div class="slot" id="slot-3">
+        </div>
+        <div class="slot" id="slot-4">
+        </div>
+        <div class="slot" id="slot-5">
+        </div>
     </div>
-  </div>
+    <div class='camera'>
+        <div class='map'>
+            <div class='character' facing='down' walking='false'>
+                <div class="character_spritesheet"></div>
+            </div>
+            <div class="enemy"></div>
+        </div>
+    </div>
 </div>
 
 {% endblock %}
@@ -21,7 +33,7 @@
 {% block script %}
 <script>
   // use with function from external js
-  var mazeSeed = "{{ mazeSeed | safe}}";
+  let mazeSeed = "{{ mazeSeed | safe}}";
 
 </script>
 {% endblock %}
