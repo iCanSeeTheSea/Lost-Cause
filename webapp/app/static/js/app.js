@@ -247,7 +247,7 @@ class Entity {
             }
         }
         // right
-        if (this.x > this.tileOrigin.x + 38) {
+        if (this.x > this.tileOrigin.x + 51) {
             if (this.currentTile.right === 1) {
                 this.x = originalX;
             } else if (this.currentTile.right === 0 && (this.y > this.tileOrigin.y + 46 || this.y < this.tileOrigin.y + 5)) {
@@ -258,7 +258,7 @@ class Entity {
         if (this.y < this.tileOrigin.y + 5) {
             if (this.currentTile.top === 1) {
                 this.y = originalY;
-            } else if (this.currentTile.top === 0 && (this.x < this.tileOrigin.x + 3 || this.x > this.tileOrigin.x + 38)) {
+            } else if (this.currentTile.top === 0 && (this.x < this.tileOrigin.x + 3 || this.x > this.tileOrigin.x + 51)) {
                 this.x = originalX;
             }
         }
@@ -266,7 +266,7 @@ class Entity {
         if (this.y > this.tileOrigin.y + 46) {
             if (this.currentTile.bottom === 1) {
                 this.y = originalY;
-            } else if (this.currentTile.bottom === 0 && (this.x < this.tileOrigin.x + 3 || this.x > this.tileOrigin.x + 38)) {
+            } else if (this.currentTile.bottom === 0 && (this.x < this.tileOrigin.x + 3 || this.x > this.tileOrigin.x + 51)) {
                 this.x = originalX;
             }
         }
@@ -374,7 +374,6 @@ class Player extends Entity {
         }
 }
 
-
 class Enemy extends Entity {
     constructor(range) {
         super(27, 16, '.enemy');
@@ -392,7 +391,6 @@ class Enemy extends Entity {
     }
 
     pathFind(){
-        this.targetTile = player.getCurrentTile()
         let targetPosition = this.targetTile.position()
         if (this.path.length > 0 || (targetPosition.y === this.currentTile.y && targetPosition.x === this.currentTile.x)){
             return
@@ -491,6 +489,9 @@ class Enemy extends Entity {
 
     move(pixelSize){
         this.determineTileOrigin()
+        this.targetTile = player.getCurrentTile()
+
+        // TODO need some way of making sure enemy does not get stuck on corners
 
         //console.log(this.y, this.x, this.currentTile.x, this.currentTile.y, this.tileOrigin, this.target, this.path)
         if (this.target.x !== -1 && this.target.y !== -1) {
@@ -517,7 +518,7 @@ class Enemy extends Entity {
         }
         if (this.targetTile.x === this.currentTile.x && this.targetTile.y === this.currentTile.y){
             // set player as target
-            console.log('2', this.target, player.y, player.x)
+            console.log('2', this.targetTile.x, this.targetTile.y, this.currentTile.x, this.currentTile.y)
             this.target.x = player.x;
             this.target.y = player.y;
         } else if (!this.path){
