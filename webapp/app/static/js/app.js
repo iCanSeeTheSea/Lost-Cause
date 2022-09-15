@@ -564,14 +564,12 @@ const imgHeight = (maze.height * mazeScale) - 64
 // determines where the character (and maze) is positioned every frame
 const gameLoop = function () {
 
-    // getting the pixel size being used from the css - varies depending on how large the browser window is
+    // need to get pixel size every frame as it varies depending on how large the browser window is
     let pixelSize = parseInt(
         getComputedStyle(document.documentElement).getPropertyValue('--pixel-size')
     );
 
     player.move(pixelSize)
-
-
     enemy.move(pixelSize)
 
 }
@@ -584,7 +582,6 @@ const step = function () {
     })
 }
 step()
-
 
 
 // event listeners for keys being pressed and released
