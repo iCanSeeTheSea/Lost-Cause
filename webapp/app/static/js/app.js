@@ -1,16 +1,16 @@
 // debug
-console.log(mazeSeed)
-const mazeScale = 128
+console.log(mazeSeed);
+const mazeScale = 128;
 
 // mapping keys to movement directions
 const directions = {
     up: "up",
     down: "down",
     left: "left",
-    right: "right",
+    right: "right"
 }
 
-const keys = {
+const directionKeys = {
     'w': directions.up,
     'a': directions.left,
     'd': directions.right,
@@ -18,8 +18,17 @@ const keys = {
     'ArrowUp': directions.up,
     'ArrowLeft': directions.left,
     'ArrowRight': directions.right,
-    'ArrowDown': directions.down,
+    'ArrowDown': directions.down
 }
+
+const inventoryKeys = {
+    '1': 1,
+    '2': 2,
+    '3': 3,
+    '4': 4,
+    '5': 5
+}
+
 
 const toBinary = {'A': '000000', 'B': '000001', 'C': '000010', 'D': '000011', 'E': '000100', 'F': '000101',
                     'G': '000110', 'H': '000111',
@@ -40,40 +49,40 @@ const toBinary = {'A': '000000', 'B': '000001', 'C': '000010', 'D': '000011', 'E
 
 class NodeList{
     constructor() {
-        this.dict = {}
-        this.keys = []
+        this.dict = {};
+        this.keys = [];
     }
 
     getKeyFromPos(position){
-        return 'y' + String(position.y) + 'x' + String(position.x)
+        return 'y' + String(position.y) + 'x' + String(position.x);
     }
 
     push(node){
-        let position = node.position()
-        this.dict[this.getKeyFromPos(position)] = node
-        this.keys.unshift(node.position())
+        let position = node.position();
+        this.dict[this.getKeyFromPos(position)] = node;
+        this.keys.unshift(node.position());
     }
 
     pop(){
         if (this.keys){
-            let position = this.keys.shift()
-            let key = this.getKeyFromPos(position)
-            delete this.dict[key]
-            return position
+            let position = this.keys.shift();
+            let key = this.getKeyFromPos(position);
+            delete this.dict[key];
+            return position;
         } else {
-            return undefined
+            return undefined;
         }
     }
 
     delete(position){
-        let key = this.getKeyFromPos(position)
-        delete this.dict[key]
-        this.keys = this.keys.filter(function(e) { return e !== key})
+        let key = this.getKeyFromPos(position);
+        delete this.dict[key];
+        this.keys = this.keys.filter(function(e) { return e !== key});
     }
 
     contains(position){
-        let key = this.getKeyFromPos(position)
-        return key in this.dict
+        let key = this.getKeyFromPos(position);
+        return key in this.dict;
     }
 }
 
@@ -85,29 +94,29 @@ class Node{
         this.bottom = walls.bottom;
         this.left = walls.left;
         this.right = walls.right;
-        this.walls = walls
+        this.walls = walls;
     }
 
     wallString(){
-        return this.walls.toString()
+        return this.walls.toString();
     }
 
     position(){
-        return {y: this.y, x: this.x}
+        return {y: this.y, x: this.x};
     }
     
 }
 
 class HorizontalEdge extends Node{
     constructor(y, x) {
-        let walls = { top: 1, bottom: 1, left: 0, right: 0 }
+        let walls = { top: 1, bottom: 1, left: 0, right: 0 };
         super(y, x, walls);
     }
 }
 
 class VerticalEdge extends Node{
     constructor(y, x) {
-        let walls = { top: 0, bottom: 0, left: 1, right: 1 }
+        let walls = { top: 0, bottom: 0, left: 1, right: 1 };
         super(y, x, walls);
     }
 }
@@ -118,17 +127,17 @@ class Maze {
     constructor(seed) {
         this.seed = seed;
 
-        let base64String = this.seed.replace(/=/g, '')
-        console.log(base64String)
-        let binaryString = ''
+        let base64String = this.seed.replace(/=/g, '');
+        console.log(base64String);
+        let binaryString = '';
         for (let i = 0; i < base64String.length; i++){
-            binaryString += toBinary[base64String[i]]
+            binaryString += toBinary[base64String[i]];
         }
-        let padding = (this.seed.length - base64String.length)*8
+        let padding = (this.seed.length - base64String.length)*8;
         this.height = parseInt(binaryString.slice(0,8), 2);
         this.width = parseInt(binaryString.slice(8,16), 2);
-        binaryString = binaryString.slice(16, binaryString.length - padding)
-        console.log(binaryString,this.height, this.width)
+        binaryString = binaryString.slice(16, binaryString.length - padding);
+        console.log(binaryString,this.height, this.width);
 
         this.adjacencyList = [];
 
@@ -137,54 +146,54 @@ class Maze {
         for (let row = 1; row <= this.height; row++) {
             let rowList = [];
             for (let column = 1; column <= this.width; column++) {
-                let bin = binaryString.slice(0,4)
-                let walls = {top: parseInt(bin[0]), bottom: parseInt(bin[1]), left: parseInt(bin[2]), right: parseInt(bin[3])}
+                let bin = binaryString.slice(0,4);
+                let walls = {top: parseInt(bin[0]), bottom: parseInt(bin[1]), left: parseInt(bin[2]), right: parseInt(bin[3])};
                 let node = new Node(row, column, walls);
-                rowList.push(node)
-                binaryString = binaryString.slice(4)
-                index += 1
+                rowList.push(node);
+                binaryString = binaryString.slice(4);
+                index += 1;
             }
-            this.adjacencyList.push(rowList)
+            this.adjacencyList.push(rowList);
         }
     }
 
 
     checkTileInMaze(tile){
         if ((1 > tile.x || tile.x > this.width) || (1 > tile.y || tile.y > this.height)){
-            return false
+            return false;
         } else if (tile.x % 1 === 0 && tile.y % 1 === 0){
             return true;
         } else if (tile.y % 1 !== 0 && tile.x % 1 === 0){
-            let adjTile = this.adjacencyList[Math.floor(tile.y) - 1][tile.x - 1]
+            let adjTile = this.adjacencyList[Math.floor(tile.y) - 1][tile.x - 1];
             if (adjTile.bottom === 0){
-                return true
+                return true;
             }
         } else if (tile.x % 1 !== 0 && tile.y % 1 === 0){
-            let adjTile = this.adjacencyList[tile.y - 1][Math.floor(tile.x) - 1]
+            let adjTile = this.adjacencyList[tile.y - 1][Math.floor(tile.x) - 1];
             if (adjTile.right === 0){
-                return true
+                return true;
             }
         } else {
-            return false
+            return false;
         }
     }
 
     getNode(currentTile){
         if (this.checkTileInMaze(currentTile)) {
             if (currentTile.x % 1 !== 0) {
-                return new HorizontalEdge(currentTile.y, currentTile.x)
+                return new HorizontalEdge(currentTile.y, currentTile.x);
             } else if (currentTile.y % 1 !== 0) {
-                return new VerticalEdge(currentTile.y, currentTile.x)
+                return new VerticalEdge(currentTile.y, currentTile.x);
             } else {
-                let node = this.adjacencyList[currentTile.y - 1][currentTile.x - 1]
-                return new Node(node.y, node.x, node.walls)
+                let node = this.adjacencyList[currentTile.y - 1][currentTile.x - 1];
+                return new Node(node.y, node.x, node.walls);
             }
         }
-        return false
+        return false;
     }
 
     output(){
-        console.log(this.adjacencyList)
+        console.log(this.adjacencyList);
     }
 
 }
@@ -197,19 +206,19 @@ class Entity {
         this.prevTile = {y: 0, x:0};
         this.currentTile = {y: 0, x:0};
         this.tileOrigin = {y: 0, x:0}
-        this.move_directions = []
-        this.determineCurrentTile()
+        this.move_directions = [];
+        this.determineCurrentTile();
         this.self = document.querySelector(identifier);
     }
 
     // function to round a number to the nearest 0.5
     roundTileCoord(tileCoord) {
         if (tileCoord - Math.floor(tileCoord) > 0.5) {
-            tileCoord = Math.floor(tileCoord) + 0.5
+            tileCoord = Math.floor(tileCoord) + 0.5;
         } else {
-            tileCoord = Math.floor(tileCoord)
+            tileCoord = Math.floor(tileCoord);
         }
-        return tileCoord
+        return tileCoord;
     }
 
     determineCurrentTile(){
@@ -221,8 +230,8 @@ class Entity {
         this.currentTile.x = this.roundTileCoord((this.x / mazeScale) + 1);
         this.currentTile.y = this.roundTileCoord((this.y / mazeScale) + 1);
 
-        this.currentTile = maze.getNode(this.currentTile)
-        this.determineTileOrigin()
+        this.currentTile = maze.getNode(this.currentTile);
+        this.determineTileOrigin();
     }
 
     determineTileOrigin(){
@@ -235,7 +244,7 @@ class Entity {
         // maze wall collisions
         // top, bottom, left, right
 
-        this.determineCurrentTile()
+        this.determineCurrentTile();
 
         // left
         if (this.x < this.tileOrigin.x + 3) {
@@ -281,7 +290,7 @@ class Entity {
             let originalY = this.y;
 
 
-            this.determineCurrentTile()
+            this.determineCurrentTile();
 
             for (let i = 0; i < this.move_directions.length; i++) {
                 switch (this.move_directions[i]) {
@@ -300,9 +309,9 @@ class Entity {
                 }
             }
 
-            this.checkCollision(originalX, originalY)
+            this.checkCollision(originalX, originalY);
 
-            this.self.setAttribute("facing", this.move_directions[0])
+            this.self.setAttribute("facing", this.move_directions[0]);
             this.self.setAttribute("walking", "true");
 
         } else {
@@ -311,53 +320,85 @@ class Entity {
     }
 
     getCurrentTile(){
-        return this.currentTile
+        return this.currentTile;
     }
 
 }
 
+class Item{
+    constructor(type, id) {
+        this.type = type;
+        this.id = id;
+    }
+}
+
+class Key extends Item{
+    constructor(id, colour) {
+        super('key', id);
+        this.colour = colour;
+    }
+}
+
+class Sword extends Item{
+    constructor(id) {
+        super('sword', id);
+    }
+}
+
+class Torch extends Item{
+    constructor(id) {
+        super('torch', id);
+    }
+}
+
 class Inventory {
     constructor(){
-        this.size = 5
+        this.size = 5;
         this.contents = [undefined, undefined, undefined, undefined, undefined];
     }
 
     getItemFromSlot(slot){
-        if (this.contents[slot-1] !== undefined){
-            return this.contents[slot-1]
+        if (this.contents[slot] !== undefined){
+            return this.contents[slot];
         } else {
-            return false
+            return false;
         }
     }
 
     insertItem(item, activeSlot){
-        for (let index = 0; index < this.size-1; index++){
+        let slot = '';
+        for (let index = 0; index < this.size; index++){
             if (this.contents[index] === undefined){
-                this.contents[index] = item
-                return
+                this.contents[index] = item;
+                slot = 'slot-' + index.toString();
+                break;
+            } else if (index === this.size-1){
+                //this.contents[activeSlot].drop();
+                this.contents[activeSlot] = item;
+                slot = 'slot-' + activeSlot.toString();
             }
         }
-        //this.contents[activeSlot].drop()
-        this.contents[activeSlot] = item
+        let slotView = document.getElementById(slot);
+        slotView.setAttribute('item', item.type);
     }
 }
 
 class Player extends Entity {
     constructor() {
         super(27, 16, '.character');
-        this.speed = 1
-        this.map = document.querySelector('.map')
-        this.inventory = new Inventory()
+        this.speed = 1;
+        this.map = document.querySelector('.map');
+        this.inventory = new Inventory();
     }
 
     move(pixelSize){
         let mapX = this.x;
         let mapY = this.y;
 
-        //console.log(this.y, this.x, held_directions)
+        //console.log(this.y, this.x, held_directions);
 
-        this.move_directions = held_directions
-        super.move()
+        this.move_directions = held_directions;
+        super.move();
 
         // smooth camera movement - moves the map against the player while the player is in the centre of the map
         if (mapX < 112) { mapX = 112; } // left
@@ -378,22 +419,22 @@ class Enemy extends Entity {
     constructor(range) {
         super(27, 16, '.enemy');
         this.speed = 1;
-        this.range = range
+        this.range = range;
         this.path = [];
         this.target = {y: -1, x: -1};
         this.targetTile = {};
     }
 
     spawn(tileY, tileX){
-        this.x = (tileX -1) * mazeScale + 20
-        this.y = (tileY -1) * mazeScale + 40
-        this.currentTile = {y: tileY, x: tileX}
+        this.x = (tileX -1) * mazeScale + 20;
+        this.y = (tileY -1) * mazeScale + 40;
+        this.currentTile = {y: tileY, x: tileX};
     }
 
     pathFind(){
-        let targetPosition = this.targetTile.position()
+        let targetPosition = this.targetTile.position();
         if (this.path.length > 0 || (targetPosition.y === this.currentTile.y && targetPosition.x === this.currentTile.x)){
-            return
+            return;
         }
         let min = {y: this.currentTile.y - this.range/2, x: this.currentTile.x - this.range/2};
         let max = {y: this.currentTile.y + this.range/2, x: this.currentTile.x + this.range/2};
@@ -407,7 +448,7 @@ class Enemy extends Entity {
 
             for (let row = min.y; row <= max.y; row += 0.5){
                 for (let column = min.x; column <= max.x; column += 0.5){
-                    let node = maze.getNode({y: row, x: column})
+                    let node = maze.getNode({y: row, x: column});
                     if (node){
                         nodesInRange.push(node);
                     }
@@ -427,26 +468,26 @@ class Enemy extends Entity {
                 }
 
                 // ensures a node is not checked twice
-                nodesInRange.delete(checkPosition)
+                nodesInRange.delete(checkPosition);
                 let nextPosition = checkPosition;
                 let direction = undefined;
 
                 // if the player is in an adjacent tile, the correct direction is known
                 if (nextPosition.x === this.currentTile.x && nextPosition.y + 0.5 === this.currentTile.y){
-                    nextPosition.y += 0.5
-                    direction = "up"
+                    nextPosition.y += 0.5;
+                    direction = "up";
 
                 } else if (nextPosition.x === this.currentTile.x && nextPosition.y - 0.5 === this.currentTile.y){
-                    nextPosition.y -= 0.5
-                    direction = "down"
+                    nextPosition.y -= 0.5;
+                    direction = "down";
 
                 } else if (nextPosition.y === this.currentTile.y && nextPosition.x - 0.5 === this.currentTile.x){
-                    nextPosition.x -= 0.5
-                    direction = "right"
+                    nextPosition.x -= 0.5;
+                    direction = "right";
 
                 } else if (nextPosition.y === this.currentTile.y && nextPosition.x + 0.5 === this.currentTile.x){
-                    nextPosition.x += 0.5
-                    direction = "left"
+                    nextPosition.x += 0.5;
+                    direction = "left";
 
                 // when the player is not in an adjacent tile, tiles are checked using recursive backtracking
                 } else if (checkTile.top === 0 && nodesInRange.contains({y: nextPosition.y - 0.5, x: nextPosition.x})){
@@ -468,18 +509,18 @@ class Enemy extends Entity {
                 } else {
                     // can't find player
                     if (this.path.length !== 0) {
-                        this.path.shift()
-                        checkPosition = visitedNodes.pop()
+                        this.path.shift();
+                        checkPosition = visitedNodes.pop();
                     } else {
-                        break
+                        break;
                     }
                 }
                 if (nodesInRange.contains(nextPosition)){
                     this.path.unshift(direction);
-                    visitedNodes.push(checkTile)
+                    visitedNodes.push(checkTile);
 
                     checkPosition = nextPosition;
-                    checkTile = nodesInRange.dict[nodesInRange.getKeyFromPos(checkPosition)]
+                    checkTile = nodesInRange.dict[nodesInRange.getKeyFromPos(checkPosition)];
                 }
             }
         }
@@ -488,28 +529,28 @@ class Enemy extends Entity {
 
 
     move(pixelSize){
-        this.determineTileOrigin()
-        this.targetTile = player.getCurrentTile()
+        this.determineTileOrigin();
+        this.targetTile = player.getCurrentTile();
 
         // TODO need some way of making sure enemy does not get stuck on corners
 
         //console.log(this.y, this.x, this.currentTile.x, this.currentTile.y, this.tileOrigin, this.target, this.path)
         if (this.target.x !== -1 && this.target.y !== -1) {
-            console.log('1', this.target, this.y, this.x)
+            console.log('1', this.target, this.y, this.x);
             // move towards target
-            this.move_directions = []
+            this.move_directions = [];
             if (this.x - 2 > this.target.x) {
-                this.move_directions.push(directions.left)
+                this.move_directions.push(directions.left);
             } else if (this.x + 2 < this.target.x) {
-                this.move_directions.push(directions.right)
+                this.move_directions.push(directions.right);
             }
             if (this.y - 2 > this.target.y) {
-                this.move_directions.push(directions.up)
+                this.move_directions.push(directions.up);
             } else if (this.y + 2 < this.target.y) {
-                this.move_directions.push(directions.down)
+                this.move_directions.push(directions.down);
             }
             if (this.move_directions.length > 0) {
-                super.move()
+                super.move();
             } else {
                 //console.log(this.target, this.path)
                 this.target.x = this.target.y = -1;
@@ -518,21 +559,21 @@ class Enemy extends Entity {
         }
         if (this.targetTile.x === this.currentTile.x && this.targetTile.y === this.currentTile.y){
             // set player as target
-            console.log('2', this.targetTile.x, this.targetTile.y, this.currentTile.x, this.currentTile.y)
+            console.log('2', this.targetTile.x, this.targetTile.y, this.currentTile.x, this.currentTile.y);
             this.target.x = player.x;
             this.target.y = player.y;
         } else if (!this.path){
             // random movement
         } else {
             enemy.pathFind();
-            console.log('3', this.path)
+            console.log('3', this.path);
             // move to next tile
-            this.move_directions = []
-            this.move_directions.push(this.path[0])
+            this.move_directions = [];
+            this.move_directions.push(this.path[0]);
             super.move();
             //console.log(this.currentTile, this.prevTile)
             if (this.currentTile.x !== this.prevTile.x || this.currentTile.y !== this.prevTile.y) {
-                this.target = {y: this.tileOrigin.y + 37, x: this.tileOrigin.x + 25}
+                this.target = {y: this.tileOrigin.y + 37, x: this.tileOrigin.x + 25};
                 //console.log(this.tileOrigin, this.target)
             }
         }
@@ -542,13 +583,13 @@ class Enemy extends Entity {
 
 
 
-const maze = new Maze(mazeSeed)
-maze.output()
+const maze = new Maze(mazeSeed);
+maze.output();
 
-let player = new Player()
+let player = new Player();
 
-let enemy = new Enemy(3)
-enemy.spawn(2, 2)
+let enemy = new Enemy(3);
+enemy.spawn(2, 2);
 
 
 // setting css properties to correct values
@@ -558,46 +599,48 @@ root.style.setProperty('--map-height', maze.height);
 
 // initial variable declarations
 let held_directions = [];
-const imgWidth = (maze.width * mazeScale) - 64
-const imgHeight = (maze.height * mazeScale) - 64
+const imgWidth = (maze.width * mazeScale) - 64;
+const imgHeight = (maze.height * mazeScale) - 64;
+let activeInventorySlot = 0;
 
 // determines where the character (and maze) is positioned every frame
 const gameLoop = function () {
 
     // need to get pixel size every frame as it varies depending on how large the browser window is
-    let pixelSize = parseInt(
-        getComputedStyle(document.documentElement).getPropertyValue('--pixel-size')
-    );
+    let pixelSize = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--pixel-size'));
 
-    player.move(pixelSize)
-    enemy.move(pixelSize)
+    player.move(pixelSize);
+    enemy.move(pixelSize);
 
 }
 
 // steps through every frame
 const step = function () {
-    gameLoop()
+    gameLoop();
     window.requestAnimationFrame(function () {
-        step()
+        step();
     })
 }
-step()
+step();
 
 
 // event listeners for keys being pressed and released
 document.addEventListener('keydown', function (e) {
-    let dir = keys[e.key];
+    let direction = directionKeys[e.key];
+    let inventorySlot = inventoryKeys[e.key];
     // adds last key pressed to the start of the held_directions array
-    if (dir && held_directions.indexOf(dir) === -1) {
-        held_directions.unshift(dir);
+    if (direction && held_directions.indexOf(direction) === -1) {
+        held_directions.unshift(direction);
+    } else if (inventorySlot){
+        activeInventorySlot = inventorySlot;
     }
 })
 
 document.addEventListener('keyup', function (e) {
-    let dir = keys[e.key];
-    let index = held_directions.indexOf(dir);
+    let direction = directionKeys[e.key];
+    let index = held_directions.indexOf(direction);
     // removes key from help_directions when it stops being pressed
     if (index > -1) {
-        held_directions.splice(index, 1)
+        held_directions.splice(index, 1);
     }
 })

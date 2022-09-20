@@ -10,13 +10,13 @@
     }
 }
 
-@media( min-width: 1100px ) {
+@media( min-width: 1000px ) {
     :root {
        --pixel-size: 3px;
     }
  }
 
-@media( min-width: 1500px ) {
+@media( min-width: 1400px ) {
     :root {
        --pixel-size: 4px;
     }
@@ -57,15 +57,10 @@ body {
     background-size: 100%;
     width: calc(var(--pixel-size) * 30);
     height: calc(var(--pixel-size) * 150);
-    margin-left: calc(var(--pixel-size) * 100);
+    margin-left: calc(var(--pixel-size) * 75);
     float: left;
     position: relative;
 
-}
-
-.slot{
-    width: calc(var(--pixel-size) * 30);
-    height: calc(var(--pixel-size) * 30);
 }
   
   button {
@@ -132,7 +127,18 @@ body {
 .character[walking="true"] .character_spritesheet {
     animation: walkAnimation 0.6s steps(4) infinite; 
 }
- 
+
+.slot{
+    image-rendering: pixelated;
+    background-size: 100%;
+    width: calc(var(--pixel-size) * 30);
+    height: calc(var(--pixel-size) * 30);
+}
+
+.slot[item='test-item'] .slot{
+    background-image: url(/static/img/slime.png);
+}
+
 @keyframes walkAnimation {
     from {
         transform: translate3d(0%,0%,0);
