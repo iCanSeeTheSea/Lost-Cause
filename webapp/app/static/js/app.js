@@ -29,6 +29,15 @@ const inventoryKeys = {
     '5': 5
 }
 
+const commands = {
+    'e': 'interact',
+    'q': 'drop'
+}
+
+const colours = {
+
+}
+
 
 const toBinary = {'A': '000000', 'B': '000001', 'C': '000010', 'D': '000011', 'E': '000100', 'F': '000101',
                     'G': '000110', 'H': '000111',
@@ -46,6 +55,40 @@ const toBinary = {'A': '000000', 'B': '000001', 'C': '000010', 'D': '000011', 'E
                     '2': '110110', '3': '110111',
                     '4': '111000', '5': '111001', '6': '111010', '7': '111011', '8': '111100', '9': '111101',
                     '-': '111110', '_': '111111'}
+
+
+class Lock{
+    constructor(key) {
+        this.key = key;
+        this.colour = key.colour;
+    }
+}
+
+class Item{
+    constructor(type, id) {
+        this.type = type;
+        this.id = id;
+    }
+}
+
+class Key extends Item{
+    constructor(id, colour) {
+        super('key', id);
+        this.colour = colour;
+    }
+}
+
+class Sword extends Item{
+    constructor(id) {
+        super('sword', id);
+    }
+}
+
+class Torch extends Item{
+    constructor(id) {
+        super('torch', id);
+    }
+}
 
 class NodeList{
     constructor() {
@@ -95,6 +138,7 @@ class Node{
         this.left = walls.left;
         this.right = walls.right;
         this.walls = walls;
+        this.contains = undefined;
     }
 
     wallString(){
@@ -104,7 +148,8 @@ class Node{
     position(){
         return {y: this.y, x: this.x};
     }
-    
+
+
 }
 
 class HorizontalEdge extends Node{
@@ -143,10 +188,15 @@ class Maze {
 
         // populating tree
         let index = 0;
+        let deadEndCodes = ['0111', '1011', '1101', '1110'];
+        let deadEndPositions = []
         for (let row = 1; row <= this.height; row++) {
             let rowList = [];
             for (let column = 1; column <= this.width; column++) {
                 let bin = binaryString.slice(0,4);
+                if (deadEndCodes.includes(bin)){
+                    deadEndPositions.push({y:row, x:column})
+                }
                 let walls = {top: parseInt(bin[0]), bottom: parseInt(bin[1]), left: parseInt(bin[2]), right: parseInt(bin[3])};
                 let node = new Node(row, column, walls);
                 rowList.push(node);
@@ -154,6 +204,21 @@ class Maze {
                 index += 1;
             }
             this.adjacencyList.push(rowList);
+        }
+        let noDeadEnds = deadEndPositions.length;
+        let currentKey = undefined;
+        let even = 0
+        if ((noDeadEnds-1)%2 === 1){
+            even = 1;
+        }
+        for (let n = noDeadEnds-1; n >= noDeadEnds%2; n--){
+            let nodePosition = deadEndPositions[n];
+            if (n%2 === even){
+                currentKey = new Key(n, 'red')
+                this.adjacencyList[nodePosition.y-1][nodePosition.x-1].contains = currentKey
+            } else if (n%2 !== even) {
+                this.adjacencyList[nodePosition.y - 1][nodePosition.x - 1].contains = new Lock(currentKey)
+            }
         }
     }
 
@@ -325,32 +390,6 @@ class Entity {
 
 }
 
-class Item{
-    constructor(type, id) {
-        this.type = type;
-        this.id = id;
-    }
-}
-
-class Key extends Item{
-    constructor(id, colour) {
-        super('key', id);
-        this.colour = colour;
-    }
-}
-
-class Sword extends Item{
-    constructor(id) {
-        super('sword', id);
-    }
-}
-
-class Torch extends Item{
-    constructor(id) {
-        super('torch', id);
-    }
-}
-
 class Inventory {
     constructor(){
         this.size = 5;
@@ -381,6 +420,10 @@ class Inventory {
         let slotView = document.getElementById(slot);
         slotView.setAttribute('item', item.type);
     }
+
+    removeItem(activeSlot){
+
+    }
 }
 
 class Player extends Entity {
@@ -390,6 +433,20 @@ class Player extends Entity {
         this.map = document.querySelector('.map');
         this.inventory = new Inventory();
     }
+
+    executeCommand(command){
+        switch (command){
+            case 'e':
+                this.interact();
+                break;
+            case 'q':
+                this.drop();
+                break;
+        }
+    }
+
+    interact(){}
+    drop(){}
 
     move(pixelSize){
         let mapX = this.x;
@@ -589,7 +646,7 @@ maze.output();
 let player = new Player();
 
 let enemy = new Enemy(3);
-enemy.spawn(2, 2);
+//enemy.spawn(2, 2);
 
 
 // setting css properties to correct values
@@ -610,7 +667,7 @@ const gameLoop = function () {
     let pixelSize = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--pixel-size'));
 
     player.move(pixelSize);
-    enemy.move(pixelSize);
+    //enemy.move(pixelSize);
 
 }
 
@@ -628,11 +685,14 @@ step();
 document.addEventListener('keydown', function (e) {
     let direction = directionKeys[e.key];
     let inventorySlot = inventoryKeys[e.key];
+    let command = commands[e.key];
     // adds last key pressed to the start of the held_directions array
     if (direction && held_directions.indexOf(direction) === -1) {
         held_directions.unshift(direction);
-    } else if (inventorySlot){
+    } else if (inventorySlot) {
         activeInventorySlot = inventorySlot;
+    } else if (command){
+        player.executeCommand(command)
     }
 })
 
