@@ -727,7 +727,7 @@ document.addEventListener('keydown', function (e) {
     if (direction && held_directions.indexOf(direction) === -1) {
         held_directions.unshift(direction);
     } else if (inventorySlot) {
-        activeInventorySlot = inventorySlot;
+        activeInventorySlot = inventorySlot-1;
     } else if (command){
         player.executeCommand(command)
     }
