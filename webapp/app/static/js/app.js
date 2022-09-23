@@ -59,6 +59,7 @@ const toBinary = {'A': '000000', 'B': '000001', 'C': '000010', 'D': '000011', 'E
 
 class Lock{
     constructor(key) {
+        this.type = 'lock'
         this.key = key;
         this.colour = key.colour;
     }
@@ -211,15 +212,19 @@ class Maze {
         if ((noDeadEnds-1)%2 === 1){
             even = 1;
         }
-        for (let n = noDeadEnds-1; n >= noDeadEnds%2; n--){
+        let usedEnds = []
+        for (let n = noDeadEnds-1; n >= noDeadEnds%2; n--) {
             let nodePosition = deadEndPositions[n];
-            if (n%2 === even){
+            if (n % 2 === even) {
                 currentKey = new Key(n, 'red')
-                this.adjacencyList[nodePosition.y-1][nodePosition.x-1].contains = currentKey
-            } else if (n%2 !== even) {
+                this.adjacencyList[nodePosition.y - 1][nodePosition.x - 1].contains = currentKey
+                usedEnds.push([nodePosition.y, nodePosition.x])
+            } else if (n % 2 !== even) {
                 this.adjacencyList[nodePosition.y - 1][nodePosition.x - 1].contains = new Lock(currentKey)
+                usedEnds.push([nodePosition.y, nodePosition.x])
             }
         }
+        console.log(usedEnds)
     }
 
 
@@ -251,7 +256,11 @@ class Maze {
                 return new VerticalEdge(currentTile.y, currentTile.x);
             } else {
                 let node = this.adjacencyList[currentTile.y - 1][currentTile.x - 1];
-                return new Node(node.y, node.x, node.walls);
+                let newNode = new Node(node.y, node.x, node.walls);
+                if (node.contains !== undefined){
+                    newNode.contains = node.contains;
+                }
+                return newNode;
             }
         }
         return false;
@@ -396,6 +405,17 @@ class Inventory {
         this.contents = [undefined, undefined, undefined, undefined, undefined];
     }
 
+    setDocumentInventorySlot(slot, type){
+        let slotView = document.getElementById(slot);
+        console.log(slot);
+        if (type !== null){
+            slotView.setAttribute('item', type);
+        } else {
+            slotView.removeAttribute('item');
+        }
+
+    }
+
     getItemFromSlot(slot){
         if (this.contents[slot] !== undefined){
             return this.contents[slot];
@@ -417,12 +437,14 @@ class Inventory {
                 slot = 'slot-' + activeSlot.toString();
             }
         }
-        let slotView = document.getElementById(slot);
-        slotView.setAttribute('item', item.type);
+        this.setDocumentInventorySlot(slot, item.type)
     }
 
     removeItem(activeSlot){
-
+        let item = this.contents[activeSlot];
+        this.contents[activeSlot] = undefined;
+        this.setDocumentInventorySlot('slot-' + activeSlot.toString(), null)
+        return item;
     }
 }
 
@@ -436,17 +458,32 @@ class Player extends Entity {
 
     executeCommand(command){
         switch (command){
-            case 'e':
+            case 'interact':
                 this.interact();
                 break;
-            case 'q':
+            case 'drop':
                 this.drop();
                 break;
         }
     }
 
-    interact(){}
-    drop(){}
+    interact(){
+        if (this.currentTile.contains !== undefined){
+            if (this.currentTile.contains.type === 'lock'){
+                //* check for key, if correct, then unlock
+            } else {
+                let item = this.currentTile.contains;
+                this.inventory.insertItem(item, activeInventorySlot);
+                this.currentTile.contains = undefined;
+            }
+        }
+    }
+
+    drop(){
+        if (this.inventory.getItemFromSlot(activeInventorySlot) !== undefined && this.currentTile.contains === undefined){
+            this.currentTile.contains = this.inventory.removeItem(activeInventorySlot);
+        }
+    }
 
     move(pixelSize){
         let mapX = this.x;
