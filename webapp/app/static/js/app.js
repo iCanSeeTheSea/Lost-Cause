@@ -59,7 +59,8 @@ const toBinary = {'A': '000000', 'B': '000001', 'C': '000010', 'D': '000011', 'E
 
 class Lock{
     constructor(key) {
-        this.type = 'lock'
+        this.type = 'lock';
+        this.status = 'locked';
         this.key = key;
         this.colour = key.colour;
     }
@@ -132,6 +133,7 @@ class NodeList{
 
 class Node{
     constructor(y, x, walls) {
+        this.type = 'node'
         this.x = x;
         this.y = y;
         this.top = walls.top;
@@ -150,13 +152,13 @@ class Node{
         return {y: this.y, x: this.x};
     }
 
-
 }
 
 class HorizontalEdge extends Node{
     constructor(y, x) {
         let walls = { top: 1, bottom: 1, left: 0, right: 0 };
         super(y, x, walls);
+        this.type = 'edge';
     }
 }
 
@@ -164,6 +166,7 @@ class VerticalEdge extends Node{
     constructor(y, x) {
         let walls = { top: 0, bottom: 0, left: 1, right: 1 };
         super(y, x, walls);
+        this.type = 'edge';
     }
 }
 
@@ -172,6 +175,7 @@ class Maze {
 
     constructor(seed) {
         this.seed = seed;
+        this.usedEdges = {};
 
         let base64String = this.seed.replace(/=/g, '');
         console.log(base64String);
@@ -248,19 +252,36 @@ class Maze {
         }
     }
 
+    checkUsedEdge(tile){
+        if (tile.type === 'edge'){
+            if (tile.contains === undefined){
+                delete this.usedEdges[{y: tile.y, x: tile.x}]
+            } else {
+                this.usedEdges[{y: tile.y, x: tile.x}] = tile
+            }
+        }
+    }
+
     getNode(currentTile){
         if (this.checkTileInMaze(currentTile)) {
-            if (currentTile.x % 1 !== 0) {
-                return new HorizontalEdge(currentTile.y, currentTile.x);
-            } else if (currentTile.y % 1 !== 0) {
-                return new VerticalEdge(currentTile.y, currentTile.x);
-            } else {
+            if (currentTile.x % 1 === 0 && currentTile.y % 1 === 0){
                 let node = this.adjacencyList[currentTile.y - 1][currentTile.x - 1];
                 let newNode = new Node(node.y, node.x, node.walls);
                 if (node.contains !== undefined){
                     newNode.contains = node.contains;
                 }
                 return newNode;
+            } else {
+                let edgeUsed = this.usedEdges[{y : currentTile.y, x: currentTile.x}]
+                if (edgeUsed !== undefined){
+                    return edgeUsed
+                } else {
+                    if (currentTile.x % 1 !== 0) {
+                        return new HorizontalEdge(currentTile.y, currentTile.x);
+                    } else if (currentTile.y % 1 !== 0) {
+                        return new VerticalEdge(currentTile.y, currentTile.x);
+                    }
+                }
             }
         }
         return false;
@@ -475,6 +496,7 @@ class Player extends Entity {
                 let item = this.currentTile.contains;
                 this.inventory.insertItem(item, activeInventorySlot);
                 this.currentTile.contains = undefined;
+                maze.checkUsedEdge(this.currentTile)
             }
         }
     }
@@ -482,6 +504,7 @@ class Player extends Entity {
     drop(){
         if (this.inventory.getItemFromSlot(activeInventorySlot) !== undefined && this.currentTile.contains === undefined){
             this.currentTile.contains = this.inventory.removeItem(activeInventorySlot);
+            maze.checkUsedEdge(this.currentTile)
         }
     }
 
