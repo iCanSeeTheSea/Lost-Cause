@@ -232,18 +232,18 @@ class Maze {
     }
 
 
-    checkTileInMaze(tile){
-        if ((1 > tile.x || tile.x > this.width) || (1 > tile.y || tile.y > this.height)){
+    checkTileInMaze(y, x){
+        if ((1 > x || x > this.width) || (1 > y || y > this.height)){
             return false;
-        } else if (tile.x % 1 === 0 && tile.y % 1 === 0){
+        } else if (x % 1 === 0 && y % 1 === 0){
             return true;
-        } else if (tile.y % 1 !== 0 && tile.x % 1 === 0){
-            let adjTile = this.adjacencyList[Math.floor(tile.y) - 1][tile.x - 1];
+        } else if (y % 1 !== 0 && x % 1 === 0){
+            let adjTile = this.adjacencyList[Math.floor(y) - 1][x - 1];
             if (adjTile.bottom === 0){
                 return true;
             }
-        } else if (tile.x % 1 !== 0 && tile.y % 1 === 0){
-            let adjTile = this.adjacencyList[tile.y - 1][Math.floor(tile.x) - 1];
+        } else if (x % 1 !== 0 && y % 1 === 0){
+            let adjTile = this.adjacencyList[y - 1][Math.floor(x) - 1];
             if (adjTile.right === 0){
                 return true;
             }
@@ -262,24 +262,19 @@ class Maze {
         }
     }
 
-    getNode(currentTile){
-        if (this.checkTileInMaze(currentTile)) {
-            if (currentTile.x % 1 === 0 && currentTile.y % 1 === 0){
-                let node = this.adjacencyList[currentTile.y - 1][currentTile.x - 1];
-                let newNode = new Node(node.y, node.x, node.walls);
-                if (node.contains !== undefined){
-                    newNode.contains = node.contains;
-                }
-                return newNode;
+    getNode(y, x){
+        if (this.checkTileInMaze(y, x)) {
+            if (x % 1 === 0 && y % 1 === 0){
+                return this.adjacencyList[y - 1][x - 1];
             } else {
-                let edgeUsed = this.usedEdges[{y : currentTile.y, x: currentTile.x}]
+                let edgeUsed = this.usedEdges[{y : y, x: x}]
                 if (edgeUsed !== undefined){
                     return edgeUsed
                 } else {
-                    if (currentTile.x % 1 !== 0) {
-                        return new HorizontalEdge(currentTile.y, currentTile.x);
-                    } else if (currentTile.y % 1 !== 0) {
-                        return new VerticalEdge(currentTile.y, currentTile.x);
+                    if (x % 1 !== 0) {
+                        return new HorizontalEdge(y, x);
+                    } else if (y % 1 !== 0) {
+                        return new VerticalEdge(y, x);
                     }
                 }
             }
@@ -322,10 +317,10 @@ class Entity {
         this.prevTile.y = this.currentTile.y
 
         // work out which tile in the spanning tree the entity is in
-        this.currentTile.x = this.roundTileCoord((this.x / mazeScale) + 1);
-        this.currentTile.y = this.roundTileCoord((this.y / mazeScale) + 1);
+        let x  = this.roundTileCoord((this.x / mazeScale) + 1);
+        let y = this.roundTileCoord((this.y / mazeScale) + 1);
 
-        this.currentTile = maze.getNode(this.currentTile);
+        this.currentTile = maze.getNode(y, x);
         this.determineTileOrigin();
     }
 
@@ -653,7 +648,7 @@ class Enemy extends Entity {
 
         //console.log(this.y, this.x, this.currentTile.x, this.currentTile.y, this.tileOrigin, this.target, this.path)
         if (this.target.x !== -1 && this.target.y !== -1) {
-            console.log('1', this.target, this.y, this.x);
+            //console.log('1', this.target, this.y, this.x);
             // move towards target
             this.move_directions = [];
             if (this.x - 2 > this.target.x) {
@@ -676,14 +671,14 @@ class Enemy extends Entity {
         }
         if (this.targetTile.x === this.currentTile.x && this.targetTile.y === this.currentTile.y){
             // set player as target
-            console.log('2', this.targetTile.x, this.targetTile.y, this.currentTile.x, this.currentTile.y);
+            //console.log('2', this.targetTile.x, this.targetTile.y, this.currentTile.x, this.currentTile.y);
             this.target.x = player.x;
             this.target.y = player.y;
         } else if (!this.path){
             // random movement
         } else {
             enemy.pathFind();
-            console.log('3', this.path);
+            //console.log('3', this.path);
             // move to next tile
             this.move_directions = [];
             this.move_directions.push(this.path[0]);
