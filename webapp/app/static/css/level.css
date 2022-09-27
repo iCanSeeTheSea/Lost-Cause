@@ -62,6 +62,8 @@ body {
     position: relative;
 
 }
+
+
   
   button {
       background-color: #822510;
@@ -126,6 +128,14 @@ body {
 }
 .character[walking="true"] .character_spritesheet {
     animation: walkAnimation 0.6s steps(4) infinite; 
+}
+
+#key {
+    image-rendering: pixelated;
+    background: url('/static/img/red-key.png');
+    background-size: 100%;
+    height: calc(var(--pixel-size) * 13);
+    width: calc(var(--pixel-size) * 8);
 }
 
 .slot{

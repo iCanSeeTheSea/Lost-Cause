@@ -1,6 +1,7 @@
 // debug
 console.log(mazeSeed);
 const mazeScale = 128;
+let pixelSize = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--pixel-size'));
 
 // mapping keys to movement directions
 const directions = {
@@ -70,13 +71,28 @@ class Item{
     constructor(type, id) {
         this.type = type;
         this.id = id;
+        this.x = 0;
+        this.y = 0;
+        this.map = document.querySelector('.map');
+        this.self = document.createElement("div");
+        this.self.className = "item"
     }
+
+    spawn(y, x, pixelSize){
+        this.x = x;
+        this.y = y;
+        this.map.appendChild(this.self)
+        this.self.style.transform = `translate3d( ${this.x * pixelSize}px, ${this.y * pixelSize}px, 0 )`;
+    }
+
 }
 
 class Key extends Item{
     constructor(id, colour) {
         super('key', id);
         this.colour = colour;
+        this.self.id = 'key';
+        this.self.setAttribute("colour", this.colour)
     }
 }
 
@@ -219,8 +235,12 @@ class Maze {
         let usedEnds = []
         for (let n = noDeadEnds-1; n >= noDeadEnds%2; n--) {
             let nodePosition = deadEndPositions[n];
+            console.log(nodePosition)
+            let x = ((nodePosition.x * 86 ))
+            let y = ((nodePosition.y * 80 ))
             if (n % 2 === even) {
                 currentKey = new Key(n, 'red')
+                currentKey.spawn(y, x, pixelSize)
                 this.adjacencyList[nodePosition.y - 1][nodePosition.x - 1].contains = currentKey
                 usedEnds.push([nodePosition.y, nodePosition.x])
             } else if (n % 2 !== even) {
@@ -719,7 +739,7 @@ let activeInventorySlot = 0;
 const gameLoop = function () {
 
     // need to get pixel size every frame as it varies depending on how large the browser window is
-    let pixelSize = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--pixel-size'));
+    pixelSize = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--pixel-size'));
 
     player.move(pixelSize);
     //enemy.move(pixelSize);
