@@ -474,7 +474,6 @@ class Inventory {
 
     setDocumentInventorySlot(slot, type){
         let slotView = document.getElementById(slot);
-        console.log(slot);
         if (type !== null){
             slotView.setAttribute('item', type);
         } else {
@@ -590,13 +589,13 @@ class Player extends Entity {
 class Enemy extends Entity {
     constructor(range) {
         super(27, 16);
-        this.speed = 1;
+        this.speed = 0.8;
         this.range = range;
         this.path = [];
         this.target = {y: -1, x: -1};
         this.targetTile = {};
         this.self = document.createElement("div");
-        this.self.className = "item"
+        this.self.className = "enemy"
     }
 
     spawn(tileY, tileX){
@@ -619,7 +618,7 @@ class Enemy extends Entity {
         if (min.y <= this.targetTile.y && this.targetTile.y <= max.y && min.x <= this.targetTile.x && this.targetTile.x <= max.x){
 
             let nodesInRange = new NodeList();
-            //console.log('search start', this.currentTile, this.targetTile.position());
+            console.log('search start', this.currentTile, this.targetTile.position());
 
 
             for (let row = min.y; row <= max.y; row += 0.5){
@@ -639,7 +638,7 @@ class Enemy extends Entity {
             while(true){
                 if (checkPosition.y === this.currentTile.y && checkPosition.x === this.currentTile.x){
                     // has found player
-                    //console.log('player found', this.path)
+                    console.log('player found', this.path)
                     break;
                 }
 
@@ -685,6 +684,7 @@ class Enemy extends Entity {
                 } else {
                     // can't find player
                     if (this.path.length !== 0) {
+                        console.log('cant find player');
                         this.path.shift();
                         checkPosition = visitedNodes.pop();
                     } else {
@@ -742,7 +742,7 @@ class Enemy extends Entity {
             // random movement
         } else {
             this.pathFind();
-            //console.log('3', this.path);
+            console.log('3', this.path);
             // move to next tile
             this.move_directions = [];
             this.move_directions.push(this.path[0]);
@@ -782,7 +782,6 @@ let player = new Player();
 enemyGroup.objectList.push(new Enemy(3));
 for (const enemy of enemyGroup.objectList){
     enemy.spawn(2, 2)
-    console.log('spawn')
 }
 
 
