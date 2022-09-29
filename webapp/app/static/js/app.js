@@ -57,6 +57,36 @@ const toBinary = {'A': '000000', 'B': '000001', 'C': '000010', 'D': '000011', 'E
                     '4': '111000', '5': '111001', '6': '111010', '7': '111011', '8': '111100', '9': '111101',
                     '-': '111110', '_': '111111'}
 
+class ObjectGroup{
+    constructor(objectType) {
+        this.objectType = objectType;
+        this.objectList = [];
+    }
+
+    get(index){
+        return this.objectList[index];
+    }
+
+    push(object){
+        if (object.type === this.objectType){
+            this.objectList.push(object);
+            return new ObjectGroupReference(this.objectType, this.objectList.length-1, this)
+        }
+    }
+}
+
+class ObjectGroupReference{
+    constructor(objectType, index, objectGroup) {
+        this.objectType = objectType;
+        this.index = index;
+        this.objectGroup = objectGroup;
+    }
+
+    getSelf(){
+        return this.objectGroup.get(this.index);
+    }
+}
+
 
 class Lock{
     constructor(key) {
@@ -240,11 +270,12 @@ class Maze {
             let y = ((nodePosition.y * 80 ))
             if (n % 2 === even) {
                 currentKey = new Key(n, 'red')
+                let keyReference = keyGroup.push(currentKey)
                 currentKey.spawn(y, x, pixelSize)
-                this.adjacencyList[nodePosition.y - 1][nodePosition.x - 1].contains = currentKey
+                this.adjacencyList[nodePosition.y - 1][nodePosition.x - 1].contains = keyReference;
                 usedEnds.push([nodePosition.y, nodePosition.x])
             } else if (n % 2 !== even) {
-                this.adjacencyList[nodePosition.y - 1][nodePosition.x - 1].contains = new Lock(currentKey)
+                this.adjacencyList[nodePosition.y - 1][nodePosition.x - 1].contains = lockGroup.push(new Lock(currentKey));
                 usedEnds.push([nodePosition.y, nodePosition.x])
             }
         }
@@ -309,7 +340,7 @@ class Maze {
 }
 
 class Entity {
-    constructor(y, x, identifier) {
+    constructor(x, y) {
         this.x = x;
         this.y = y;
         this.speed = 0;
@@ -318,7 +349,7 @@ class Entity {
         this.tileOrigin = {y: 0, x:0}
         this.move_directions = [];
         this.determineCurrentTile();
-        this.self = document.querySelector(identifier);
+        this.map = document.querySelector('.map');
     }
 
     // function to round a number to the nearest 0.5
@@ -460,36 +491,36 @@ class Inventory {
         }
     }
 
-    insertItem(item, activeSlot){
+    insertItem(itemReference, activeSlot){
         let slot = '';
         for (let index = 0; index < this.size; index++){
             if (this.contents[index] === undefined){
-                this.contents[index] = item;
+                this.contents[index] = itemReference;
                 slot = 'slot-' + index.toString();
                 break;
             } else if (index === this.size-1){
                 //this.contents[activeSlot].drop();
-                this.contents[activeSlot] = item;
+                this.contents[activeSlot] = itemReference;
                 slot = 'slot-' + activeSlot.toString();
             }
         }
-        this.setDocumentInventorySlot(slot, item.type)
+        this.setDocumentInventorySlot(slot, itemReference.objectType)
     }
 
     removeItem(activeSlot){
-        let item = this.contents[activeSlot];
+        let itemReference = this.contents[activeSlot];
         this.contents[activeSlot] = undefined;
         this.setDocumentInventorySlot('slot-' + activeSlot.toString(), null)
-        return item;
+        return itemReference;
     }
 }
 
 class Player extends Entity {
     constructor() {
-        super(27, 16, '.character');
+        super(27, 16);
         this.speed = 1;
-        this.map = document.querySelector('.map');
         this.inventory = new Inventory();
+        this.self = document.querySelector('.character');
     }
 
     executeCommand(command){
@@ -505,13 +536,22 @@ class Player extends Entity {
 
     interact(){
         if (this.currentTile.contains !== undefined){
-            if (this.currentTile.contains.type === 'lock'){
-                //* check for key, if correct, then unlock
+            if (this.currentTile.contains.objectType === 'lock'){
+                let lock = this.currentTile.contains.getSelf()
+                let itemReference = this.inventory.getItemFromSlot(activeInventorySlot);
+                if (itemReference.objectType === 'key'){
+                    let key = itemReference.getSelf();
+                    if (key.colour === lock.colour){
+                        lock.status = 'unlocked';
+                        this.inventory.removeItem(activeInventorySlot);
+                        checkWinCondition();
+                    }
+                }
             } else {
-                let item = this.currentTile.contains;
-                this.inventory.insertItem(item, activeInventorySlot);
+                let itemReference = this.currentTile.contains;
+                this.inventory.insertItem(itemReference, activeInventorySlot);
                 this.currentTile.contains = undefined;
-                maze.checkUsedEdge(this.currentTile)
+                maze.checkUsedEdge(this.currentTile);
             }
         }
     }
@@ -549,18 +589,22 @@ class Player extends Entity {
 
 class Enemy extends Entity {
     constructor(range) {
-        super(27, 16, '.enemy');
+        super(27, 16);
         this.speed = 1;
         this.range = range;
         this.path = [];
         this.target = {y: -1, x: -1};
         this.targetTile = {};
+        this.self = document.createElement("div");
+        this.self.className = "item"
     }
 
     spawn(tileY, tileX){
         this.x = (tileX -1) * mazeScale + 20;
         this.y = (tileY -1) * mazeScale + 40;
         this.currentTile = {y: tileY, x: tileX};
+        this.map.appendChild(this.self)
+        this.self.style.transform = `translate3d( ${this.x * pixelSize}px, ${this.y * pixelSize}px, 0 )`;
     }
 
     pathFind(){
@@ -697,7 +741,7 @@ class Enemy extends Entity {
         } else if (!this.path){
             // random movement
         } else {
-            enemy.pathFind();
+            this.pathFind();
             //console.log('3', this.path);
             // move to next tile
             this.move_directions = [];
@@ -715,13 +759,31 @@ class Enemy extends Entity {
 
 
 
+let keyGroup = new ObjectGroup('key');
+let lockGroup = new ObjectGroup('lock');
+let enemyGroup = new ObjectGroup('enemy');
+
+
+const checkWinCondition = function(){
+    for (const lock of lockGroup.objectList){
+        if (lock.status === 'locked'){
+            return false;
+        }
+    }
+    console.log('you win!')
+    return true;
+}
+
 const maze = new Maze(mazeSeed);
 maze.output();
 
 let player = new Player();
 
-let enemy = new Enemy(3);
-//enemy.spawn(2, 2);
+enemyGroup.objectList.push(new Enemy(3));
+for (const enemy of enemyGroup.objectList){
+    enemy.spawn(2, 2)
+    console.log('spawn')
+}
 
 
 // setting css properties to correct values
@@ -742,7 +804,9 @@ const gameLoop = function () {
     pixelSize = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--pixel-size'));
 
     player.move(pixelSize);
-    //enemy.move(pixelSize);
+    for (const enemy of enemyGroup.objectList){
+        enemy.move(pixelSize)
+    }
 
 }
 
