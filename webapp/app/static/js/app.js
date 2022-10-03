@@ -108,7 +108,7 @@ class Item{
         this.self.className = "item"
     }
 
-    spawn(y, x, pixelSize){
+    spawn(y, x){
         this.x = x;
         this.y = y;
         this.map.appendChild(this.self)
@@ -271,7 +271,7 @@ class Maze {
             if (n % 2 === even) {
                 currentKey = new Key(n, 'red')
                 let keyReference = keyGroup.push(currentKey)
-                currentKey.spawn(y, x, pixelSize)
+                currentKey.spawn(y, x)
                 this.adjacencyList[nodePosition.y - 1][nodePosition.x - 1].contains = keyReference;
                 usedEnds.push([nodePosition.y, nodePosition.x])
             } else if (n % 2 !== even) {
@@ -298,9 +298,8 @@ class Maze {
             if (adjTile.right === 0){
                 return true;
             }
-        } else {
-            return false;
         }
+        return false;
     }
 
     checkUsedEdge(tile){
@@ -562,7 +561,7 @@ class Player extends Entity {
         }
     }
 
-    move(pixelSize){
+    move(){
         let mapX = this.x;
         let mapY = this.y;
 
@@ -589,7 +588,7 @@ class Player extends Entity {
 class Enemy extends Entity {
     constructor(range) {
         super(27, 16);
-        this.speed = 0.8;
+        this.speed = 7/8;
         this.range = range;
         this.path = [];
         this.target = {y: -1, x: -1};
@@ -618,12 +617,11 @@ class Enemy extends Entity {
         if (min.y <= this.targetTile.y && this.targetTile.y <= max.y && min.x <= this.targetTile.x && this.targetTile.x <= max.x){
 
             let nodesInRange = new NodeList();
-            console.log('search start', this.currentTile, this.targetTile.position());
-
+            //console.log('search start', this.currentTile, this.targetTile.position());
 
             for (let row = min.y; row <= max.y; row += 0.5){
                 for (let column = min.x; column <= max.x; column += 0.5){
-                    let node = maze.getNode({y: row, x: column});
+                    let node = maze.getNode(row, column);
                     if (node){
                         nodesInRange.push(node);
                     }
@@ -645,7 +643,7 @@ class Enemy extends Entity {
                 // ensures a node is not checked twice
                 nodesInRange.delete(checkPosition);
                 let nextPosition = checkPosition;
-                let direction = undefined;
+                let direction = "";
 
                 // if the player is in an adjacent tile, the correct direction is known
                 if (nextPosition.x === this.currentTile.x && nextPosition.y + 0.5 === this.currentTile.y){
@@ -684,7 +682,6 @@ class Enemy extends Entity {
                 } else {
                     // can't find player
                     if (this.path.length !== 0) {
-                        console.log('cant find player');
                         this.path.shift();
                         checkPosition = visitedNodes.pop();
                     } else {
@@ -694,7 +691,6 @@ class Enemy extends Entity {
                 if (nodesInRange.contains(nextPosition)){
                     this.path.unshift(direction);
                     visitedNodes.push(checkTile);
-
                     checkPosition = nextPosition;
                     checkTile = nodesInRange.dict[nodesInRange.getKeyFromPos(checkPosition)];
                 }
@@ -704,15 +700,22 @@ class Enemy extends Entity {
 
 
 
-    move(pixelSize){
+    move(){
         this.determineTileOrigin();
         this.targetTile = player.getCurrentTile();
 
-        // TODO need some way of making sure enemy does not get stuck on corners
+        if (this.targetTile.x === this.currentTile.x && this.targetTile.y === this.currentTile.y) {
+            // set player as target
+            console.log('2', this.targetTile.x, this.targetTile.y, this.currentTile.x, this.currentTile.y);
+            this.target.x = player.x;
+            this.target.y = player.y;
+        } else {
+            this.pathFind();
+        }
 
         //console.log(this.y, this.x, this.currentTile.x, this.currentTile.y, this.tileOrigin, this.target, this.path)
         if (this.target.x !== -1 && this.target.y !== -1) {
-            //console.log('1', this.target, this.y, this.x);
+            console.log('1', this.target, this.y, this.x);
             // move towards target
             this.move_directions = [];
             if (this.x - 2 > this.target.x) {
@@ -733,15 +736,7 @@ class Enemy extends Entity {
                 this.path.shift();
             }
         }
-        if (this.targetTile.x === this.currentTile.x && this.targetTile.y === this.currentTile.y){
-            // set player as target
-            //console.log('2', this.targetTile.x, this.targetTile.y, this.currentTile.x, this.currentTile.y);
-            this.target.x = player.x;
-            this.target.y = player.y;
-        } else if (!this.path){
-            // random movement
-        } else {
-            this.pathFind();
+        if (this.path.length > 0 && this.target.x === -1 && this.target.y === -1){
             console.log('3', this.path);
             // move to next tile
             this.move_directions = [];
@@ -802,9 +797,9 @@ const gameLoop = function () {
     // need to get pixel size every frame as it varies depending on how large the browser window is
     pixelSize = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--pixel-size'));
 
-    player.move(pixelSize);
+    player.move();
     for (const enemy of enemyGroup.objectList){
-        enemy.move(pixelSize)
+        enemy.move()
     }
 
 }
