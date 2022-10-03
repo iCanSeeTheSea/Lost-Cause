@@ -216,6 +216,7 @@ class VerticalEdge extends Node{
     }
 }
 
+// number of enemies = 3^(A^(1/2)/5) where A is the width x height
 
 class Maze {
 
