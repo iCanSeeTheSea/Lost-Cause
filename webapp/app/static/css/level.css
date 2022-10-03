@@ -98,6 +98,8 @@ body {
     background-size: 100%;
     width: calc(var(--pixel-size) * 20);
     height: calc(var(--pixel-size) * 20);
+    position: absolute;
+    overflow: hidden;
 }
 
 .character{

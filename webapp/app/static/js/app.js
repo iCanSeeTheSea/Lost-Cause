@@ -744,7 +744,7 @@ class Enemy extends Entity {
             super.move();
             //console.log(this.currentTile, this.prevTile)
             if (this.currentTile.x !== this.prevTile.x || this.currentTile.y !== this.prevTile.y) {
-                this.target = {y: this.tileOrigin.y + 37, x: this.tileOrigin.x + 25};
+                this.target = {y: this.tileOrigin.y + 25, x: this.tileOrigin.x + 25};
                 //console.log(this.tileOrigin, this.target)
             }
         }
@@ -774,9 +774,12 @@ maze.output();
 
 let player = new Player();
 
-enemyGroup.objectList.push(new Enemy(3));
-for (const enemy of enemyGroup.objectList){
-    enemy.spawn(2, 2)
+
+let enemyPositions = [[2, 2], [1, 3], [3, 1]]
+for (const coord of enemyPositions){
+    let enemy = new Enemy(3)
+    enemyGroup.objectList.push(enemy);
+    enemy.spawn(coord[0], coord[1])
 }
 
 
