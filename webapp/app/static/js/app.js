@@ -98,43 +98,42 @@ class Lock{
 }
 
 class Item{
-    constructor(type, id) {
+    constructor(type) {
         this.type = type;
-        this.id = id;
-        this.x = 0;
-        this.y = 0;
-        this.map = document.querySelector('.map');
-        this.self = document.createElement("div");
-        this.self.className = "item"
+        this.entity = new ItemEntity(0, 0)
     }
 
-    spawn(y, x){
-        this.x = x;
-        this.y = y;
-        this.map.appendChild(this.self)
-        this.self.style.transform = `translate3d( ${this.x * pixelSize}px, ${this.y * pixelSize}px, 0 )`;
+    place(y, x){
+        this.entity.move(y, x)
     }
 
+    take(){
+        this.entity.remove()
+    }
+
+    update(){
+        this.entity.updatePosition()
+    }
 }
 
 class Key extends Item{
-    constructor(id, colour) {
-        super('key', id);
+    constructor(colour) {
+        super('key');
         this.colour = colour;
-        this.self.id = 'key';
-        this.self.setAttribute("colour", this.colour)
+        this.entity.self.id = 'key';
+        this.entity.self.setAttribute("colour", this.colour)
     }
 }
 
 class Sword extends Item{
-    constructor(id) {
-        super('sword', id);
+    constructor() {
+        super('sword');
     }
 }
 
 class Torch extends Item{
-    constructor(id) {
-        super('torch', id);
+    constructor() {
+        super('torch');
     }
 }
 
@@ -216,8 +215,6 @@ class VerticalEdge extends Node{
     }
 }
 
-// number of enemies = 3^(A^(1/2)/5) where A is the width x height
-
 class Maze {
 
     constructor(seed) {
@@ -238,16 +235,24 @@ class Maze {
 
         this.adjacencyList = [];
 
+        let enemyNumber = Math.floor(3**(((this.height*this.width)**(1/2))/5))
+        let enemySpawnSpacing = Math.floor((this.height*this.width)/enemyNumber)
+        console.log(enemySpawnSpacing, enemyNumber)
+
         // populating tree
         let index = 0;
         let deadEndCodes = ['0111', '1011', '1101', '1110'];
         let deadEndPositions = []
+        let corridorCodes = ['1010', '0101']
+        this.enemySpawnPositions = []
         for (let row = 1; row <= this.height; row++) {
             let rowList = [];
             for (let column = 1; column <= this.width; column++) {
                 let bin = binaryString.slice(0,4);
                 if (deadEndCodes.includes(bin)){
                     deadEndPositions.push({y:row, x:column})
+                } else if (!corridorCodes.includes(bin) && (index%(enemySpawnSpacing-Math.floor(enemySpawnSpacing/2)) === 0)){
+                    this.enemySpawnPositions.push({y:row, x:column})
                 }
                 let walls = {top: parseInt(bin[0]), bottom: parseInt(bin[1]), left: parseInt(bin[2]), right: parseInt(bin[3])};
                 let node = new Node(row, column, walls);
@@ -270,9 +275,9 @@ class Maze {
             let x = ((nodePosition.x * 86 ))
             let y = ((nodePosition.y * 80 ))
             if (n % 2 === even) {
-                currentKey = new Key(n, 'red')
+                currentKey = new Key('red')
                 let keyReference = keyGroup.push(currentKey)
-                currentKey.spawn(y, x)
+                currentKey.entity.spawn(y, x)
                 this.adjacencyList[nodePosition.y - 1][nodePosition.x - 1].contains = keyReference;
                 usedEnds.push([nodePosition.y, nodePosition.x])
             } else if (n % 2 !== even) {
@@ -348,7 +353,7 @@ class Entity {
         this.currentTile = {y: 0, x:0};
         this.tileOrigin = {y: 0, x:0}
         this.move_directions = [];
-        this.determineCurrentTile();
+        //this.determineCurrentTile();
         this.map = document.querySelector('.map');
     }
 
@@ -368,7 +373,7 @@ class Entity {
         this.prevTile.y = this.currentTile.y
 
         // work out which tile in the spanning tree the entity is in
-        let x  = this.roundTileCoord((this.x / mazeScale) + 1);
+        let x = this.roundTileCoord((this.x / mazeScale) + 1);
         let y = this.roundTileCoord((this.y / mazeScale) + 1);
 
         this.currentTile = maze.getNode(y, x);
@@ -466,6 +471,51 @@ class Entity {
 
 }
 
+class ItemEntity extends Entity{
+    constructor() {
+        super(27, 16);
+        this.self = document.createElement("div");
+        this.self.className = "item"
+    }
+
+    determineCurrentTile(){
+        // work out which tile in the spanning tree the entity is in
+        let x = this.roundTileCoord((this.x / mazeScale) + 1);
+        let y = this.roundTileCoord((this.y / mazeScale) + 1);
+
+        this.determineTileOrigin(y, x);
+    }
+
+    determineTileOrigin(y, x){
+        // get the coordinates of the tile and data from spanning tree
+        this.tileOrigin.x = (x - 1) * mazeScale;
+        this.tileOrigin.y = (y - 1) * mazeScale;
+    }
+
+    spawn(y, x){
+        this.map.appendChild(this.self)
+        this.move(y, x)
+    }
+
+    updatePosition(){
+        this.self.style.transform = `translate3d( ${this.x * pixelSize}px, ${this.y * pixelSize}px, 0 )`;
+    }
+
+    move(y, x){
+        this.x = x
+        this.y = y
+        this.determineCurrentTile()
+        this.x = this.tileOrigin.x + 27
+        this.y = this.tileOrigin.y + 16
+        this.updatePosition()
+        this.self.style.visibility = 'visible';
+    }
+
+    remove(){
+        this.self.style.visibility = 'hidden';
+    }
+}
+
 class Inventory {
     constructor(){
         this.size = 5;
@@ -517,6 +567,7 @@ class Inventory {
 class Player extends Entity {
     constructor() {
         super(27, 16);
+        this.prevTile = this.currentTile = maze.getNode(1, 1)
         this.speed = 1;
         this.inventory = new Inventory();
         this.self = document.querySelector('.character');
@@ -549,6 +600,7 @@ class Player extends Entity {
             } else {
                 let itemReference = this.currentTile.contains;
                 this.inventory.insertItem(itemReference, activeInventorySlot);
+                this.currentTile.contains.getSelf().take()
                 this.currentTile.contains = undefined;
                 maze.checkUsedEdge(this.currentTile);
             }
@@ -558,6 +610,7 @@ class Player extends Entity {
     drop(){
         if (this.inventory.getItemFromSlot(activeInventorySlot) !== undefined && this.currentTile.contains === undefined){
             this.currentTile.contains = this.inventory.removeItem(activeInventorySlot);
+            this.currentTile.contains.getSelf().place(this.y, this.x)
             maze.checkUsedEdge(this.currentTile)
         }
     }
@@ -607,6 +660,7 @@ class Enemy extends Entity {
     }
 
     pathFind(){
+        console.log(this.targetTile)
         let targetPosition = this.targetTile.position();
         if (this.path.length > 0 || (targetPosition.y === this.currentTile.y && targetPosition.x === this.currentTile.x)){
             return;
@@ -775,12 +829,11 @@ maze.output();
 
 let player = new Player();
 
-
-let enemyPositions = [[2, 2], [1, 3], [3, 1]]
-for (const coord of enemyPositions){
+console.log(maze.enemySpawnPositions)
+for (const coord of maze.enemySpawnPositions){
     let enemy = new Enemy(3)
     enemyGroup.objectList.push(enemy);
-    enemy.spawn(coord[0], coord[1])
+    enemy.spawn(coord.y,  coord.x)
 }
 
 
@@ -804,6 +857,10 @@ const gameLoop = function () {
     player.move();
     for (const enemy of enemyGroup.objectList){
         enemy.move()
+    }
+
+    for (const item of keyGroup.objectList){
+        item.update()
     }
 
 }
