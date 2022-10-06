@@ -473,7 +473,7 @@ class Entity {
 
 class ItemEntity extends Entity{
     constructor() {
-        super(27, 16);
+        super(27, 30);
         this.self = document.createElement("div");
         this.self.className = "item"
     }
@@ -505,8 +505,8 @@ class ItemEntity extends Entity{
         this.x = x
         this.y = y
         this.determineCurrentTile()
-        this.x = this.tileOrigin.x + 27
-        this.y = this.tileOrigin.y + 16
+        this.x = this.tileOrigin.x + 27;
+        this.y = this.tileOrigin.y + 30;
         this.updatePosition()
         this.self.style.visibility = 'visible';
     }
