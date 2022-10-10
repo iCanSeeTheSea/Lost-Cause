@@ -272,11 +272,12 @@ class Maze {
         for (let n = noDeadEnds-1; n >= noDeadEnds%2; n--) {
             let nodePosition = deadEndPositions[n];
             console.log(nodePosition)
-            let x = ((nodePosition.x * 86 ))
-            let y = ((nodePosition.y * 80 ))
+            let x = ((nodePosition.x-1) * mazeScale )
+            let y = ((nodePosition.y-1) * mazeScale )
             if (n % 2 === even) {
                 currentKey = new Key('red')
                 let keyReference = keyGroup.push(currentKey)
+                console.log(y, x)
                 currentKey.entity.spawn(y, x)
                 this.adjacencyList[nodePosition.y - 1][nodePosition.x - 1].contains = keyReference;
                 usedEnds.push([nodePosition.y, nodePosition.x])
@@ -353,7 +354,6 @@ class Entity {
         this.currentTile = {y: 0, x:0};
         this.tileOrigin = {y: 0, x:0}
         this.move_directions = [];
-        //this.determineCurrentTile();
         this.map = document.querySelector('.map');
     }
 
@@ -473,7 +473,8 @@ class Entity {
 
 class ItemEntity extends Entity{
     constructor() {
-        super(27, 30);
+        super(20, 28);
+        this.determineCurrentTile();
         this.self = document.createElement("div");
         this.self.className = "item"
     }
@@ -483,7 +484,7 @@ class ItemEntity extends Entity{
         let x = this.roundTileCoord((this.x / mazeScale) + 1);
         let y = this.roundTileCoord((this.y / mazeScale) + 1);
 
-        this.determineTileOrigin(y, x);
+        this.determineTileOrigin(y, x)
     }
 
     determineTileOrigin(y, x){
@@ -505,8 +506,8 @@ class ItemEntity extends Entity{
         this.x = x
         this.y = y
         this.determineCurrentTile()
-        this.x = this.tileOrigin.x + 27;
-        this.y = this.tileOrigin.y + 30;
+        this.x = this.tileOrigin.x + 20;
+        this.y = this.tileOrigin.y + 28;
         this.updatePosition()
         this.self.style.visibility = 'visible';
     }
@@ -567,7 +568,8 @@ class Inventory {
 class Player extends Entity {
     constructor() {
         super(27, 16);
-        this.prevTile = this.currentTile = maze.getNode(1, 1)
+        this.prevTile = {y:0, x:0}
+        this.currentTile = maze.getNode(1, 1)
         this.speed = 1;
         this.inventory = new Inventory();
         this.self = document.querySelector('.character');

@@ -134,21 +134,29 @@ body {
 
 #key {
     image-rendering: pixelated;
-    background: url('/static/img/red-key.png');
+    background: url('/static/img/key.png');
     background-size: 100%;
-    height: calc(var(--pixel-size) * 13);
-    width: calc(var(--pixel-size) * 8);
+    height: calc(var(--pixel-size) * 15);
+    width: calc(var(--pixel-size) * 15);
 }
 
 .slot{
-    image-rendering: pixelated;
-    background-size: 100%;
     width: calc(var(--pixel-size) * 30);
     height: calc(var(--pixel-size) * 30);
 }
 
-.slot[item='test-item'] .slot{
-    background-image: url(/static/img/slime.png);
+.slot_sprite{
+    image-rendering: pixelated;
+    background-size: 100%;
+    position: absolute;
+    width: calc(var(--pixel-size) * 20);
+    height: calc(var(--pixel-size) * 20);
+    margin-left: calc(var(--pixel-size) * 5);
+    margin-top: calc(var(--pixel-size) * 5);
+}
+
+.slot[item='key'] .slot_sprite{
+    background-image: url('/static/img/key.png');
 }
 
 @keyframes walkAnimation {
