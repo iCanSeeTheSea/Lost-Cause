@@ -312,9 +312,10 @@ class Maze {
     checkUsedEdge(tile){
         if (tile.type === 'edge'){
             if (tile.contains === undefined){
-                delete this.usedEdges[{y: tile.y, x: tile.x}]
+                // concatenate y and x values to create a unique key for any edge
+                delete this.usedEdges[String(tile.y)+String(tile.x)]
             } else {
-                this.usedEdges[{y: tile.y, x: tile.x}] = tile
+                this.usedEdges[String(tile.y)+String(tile.x)] = tile
             }
         }
     }
@@ -324,7 +325,7 @@ class Maze {
             if (x % 1 === 0 && y % 1 === 0){
                 return this.adjacencyList[y - 1][x - 1];
             } else {
-                let edgeUsed = this.usedEdges[{y : y, x: x}]
+                let edgeUsed = this.usedEdges[String(y)+String(x)]
                 if (edgeUsed !== undefined){
                     return edgeUsed
                 } else {
@@ -858,7 +859,7 @@ const gameLoop = function () {
 
     player.move();
     for (const enemy of enemyGroup.objectList){
-        enemy.move()
+        //enemy.move()
     }
 
     for (const item of keyGroup.objectList){
