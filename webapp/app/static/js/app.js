@@ -88,19 +88,12 @@ class ObjectGroupReference{
 }
 
 
-class Lock{
-    constructor(key) {
-        this.type = 'lock';
-        this.status = 'locked';
-        this.key = key;
-        this.colour = key.colour;
-    }
-}
 
 class Item{
     constructor(type) {
         this.type = type;
         this.entity = new ItemEntity(0, 0)
+        this.entity.self.id = type;
     }
 
     place(y, x){
@@ -116,11 +109,20 @@ class Item{
     }
 }
 
+class Lock extends Item{
+    constructor(key) {
+        super('lock')
+        this.status = 'locked';
+        this.key = key;
+        this.colour = key.colour;
+        this.entity.self.setAttribute("colour", this.colour)
+    }
+}
+
 class Key extends Item{
     constructor(colour) {
         super('key');
         this.colour = colour;
-        this.entity.self.id = 'key';
         this.entity.self.setAttribute("colour", this.colour)
     }
 }
@@ -282,7 +284,10 @@ class Maze {
                 this.adjacencyList[nodePosition.y - 1][nodePosition.x - 1].contains = keyReference;
                 usedEnds.push([nodePosition.y, nodePosition.x])
             } else if (n % 2 !== even) {
-                this.adjacencyList[nodePosition.y - 1][nodePosition.x - 1].contains = lockGroup.push(new Lock(currentKey));
+                let lock = new Lock(currentKey);
+                let lockReference = lockGroup.push(lock)
+                lock.entity.spawn(y, x)
+                this.adjacencyList[nodePosition.y - 1][nodePosition.x - 1].contains = lockReference;
                 usedEnds.push([nodePosition.y, nodePosition.x])
             }
         }
@@ -862,8 +867,12 @@ const gameLoop = function () {
         //enemy.move()
     }
 
-    for (const item of keyGroup.objectList){
-        item.update()
+    for (const key of keyGroup.objectList){
+        key.update()
+    }
+
+    for (const lock of lockGroup.objectList){
+        lock.update()
     }
 
 }
