@@ -119,16 +119,25 @@ position: relative;
 }
 
 .character[facing="down"] .character_spritesheet {
-    background-position-y: calc(var(--pixel-size) * -13.5);
+    --y-position: calc(var(--pixel-size) * -13.5);
+    background-position-y: var(--y-position);
 }
 .character[facing="left"] .character_spritesheet {
-    background-position-y: calc(var(--pixel-size) * -27);
+    --y-position: calc(var(--pixel-size) * -27);
+    background-position-y: var(--y-position);
 }
 .character[facing="up"] .character_spritesheet {
-    background-position-y: calc(var(--pixel-size) * -40.5);
+    --y-position: calc(var(--pixel-size) * -40.5);
+    background-position-y: var(--y-position);
 }
-.character[walking="true"] .character_spritesheet {
-    animation: walkAnimation 0.6s steps(4) infinite; 
+.character[action="walking"] .character_spritesheet {
+    animation: walkAnimation 0.6s steps(4) infinite;
+}
+
+.character[action="attacking"] .character_spritesheet{
+    --y-position: calc(var(--y-position) - (var(--pixel-size) * -54));
+    background-position-y: var(--y-position);
+    animation: attackAnimation 0.3s steps(5);
 }
 
 .item{
@@ -136,6 +145,8 @@ position: relative;
     height: calc(var(--pixel-size) * 15);
     width: calc(var(--pixel-size) * 15);
     image-rendering: pixelated;
+    position: absolute;
+    overflow: hidden;
 }
 
 #key {
@@ -173,4 +184,4 @@ position: relative;
         transform: translate3d(-100%,0%,0);
     }
 }
- 
+

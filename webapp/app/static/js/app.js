@@ -36,7 +36,11 @@ const inventoryKeys = {
 
 const commands = {
     'e': 'interact',
-    'q': 'drop'
+    'E': 'interact',
+    'q': 'drop',
+    'Q': 'drop',
+    'r': 'attack',
+    'R': 'attack'
 }
 
 
@@ -61,6 +65,7 @@ class ObjectGroup{
     constructor(objectType) {
         this.objectType = objectType;
         this.objectList = [];
+        this.idToIndex = {};
     }
 
     get(index){
@@ -68,10 +73,9 @@ class ObjectGroup{
     }
 
     push(object){
-        if (object.type === this.objectType){
-            this.objectList.push(object);
-            return new ObjectGroupReference(this.objectType, this.objectList.length-1, this)
-        }
+        this.objectList.push(object);
+        this.idToIndex[object.id] = this.objectList.length-1
+        return new ObjectGroupReference(object.type, this.objectList.length-1, this)
     }
 }
 
@@ -90,9 +94,10 @@ class ObjectGroupReference{
 
 
 class Item{
-    constructor(type) {
+    constructor(type, id) {
         this.type = type;
         this.entity = new ItemEntity(0, 0)
+        this.id = id;
         this.entity.self.id = type;
     }
 
@@ -118,24 +123,6 @@ class Lock extends Item{
     unlock(){
         this.locked = false;
         this.entity.self.style.visibility = 'hidden';
-    }
-}
-
-class Key extends Item{
-    constructor() {
-        super('key');
-    }
-}
-
-class Sword extends Item{
-    constructor() {
-        super('sword');
-    }
-}
-
-class Torch extends Item{
-    constructor() {
-        super('torch');
     }
 }
 
@@ -274,13 +261,13 @@ class Maze {
             let nodePosition = deadEndPositions[n];
             console.log(nodePosition)
             if (n % 2 === even) {
-                let key = new Key()
-                let keyReference = keyGroup.push(key)
+                let key = new Item('key', n)
+                let keyReference = itemGroup.push(key)
                 key.entity.spawn(nodePosition.y, nodePosition.x)
                 this.adjacencyList[nodePosition.y - 1][nodePosition.x - 1].contains = keyReference;
                 usedEnds.push([nodePosition.y, nodePosition.x])
             } else if (n % 2 !== even) {
-                let lock = new Lock();
+                let lock = new Lock(n);
                 let lockReference = lockGroup.push(lock)
                 lock.entity.spawn(nodePosition.y, nodePosition.x)
                 this.adjacencyList[nodePosition.y - 1][nodePosition.x - 1].contains = lockReference;
@@ -460,10 +447,10 @@ class Entity {
             this.checkCollision(originalX, originalY);
 
             this.self.setAttribute("facing", this.move_directions[0]);
-            this.self.setAttribute("walking", "true");
+            this.self.setAttribute("action", "walking");
 
         } else {
-            this.self.setAttribute("walking", "false");
+            this.self.removeAttribute("action");
         }
     }
 
@@ -506,9 +493,10 @@ class ItemEntity extends Entity{
     }
 
     move(y, x){
-        //this.determineCurrentTile(y, x)
+        this.determineCurrentTile(y, x)
         this.x = this.tileOrigin.x + 20;
         this.y = this.tileOrigin.y + 28;
+        console.log(this.x, this.y)
         this.updatePosition()
         this.self.style.visibility = 'visible';
     }
@@ -569,8 +557,10 @@ class Inventory {
 class Player extends Entity {
     constructor() {
         super(27, 16);
-        this.prevTile = {y:0, x:0}
-        this.currentTile = maze.getNode(1, 1)
+        this.prevTile = {y:0, x:0};
+        this.maxHealth = 50;
+        this.health = this.maxHealth;
+        this.currentTile = maze.getNode(1, 1);
         this.speed = 1;
         this.inventory = new Inventory();
         this.self = document.querySelector('.character');
@@ -583,6 +573,9 @@ class Player extends Entity {
                 break;
             case 'drop':
                 this.drop();
+                break;
+            case 'attack':
+                this.attack();
                 break;
         }
     }
@@ -603,6 +596,37 @@ class Player extends Entity {
                 this.currentTile.contains.getSelf().take()
                 this.currentTile.contains = undefined;
                 maze.checkUsedEdge(this.currentTile);
+            }
+        }
+    }
+
+    attack(){
+        if (this.inventory.getItemFromSlot(activeInventorySlot).type === 'sword'){
+            let closestEnemy = enemyGroup.objectList[0]
+            let closestDistance = 10
+            let enemyInRange = false
+            for (const enemy of enemyGroup.objectList) {
+                if (enemy.currentTile.x === this.currentTile.x && enemy.currentTile.y === enemy.currentTile.y) {
+                    let distance = Math.abs(Math.sqrt(this.x**2 + this.y**2) - Math.sqrt(enemy.x**2 + enemy.y**2));
+                    if (distance < closestDistance){
+                        closestDistance = distance
+                        closestEnemy = enemy
+                        enemyInRange = true
+                    }
+                }
+            }
+            if (enemyInRange) {
+                this.self.setAttribute("action", "attacking")
+                if (closestEnemy.x < this.x){
+                    this.self.setAttribute("facing", "left");
+                } else if (closestEnemy.x > this.x){
+                    this.self.setAttribute("facing", "right")
+                } else if (closestEnemy.y < this.y){
+                    this.self.setAttribute("facing", "up")
+                } else if (closestEnemy.y > this.y){
+                    this.self.setAttribute("facing", "down")
+                }
+                closestEnemy.damage(5);
             }
         }
     }
@@ -640,10 +664,13 @@ class Player extends Entity {
 }
 
 class Enemy extends Entity {
-    constructor(range) {
+    constructor(id) {
         super(27, 16);
+        this.id = id;
         this.speed = 7/8;
-        this.range = range;
+        this.range = 3;
+        this.maxHealth = 10;
+        this.health = this.maxHealth;
         this.path = [];
         this.target = {y: -1, x: -1};
         this.targetTile = {};
@@ -659,8 +686,18 @@ class Enemy extends Entity {
         this.self.style.transform = `translate3d( ${this.x * pixelSize}px, ${this.y * pixelSize}px, 0 )`;
     }
 
+    damage(damageTaken){
+        this.health -= damageTaken
+        if (this.health < 0){
+            this.health = 0;
+            this.self.style.visibility = 'hidden';
+            let index = enemyGroup.idToIndex[this.id]
+            enemyGroup.objectList.splice(index)
+        }
+    }
+
     pathFind(){
-        console.log(this.targetTile)
+        //console.log(this.targetTile)
         let targetPosition = this.targetTile.position();
         if (this.path.length > 0 || (targetPosition.y === this.currentTile.y && targetPosition.x === this.currentTile.x)){
             return;
@@ -691,7 +728,7 @@ class Enemy extends Entity {
             while(true){
                 if (checkPosition.y === this.currentTile.y && checkPosition.x === this.currentTile.x){
                     // has found player
-                    console.log('player found', this.path)
+                    //console.log('player found', this.path)
                     break;
                 }
 
@@ -761,16 +798,17 @@ class Enemy extends Entity {
 
         if (this.targetTile.x === this.currentTile.x && this.targetTile.y === this.currentTile.y) {
             // set player as target
-            console.log('2', this.targetTile.x, this.targetTile.y, this.currentTile.x, this.currentTile.y);
+            //console.log('2', this.targetTile.x, this.targetTile.y, this.currentTile.x, this.currentTile.y);
             this.target.x = player.x;
             this.target.y = player.y;
+
         } else {
             this.pathFind();
         }
 
         //console.log(this.y, this.x, this.currentTile.x, this.currentTile.y, this.tileOrigin, this.target, this.path)
         if (this.target.x !== -1 && this.target.y !== -1) {
-            console.log('1', this.target, this.y, this.x);
+            //console.log('1', this.target, this.y, this.x);
             // move towards target
             this.move_directions = [];
             if (this.x - 2 > this.target.x) {
@@ -792,7 +830,7 @@ class Enemy extends Entity {
             }
         }
         if (this.path.length > 0 && this.target.x === -1 && this.target.y === -1){
-            console.log('3', this.path);
+            //console.log('3', this.path);
             // move to next tile
             this.move_directions = [];
             this.move_directions.push(this.path[0]);
@@ -808,10 +846,9 @@ class Enemy extends Entity {
 }
 
 
-let keyGroup = new ObjectGroup('key');
+let itemGroup = new ObjectGroup('item');
 let lockGroup = new ObjectGroup('lock');
 let enemyGroup = new ObjectGroup('enemy');
-
 
 const checkWinCondition = function(){
     for (const lock of lockGroup.objectList){
@@ -829,8 +866,10 @@ maze.output();
 let player = new Player();
 
 console.log(maze.enemySpawnPositions)
+let id = 0;
 for (const coord of maze.enemySpawnPositions){
-    let enemy = new Enemy(3)
+    id += 1
+    let enemy = new Enemy(id)
     enemyGroup.objectList.push(enemy);
     enemy.spawn(coord.y,  coord.x)
 }
@@ -854,10 +893,10 @@ const gameLoop = function () {
 
     player.move();
     for (const enemy of enemyGroup.objectList){
-        //enemy.move()
+        enemy.move()
     }
 
-    for (const key of keyGroup.objectList){
+    for (const key of itemGroup.objectList){
         key.update()
     }
 
