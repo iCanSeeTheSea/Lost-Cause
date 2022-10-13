@@ -846,74 +846,83 @@ class Enemy extends Entity {
 }
 
 
-let itemGroup = new ObjectGroup('item');
-let lockGroup = new ObjectGroup('lock');
-let enemyGroup = new ObjectGroup('enemy');
+class GameController{
+    constructor() {
+        this.itemGroup = new ObjectGroup('item');
+        this.lockGroup = new ObjectGroup('lock');
+        this.enemyGroup = new ObjectGroup('enemy');
+        this.maze = new Maze(mazeSeed);
+        this.maze.output();
+        this.player = new Player();
+        console.log(this.maze.enemySpawnPositions)
 
-const checkWinCondition = function(){
-    for (const lock of lockGroup.objectList){
-        if (lock.locked){
-            return false;
+        // setting css properties to correct values
+        this.root = document.querySelector(':root');
+        this.root.style.setProperty('--map-width', maze.width);
+        this.root.style.setProperty('--map-height', maze.height);
+
+
+        this.held_directions = [];
+        this.imgWidth = (maze.width * mazeScale) - 64;
+        this.imgHeight = (maze.height * mazeScale) - 64;
+        this.activeInventorySlot = 0;
+    }
+
+    checkWinCondition() {
+        for (const lock of this.lockGroup.objectList){
+            if (lock.locked){
+                return false;
+            }
+        }
+        console.log('you win!')
+        return true;
+    }
+
+    spawnEnemies(){
+        let id = 0;
+        for (const coord of this.maze.enemySpawnPositions){
+            id += 1
+            let enemy = new Enemy(id)
+            this.enemyGroup.objectList.push(enemy);
+            enemy.spawn(coord.y,  coord.x)
         }
     }
-    console.log('you win!')
-    return true;
-}
 
-const maze = new Maze(mazeSeed);
-maze.output();
+    defineMaze(){
 
-let player = new Player();
-
-console.log(maze.enemySpawnPositions)
-let id = 0;
-for (const coord of maze.enemySpawnPositions){
-    id += 1
-    let enemy = new Enemy(id)
-    enemyGroup.objectList.push(enemy);
-    enemy.spawn(coord.y,  coord.x)
-}
-
-// setting css properties to correct values
-let root = document.querySelector(':root');
-root.style.setProperty('--map-width', maze.width);
-root.style.setProperty('--map-height', maze.height);
-
-// initial variable declarations
-let held_directions = [];
-const imgWidth = (maze.width * mazeScale) - 64;
-const imgHeight = (maze.height * mazeScale) - 64;
-let activeInventorySlot = 0;
-
-// determines where the character (and maze) is positioned every frame
-const gameLoop = function () {
-
-    // need to get pixel size every frame as it varies depending on how large the browser window is
-    pixelSize = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--pixel-size'));
-
-    player.move();
-    for (const enemy of enemyGroup.objectList){
-        enemy.move()
     }
 
-    for (const key of itemGroup.objectList){
-        key.update()
+    // determines where the character (and maze) is positioned every frame
+    gameLoop() {
+        // need to get pixel size every frame as it varies depending on how large the browser window is
+        pixelSize = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--pixel-size'));
+
+        this.player.move();
+        for (const enemy of this.enemyGroup.objectList){
+            enemy.move()
+        }
+
+        for (const key of this.itemGroup.objectList){
+            key.update()
+        }
+
+        for (const lock of this.lockGroup.objectList){
+            lock.update()
+        }
     }
 
-    for (const lock of lockGroup.objectList){
-        lock.update()
+    // steps through every frame
+    step() {
+        this.gameLoop();
+        window.requestAnimationFrame(function () {
+            step();
+        })
     }
-
 }
 
-// steps through every frame
-const step = function () {
-    gameLoop();
-    window.requestAnimationFrame(function () {
-        step();
-    })
-}
-step();
+gameController = new GameController()
+gameController.spawnEnemies()
+gameController.step();
 
 
 // event listeners for keys being pressed and released
@@ -922,20 +931,20 @@ document.addEventListener('keydown', function (e) {
     let inventorySlot = inventoryKeys[e.key];
     let command = commands[e.key];
     // adds last key pressed to the start of the held_directions array
-    if (direction && held_directions.indexOf(direction) === -1) {
-        held_directions.unshift(direction);
+    if (direction && gameController.held_directions.indexOf(direction) === -1) {
+        gameController.held_directions.unshift(direction);
     } else if (inventorySlot) {
-        activeInventorySlot = inventorySlot-1;
+        gameController.activeInventorySlot = inventorySlot-1;
     } else if (command){
-        player.executeCommand(command)
+        gameController.player.executeCommand(command)
     }
 })
 
 document.addEventListener('keyup', function (e) {
     let direction = directionKeys[e.key];
-    let index = held_directions.indexOf(direction);
+    let index = gameController.held_directions.indexOf(direction);
     // removes key from help_directions when it stops being pressed
     if (index > -1) {
-        held_directions.splice(index, 1);
+        gameController.held_directions.splice(index, 1);
     }
 })
