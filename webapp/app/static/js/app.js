@@ -209,7 +209,9 @@ class Maze {
     constructor(seed) {
         this.seed = seed;
         this.usedEdges = {};
+        this.adjacencyList = [];
 
+        // separating dimensions from seed and converting to binary
         let base64String = this.seed.replace(/=/g, '');
         console.log(base64String);
         let binaryString = '';
@@ -219,63 +221,12 @@ class Maze {
         let padding = (this.seed.length - base64String.length)*8;
         this.height = parseInt(binaryString.slice(0,8), 2);
         this.width = parseInt(binaryString.slice(8,16), 2);
-        binaryString = binaryString.slice(16, binaryString.length - padding);
+        this.binaryString = binaryString.slice(16, binaryString.length - padding);
         console.log(binaryString,this.height, this.width);
 
-        this.adjacencyList = [];
-
-        let enemyNumber = Math.floor(3**(((this.height*this.width)**(1/2))/5))
-        let enemySpawnSpacing = Math.floor((this.height*this.width)/enemyNumber)
-        console.log(enemySpawnSpacing, enemyNumber)
-
-        // populating tree
-        let index = 0;
-        let deadEndCodes = ['0111', '1011', '1101', '1110'];
-        let deadEndPositions = []
-        let corridorCodes = ['1010', '0101']
-        this.enemySpawnPositions = []
-        for (let row = 1; row <= this.height; row++) {
-            let rowList = [];
-            for (let column = 1; column <= this.width; column++) {
-                let bin = binaryString.slice(0,4);
-                if (deadEndCodes.includes(bin)){
-                    deadEndPositions.push({y:row, x:column})
-                } else if (!corridorCodes.includes(bin) && (index%(enemySpawnSpacing-Math.floor(enemySpawnSpacing/2)) === 0)){
-                    this.enemySpawnPositions.push({y:row, x:column})
-                }
-                let walls = {top: parseInt(bin[0]), bottom: parseInt(bin[1]), left: parseInt(bin[2]), right: parseInt(bin[3])};
-                let node = new Node(row, column, walls);
-                rowList.push(node);
-                binaryString = binaryString.slice(4);
-                index += 1;
-            }
-            this.adjacencyList.push(rowList);
-        }
-        let noDeadEnds = deadEndPositions.length;
-        let even = 0
-        if ((noDeadEnds-1)%2 === 1){
-            even = 1;
-        }
-        let usedEnds = []
-        for (let n = noDeadEnds-1; n >= noDeadEnds%2; n--) {
-            let nodePosition = deadEndPositions[n];
-            console.log(nodePosition)
-            if (n % 2 === even) {
-                let key = new Item('key', n)
-                let keyReference = game.itemGroup.push(key)
-                key.entity.spawn(nodePosition.y, nodePosition.x)
-                this.adjacencyList[nodePosition.y - 1][nodePosition.x - 1].contains = keyReference;
-                usedEnds.push([nodePosition.y, nodePosition.x])
-            } else if (n % 2 !== even) {
-                let lock = new Lock(n);
-                let lockReference = game.lockGroup.push(lock)
-                lock.entity.spawn(nodePosition.y, nodePosition.x)
-                this.adjacencyList[nodePosition.y - 1][nodePosition.x - 1].contains = lockReference;
-                usedEnds.push([nodePosition.y, nodePosition.x])
-            }
-        }
-        console.log(usedEnds)
     }
+
+
 
 
     checkTileInMaze(y, x){
@@ -870,7 +821,7 @@ class GameController{
 
     spawnEnemies(){
         let id = 0;
-        for (const coord of this.maze.enemySpawnPositions){
+        for (const coord of this.enemySpawnPositions){
             id += 1
             let enemy = new Enemy(id)
             this.enemyGroup.objectList.push(enemy);
@@ -884,8 +835,82 @@ class GameController{
 
     defineMaze(){
         this.maze = new Maze(mazeSeed);
+
+
+        // populating tree and calculating enemy spawn positions
+        let enemyNumber = Math.floor(3**(((this.maze.height*this.maze.width)**(1/2))/5))
+        let enemySpawnSpacing = Math.floor((this.maze.height*this.maze.width)/enemyNumber)
+        console.log(enemySpawnSpacing, enemyNumber)
+
+        let index = 0;
+        let deadEndCodes = ['0111', '1011', '1101', '1110'];
+        this.deadEndPositions = []
+        let corridorCodes = ['1010', '0101']
+
+        this.enemySpawnPositions = []
+
+
+        for (let row = 1; row <= this.maze.height; row++) {
+            let rowList = [];
+            for (let column = 1; column <= this.maze.width; column++) {
+
+                let bin = this.maze.binaryString.slice(0,4);
+
+                if (deadEndCodes.includes(bin)){
+                    this.deadEndPositions.push({y:row, x:column})
+                } else if (!corridorCodes.includes(bin) && (index%(enemySpawnSpacing-Math.floor(enemySpawnSpacing/2)) === 0)){
+                    this.enemySpawnPositions.push({y:row, x:column})
+                }
+
+
+                let walls = {top: parseInt(bin[0]), bottom: parseInt(bin[1]), left: parseInt(bin[2]), right: parseInt(bin[3])};
+                let node = new Node(row, column, walls);
+
+                rowList.push(node);
+                this.maze.binaryString = this.maze.binaryString.slice(4);
+                index += 1;
+
+            }
+            this.maze.adjacencyList.push(rowList);
+        }
+
         this.maze.output();
-        console.log(this.maze.enemySpawnPositions)
+        console.log(this.enemySpawnPositions)
+
+        this.determineLockAndKeyPositions()
+    }
+
+    determineLockAndKeyPositions(){
+        // spawning locks and keys
+        let noDeadEnds = this.deadEndPositions.length;
+        let even = 0
+        if ((noDeadEnds-1)%2 === 1){
+            even = 1;
+        }
+
+        let usedEnds = []
+        for (let n = noDeadEnds-1; n >= noDeadEnds%2; n--) {
+
+            let nodePosition = this.deadEndPositions[n];
+            console.log(nodePosition)
+
+            if (n % 2 === even) {
+                let key = new Item('key', n)
+                let keyReference = game.itemGroup.push(key)
+                key.entity.spawn(nodePosition.y, nodePosition.x)
+
+                this.maze.adjacencyList[nodePosition.y - 1][nodePosition.x - 1].contains = keyReference;
+                usedEnds.push([nodePosition.y, nodePosition.x])
+            } else if (n % 2 !== even) {
+                let lock = new Lock(n);
+                let lockReference = game.lockGroup.push(lock)
+                lock.entity.spawn(nodePosition.y, nodePosition.x)
+
+                this.maze.adjacencyList[nodePosition.y - 1][nodePosition.x - 1].contains = lockReference;
+                usedEnds.push([nodePosition.y, nodePosition.x])
+            }
+        }
+        console.log(usedEnds)
     }
 
     defineMazeProperties(){
