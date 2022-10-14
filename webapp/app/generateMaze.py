@@ -11,15 +11,12 @@ class Node:
 
     def __post_init__(self):
         # pre-defining parameters after initialisation to be defined later
-        self._top = "1"
-        self._bottom = "1"
-        self._left = "1"
-        self._right = "1"
+        self._top = self._bottom = self._left = self._right = "1"
 
         self._row = self.__pos[0]
         self._column = self.__pos[1]
 
-    def _wallValueChecker(self, value):
+    def _wall_value_checker(self, value):
         if value == "1" or value == "0":
             return True
         else:
@@ -34,7 +31,7 @@ class Node:
 
     @top.setter
     def top(self, value):
-        if self._wallValueChecker(value):
+        if self._wall_value_checker(value):
             self._top = value
 
     @property
@@ -43,7 +40,7 @@ class Node:
 
     @bottom.setter
     def bottom(self, value):
-        if self._wallValueChecker(value):
+        if self._wall_value_checker(value):
             self._bottom = value
 
     @property
@@ -52,7 +49,7 @@ class Node:
 
     @left.setter
     def left(self, value):
-        if self._wallValueChecker(value):
+        if self._wall_value_checker(value):
             self._left = value
 
     @property
@@ -61,7 +58,7 @@ class Node:
 
     @right.setter
     def right(self, value):
-        if self._wallValueChecker(value):
+        if self._wall_value_checker(value):
             self._right = value
 
     @property
@@ -75,26 +72,26 @@ class Node:
     @property
     def key(self):
         # key for each node is a 4 digit binary string
-        wallsStr = self._top + self._bottom + self._left + self._right
-        return wallsStr
+        return self._top + self._bottom + self._left + self._right
 
 
 class Maze:
-    def __init__(self, maxX, maxY):
+    def __init__(self, max_x, max_y):
         # 2D list to store node objects - index matches coordinate in the maze
-        self._maxX = maxX
-        self._maxY = maxY
-        self._nodeList = [[None for _ in range(maxX)] for _ in range(maxY)]
-        self._binaryList = ['' for _ in range(maxY * maxX)]
+        self._max_x = max_x
+        self._max_y = max_y
+        self._nodeList = [[None for _ in range(max_x)] for _ in range(max_y)]
+        self._binary_list = ['' for _ in range(max_y * max_x)]
 
-    def insert(self, nodeObj):
-        row = nodeObj.row
-        column = nodeObj.column
+    def insert(self, node_object):
+        row = node_object.row
+        column = node_object.column
         # maze starts at 1,1 but list indexing starts at [0][0]
-        self._nodeList[row - 1][column - 1] = nodeObj
+        self._nodeList[row - 1][column - 1] = node_object
         # calculates relative position
-        self._binaryList[
-            self._maxX * (row - 1) + (column - 1)] = f'{nodeObj.top}{nodeObj.bottom}{nodeObj.left}{nodeObj.right}'
+        self._binary_list[
+            self._max_x * (row - 1) + (
+                    column - 1)] = f'{node_object.top}{node_object.bottom}{node_object.left}{node_object.right}'
 
     def node(self, coord):
         node = self._nodeList[coord[0] - 1][coord[1] - 1]
@@ -102,27 +99,27 @@ class Maze:
 
     # storing the sequence of node keys as a property that the seed generator can access
     @property
-    def binaryString(self):
-        return ''.join(self._binaryList)
+    def binary_string(self):
+        return ''.join(self._binary_list)
 
 
 class MazeGenerator:
-    def __init__(self, maxX, maxY):
-        self._maze = Maze(maxX, maxY)
+    def __init__(self, max_x, max_y):
+        self._maze = Maze(max_x, max_y)
 
         self._nodes = []
 
         # nodes is a 2D list, [row][column]
-        for row in range(1, maxY + 1):
-            for column in range(1, maxX + 1):
+        for row in range(1, max_y + 1):
+            for column in range(1, max_x + 1):
                 self._nodes.append([row, column])
         self._saveNodes = self._nodes.copy()
 
         # allows easy calculation of the nodes around any given node
         self._adjacentCoords = ((-1, 0), (1, 0), (0, 1), (0, -1))
 
-        self._maxX = maxX
-        self._maxY = maxY
+        self._max_x = max_x
+        self._max_y = max_y
 
         # number corresponds to binary value of the node's key
         self._tileNames = {'0000': 'no-walls.png', '0001': 'right-wall.png', '0010': 'left-wall.png',
@@ -134,99 +131,101 @@ class MazeGenerator:
                            '1100': 'top-bottom-wall.png', '1101': 'right-dead.png',
                            '1110': 'left-dead.png', '1111': 'all-walls.png'}
 
-    def drawMaze(self, binaryString):
+    def draw_maze(self, binary_string):
 
-        mazePath = Path('app/static/img/maze/')
+        maze_path = Path('app/static/img/maze/')
 
-        base = mazePath / 'base.png'
+        base = maze_path / 'base.png'
         img = Image.open(base)
 
         # tiles are 32x32
-        img = img.resize((self._maxX * 32 * 2 - 32, self._maxY * 32 * 2 - 32))
+        img = img.resize((self._max_x * 32 * 2 - 32, self._max_y * 32 * 2 - 32))
 
-        # debug = Image.open(mazePath / 'debug-tile.png')
+        # debug = Image.open(maze_path / 'debug-tile.png')
 
-        for row in range(1, self._maxY + 1):
-            for column in range(1, self._maxX + 1):
-                if binaryString:
-                    # uses the binaryString if generating from a seed
-                    wallStr = binaryString[:4]
-                    binaryString = binaryString[4:]
+        for row in range(1, self._max_y + 1):
+            for column in range(1, self._max_x + 1):
+                if binary_string:
+                    # uses the binary_string if generating from a seed
+                    wall_string = binary_string[:4]
+                    binary_string = binary_string[4:]
                     node = Node([row, column])
-                    node.top = wallStr[0]
-                    node.bottom = wallStr[1]
-                    node.left = wallStr[2]
-                    node.right = wallStr[3]
+                    node.top = wall_string[0]
+                    node.bottom = wall_string[1]
+                    node.left = wall_string[2]
+                    node.right = wall_string[3]
                     self._maze.insert(node)
                 else:
                     node = self._maze.node([row, column])
 
-                adjNodes = []
+                adjacent_nodes = []
                 # getting the list of adjacent nodes from the dictionary
                 if node.top == "0":
-                    adjNodes.append([row - 1, column])
+                    adjacent_nodes.append([row - 1, column])
                 if node.bottom == "0":
-                    adjNodes.append([row + 1, column])
+                    adjacent_nodes.append([row + 1, column])
                 if node.left == "0":
-                    adjNodes.append([row, column - 1])
+                    adjacent_nodes.append([row, column - 1])
                 if node.right == "0":
-                    adjNodes.append([row, column + 1])
+                    adjacent_nodes.append([row, column + 1])
 
                 # pasting the correct image (corresponding with the walls list) onto the main background image
-                tile = mazePath / self._tileNames[node.key]
-                tileImg = Image.open(tile)
+                tile = maze_path / self._tileNames[node.key]
+                tile_image = Image.open(tile)
 
-                img.paste(tileImg, ((column - 1) * 64, (row - 1) * 64))
+                img.paste(tile_image, ((column - 1) * 64, (row - 1) * 64))
 
-                for adjNode in adjNodes:
+                for adjacent_node in adjacent_nodes:
                     # figuring out where to place adjacent corridors based
-                    join_y = ((adjNode[0] - node.row) / 2) + node.row
-                    join_x = ((adjNode[1] - node.column) / 2) + node.column
+                    join_y = ((adjacent_node[0] - node.row) / 2) + node.row
+                    join_x = ((adjacent_node[1] - node.column) / 2) + node.column
 
                     # pasting corridors joining the nodes
 
                     if join_y - int(join_y) != 0:
-                        tile = mazePath / 'left-right-wall.png'  # vertical corridor
+                        tile = maze_path / 'left-right-wall.png'  # vertical corridor
 
                     elif join_x - int(join_x) != 0:
-                        tile = mazePath / 'top-bottom-wall.png'  # horizontal corridor
+                        tile = maze_path / 'top-bottom-wall.png'  # horizontal corridor
 
-                    tileImg = Image.open(tile)
-                    img.paste(tileImg, (int((join_x - 1) * 64), int((join_y - 1) * 64)))
+                    tile_image = Image.open(tile)
+                    img.paste(tile_image, (int((join_x - 1) * 64), int((join_y - 1) * 64)))
 
-        img.save(mazePath / 'fullmaze.png')
+        img.save(maze_path / 'fullmaze.png')
 
-        print(self._maze.binaryString)
+        print(self._maze.binary_string)
 
     # recursive backtracking | 19/09/21
 
-    def recursiveBacktracking(self):
+    def recursive_backtracking(self):
 
         stack = []
         start_time = time.time()
-        nextPos = [1, 1]
+        next_position = [1, 1]
 
         while True:
 
-            currentPos = nextPos
-            stack.append(currentPos)
+            current_position = next_position
+            stack.append(current_position)
 
             try:
-                self._nodes.remove(currentPos)
-            except ValueError:  # value error is raised if the current position has already been removed - occurs after maze reaches a dead end and backtracks
+                self._nodes.remove(current_position)
+            except ValueError:
+                # value error is raised if the current position has already been removed
+                # occurs after maze reaches a dead end and backtracks
                 pass
 
-            possibleCoords = []
+            possible_coordinates = []
 
             # finding possible next nodes by comparing each position adjacent to the current node to the unused nodes
             for dy, dx in self._adjacentCoords:
-                if [currentPos[0] + dy, currentPos[1] + dx] in self._nodes:
-                    possibleCoords.append(
-                        [currentPos[0] + dy, currentPos[1] + dx])
-            if possibleCoords:
+                if [current_position[0] + dy, current_position[1] + dx] in self._nodes:
+                    possible_coordinates.append(
+                        [current_position[0] + dy, current_position[1] + dx])
+            if possible_coordinates:
                 # choosing a random (adjacent) node to go next
-                nextPos = random.choice(possibleCoords)
-                pair = [nextPos, currentPos]
+                next_position = random.choice(possible_coordinates)
+                pair = [next_position, current_position]
 
                 # updating (or adding if not already) nodes in maze
                 for index, coord in enumerate(pair):
@@ -236,16 +235,16 @@ class MazeGenerator:
                         node = self._maze.node(coord)
 
                     # working out which wall to remove
-                    adjNode = pair[index - 1]
-                    yDiff = coord[0] - adjNode[0]
-                    xDiff = coord[1] - adjNode[1]
-                    if yDiff > 0:
+                    adjacent_node = pair[index - 1]
+                    y_difference = coord[0] - adjacent_node[0]
+                    x_difference = coord[1] - adjacent_node[1]
+                    if y_difference > 0:
                         node.top = '0'
-                    elif yDiff < 0:
+                    elif y_difference < 0:
                         node.bottom = '0'
-                    if xDiff > 0:
+                    if x_difference > 0:
                         node.left = '0'
-                    elif xDiff < 0:
+                    elif x_difference < 0:
                         node.right = '0'
 
                     self._maze.insert(node)
@@ -253,10 +252,10 @@ class MazeGenerator:
             else:
                 # checking each node from the stack for possible nodes, if there are none, removing it
                 for index in range(len(stack) - 1, -1, -1):
-                    checkPos = stack[index]
+                    check_position = stack[index]
                     for dy, dx in self._adjacentCoords:
-                        if [checkPos[0] + dy, checkPos[1] + dx] in self._nodes:
-                            nextPos = checkPos
+                        if [check_position[0] + dy, check_position[1] + dx] in self._nodes:
+                            next_position = check_position
                             break
                     else:
                         try:
@@ -286,41 +285,41 @@ class SeedGenerator:
 
         # base 64 conversion tables
         self._toBinary = {'A': '000000', 'B': '000001', 'C': '000010', 'D': '000011', 'E': '000100', 'F': '000101',
-                            'G': '000110', 'H': '000111',
-                            'I': '001000', 'J': '001001', 'K': '001010', 'L': '001011', 'M': '001100', 'N': '001101',
-                            'O': '001110', 'P': '001111',
-                            'Q': '010000', 'R': '010001', 'S': '010010', 'T': '010011', 'U': '010100', 'V': '010101',
-                            'W': '010110', 'X': '010111',
-                            'Y': '011000', 'Z': '011001', 'a': '011010', 'b': '011011', 'c': '011100', 'd': '011101',
-                            'e': '011110', 'f': '011111',
-                            'g': '100000', 'h': '100001', 'i': '100010', 'j': '100011', 'k': '100100', 'l': '100101',
-                            'm': '100110', 'n': '100111',
-                            'o': '101000', 'p': '101001', 'q': '101010', 'r': '101011', 's': '101100', 't': '101101',
-                            'u': '101110', 'v': '101111',
-                            'w': '110000', 'x': '110001', 'y': '110010', 'z': '110011', '0': '110100', '1': '110101',
-                            '2': '110110', '3': '110111',
-                            '4': '111000', '5': '111001', '6': '111010', '7': '111011', '8': '111100', '9': '111101',
-                            '-': '111110', '_': '111111'}
+                          'G': '000110', 'H': '000111',
+                          'I': '001000', 'J': '001001', 'K': '001010', 'L': '001011', 'M': '001100', 'N': '001101',
+                          'O': '001110', 'P': '001111',
+                          'Q': '010000', 'R': '010001', 'S': '010010', 'T': '010011', 'U': '010100', 'V': '010101',
+                          'W': '010110', 'X': '010111',
+                          'Y': '011000', 'Z': '011001', 'a': '011010', 'b': '011011', 'c': '011100', 'd': '011101',
+                          'e': '011110', 'f': '011111',
+                          'g': '100000', 'h': '100001', 'i': '100010', 'j': '100011', 'k': '100100', 'l': '100101',
+                          'm': '100110', 'n': '100111',
+                          'o': '101000', 'p': '101001', 'q': '101010', 'r': '101011', 's': '101100', 't': '101101',
+                          'u': '101110', 'v': '101111',
+                          'w': '110000', 'x': '110001', 'y': '110010', 'z': '110011', '0': '110100', '1': '110101',
+                          '2': '110110', '3': '110111',
+                          '4': '111000', '5': '111001', '6': '111010', '7': '111011', '8': '111100', '9': '111101',
+                          '-': '111110', '_': '111111'}
 
         self._to64 = {'000000': 'A', '000001': 'B', '000010': 'C', '000011': 'D', '000100': 'E', '000101': 'F',
-                        '000110': 'G',
-                        '000111': 'H', '001000': 'I', '001001': 'J', '001010': 'K', '001011': 'L', '001100': 'M',
-                        '001101': 'N',
-                        '001110': 'O', '001111': 'P', '010000': 'Q', '010001': 'R', '010010': 'S', '010011': 'T',
-                        '010100': 'U',
-                        '010101': 'V', '010110': 'W', '010111': 'X', '011000': 'Y', '011001': 'Z', '011010': 'a',
-                        '011011': 'b',
-                        '011100': 'c', '011101': 'd', '011110': 'e', '011111': 'f', '100000': 'g', '100001': 'h',
-                        '100010': 'i',
-                        '100011': 'j', '100100': 'k', '100101': 'l', '100110': 'm', '100111': 'n', '101000': 'o',
-                        '101001': 'p',
-                        '101010': 'q', '101011': 'r', '101100': 's', '101101': 't', '101110': 'u', '101111': 'v',
-                        '110000': 'w',
-                        '110001': 'x', '110010': 'y', '110011': 'z', '110100': '0', '110101': '1', '110110': '2',
-                        '110111': '3',
-                        '111000': '4', '111001': '5', '111010': '6', '111011': '7', '111100': '8', '111101': '9',
-                        '111110': '-',
-                        '111111': '_'}
+                      '000110': 'G',
+                      '000111': 'H', '001000': 'I', '001001': 'J', '001010': 'K', '001011': 'L', '001100': 'M',
+                      '001101': 'N',
+                      '001110': 'O', '001111': 'P', '010000': 'Q', '010001': 'R', '010010': 'S', '010011': 'T',
+                      '010100': 'U',
+                      '010101': 'V', '010110': 'W', '010111': 'X', '011000': 'Y', '011001': 'Z', '011010': 'a',
+                      '011011': 'b',
+                      '011100': 'c', '011101': 'd', '011110': 'e', '011111': 'f', '100000': 'g', '100001': 'h',
+                      '100010': 'i',
+                      '100011': 'j', '100100': 'k', '100101': 'l', '100110': 'm', '100111': 'n', '101000': 'o',
+                      '101001': 'p',
+                      '101010': 'q', '101011': 'r', '101100': 's', '101101': 't', '101110': 'u', '101111': 'v',
+                      '110000': 'w',
+                      '110001': 'x', '110010': 'y', '110011': 'z', '110100': '0', '110101': '1', '110110': '2',
+                      '110111': '3',
+                      '111000': '4', '111001': '5', '111010': '6', '111011': '7', '111100': '8', '111101': '9',
+                      '111110': '-',
+                      '111111': '_'}
 
     @property
     def seed(self):
@@ -352,49 +351,49 @@ class SeedGenerator:
         else:
             self._width = width
 
-    def createBase64Seed(self):
+    def create_base_64_seed(self):
         if self._mazeGenerator is None:
             self._mazeGenerator = MazeGenerator(self._height, self._width)
 
-        self._maze = self._mazeGenerator.recursiveBacktracking()
-        self._mazeGenerator.drawMaze('')
+        self._maze = self._mazeGenerator.recursive_backtracking()
+        self._mazeGenerator.draw_maze('')
 
         # turns the width and height of the maze into two bytes
-        sizeBin = str(bin(self._height))[2:].zfill(8) + str(bin(self._width))[2:].zfill(8)
-        binaryString = sizeBin + self._maze.binaryString
+        size_binary = str(bin(self._height))[2:].zfill(8) + str(bin(self._width))[2:].zfill(8)
+        binary_string = size_binary + self._maze.binary_string
 
         padding = 0
         # one '=' is added for every byte of padding
-        while len(binaryString) % 24 != 0:
-            binaryString += '0'
+        while len(binary_string) % 24 != 0:
+            binary_string += '0'
             padding += 1
         padding //= 8
 
-        # splits binaryString every 6 characters for easier conversion to base 64
-        binaryList = [binaryString[i:i + 6] for i in range(0, len(binaryString), 6)]
+        # splits binary_string every 6 characters for easier conversion to base 64
+        binary_list = [binary_string[i:i + 6] for i in range(0, len(binary_string), 6)]
 
-        base64String = ''
-        for value in binaryList:
-            base64String += self._to64[value]
-        base64String += '=' * padding
+        base_64_string = ''
+        for value in binary_list:
+            base_64_string += self._to64[value]
+        base_64_string += '=' * padding
 
-        print(base64String)
-        self._seed = base64String
+        print(base_64_string)
+        self._seed = base_64_string
 
-    def drawMazeFromSeed(self):
+    def draw_maze_from_seed(self):
         # removing padding before conversion
-        base64String = self._seed.rstrip('=')
-        binaryString = ''
+        base_64_string = self._seed.rstrip('=')
+        binary_string = ''
 
-        for value in base64String:
-            binaryString += self._toBinary[value]
+        for value in base_64_string:
+            binary_string += self._toBinary[value]
 
-        # splitting converted string into height, width, and binaryString
+        # splitting converted string into height, width, and binary_string
         padding = self._seed.count('=')
-        self._height = int(binaryString[:8], 2)
-        self._width = int(binaryString[8:16], 2)
-        binaryString = binaryString[16:-padding * 8]
+        self._height = int(binary_string[:8], 2)
+        self._width = int(binary_string[8:16], 2)
+        binary_string = binary_string[16:-padding * 8]
 
         if self._mazeGenerator is None:
             self._mazeGenerator = MazeGenerator(self._height, self._width)
-        self._mazeGenerator.drawMaze(binaryString)
+        self._mazeGenerator.draw_maze(binary_string)
