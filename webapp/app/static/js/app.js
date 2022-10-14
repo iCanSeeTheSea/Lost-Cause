@@ -22,8 +22,8 @@ const directionKeys = {
     'ArrowDown': directions.down,
     'W': directions.up,
     'A': directions.left,
-    'S': directions.right,
-    'D': directions.down
+    'S': directions.down,
+    'D': directions.right
 }
 
 const inventoryKeys = {
@@ -225,8 +225,6 @@ class Maze {
         console.log(binaryString,this.height, this.width);
 
     }
-
-
 
 
     checkTileInMaze(y, x){
@@ -518,6 +516,7 @@ class Player extends Entity {
     }
 
     executeCommand(command){
+        console.log(command)
         switch (command){
             case 'interact':
                 this.interact();
@@ -552,7 +551,7 @@ class Player extends Entity {
     }
 
     attack(){
-        if (this.inventory.getItemFromSlot(game.activeInventorySlot).type === 'sword'){
+        if (this.inventory.getItemFromSlot(game.activeInventorySlot).objectType === 'sword'){
             let closestEnemy = game.enemyGroup.objectList[0]
             let closestDistance = 10
             let enemyInRange = false
