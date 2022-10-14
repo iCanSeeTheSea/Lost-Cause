@@ -191,9 +191,8 @@ class MazeGenerator:
                     tile_image = Image.open(tile)
                     img.paste(tile_image, (int((join_x - 1) * 64), int((join_y - 1) * 64)))
 
-        img.save(maze_path / 'fullmaze.png')
-
         print(self._maze.binary_string)
+        return img, maze_path
 
     # recursive backtracking | 19/09/21
 
@@ -351,12 +350,15 @@ class SeedGenerator:
         else:
             self._width = width
 
+    def _save_maze_image(self, image, maze_path):
+        print(image, maze_path, self.seed)
+        image.save(maze_path / f'{self.seed}.png')
+
     def create_base_64_seed(self):
-        if self._mazeGenerator is None:
-            self._mazeGenerator = MazeGenerator(self._height, self._width)
+        self._mazeGenerator = MazeGenerator(self._height, self._width)
 
         self._maze = self._mazeGenerator.recursive_backtracking()
-        self._mazeGenerator.draw_maze('')
+        image, maze_path = self._mazeGenerator.draw_maze('')
 
         # turns the width and height of the maze into two bytes
         size_binary = str(bin(self._height))[2:].zfill(8) + str(bin(self._width))[2:].zfill(8)
@@ -379,6 +381,7 @@ class SeedGenerator:
 
         print(base_64_string)
         self._seed = base_64_string
+        self._save_maze_image(image, maze_path)
 
     def draw_maze_from_seed(self):
         # removing padding before conversion
@@ -396,4 +399,4 @@ class SeedGenerator:
 
         if self._mazeGenerator is None:
             self._mazeGenerator = MazeGenerator(self._height, self._width)
-        self._mazeGenerator.draw_maze(binary_string)
+        self._save_maze_image(*self._mazeGenerator.draw_maze(binary_string))

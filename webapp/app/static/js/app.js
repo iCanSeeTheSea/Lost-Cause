@@ -292,7 +292,7 @@ class Entity {
         this.currentTile = {y: 0, x:0};
         this.tileOrigin = {y: 0, x:0}
         this.move_directions = [];
-        this.map = document.querySelector('.map');
+
     }
 
     // function to round a number to the nearest 0.5
@@ -432,7 +432,7 @@ class ItemEntity extends Entity{
     }
 
     spawn(tileY, tileX){
-        this.map.appendChild(this.self)
+        game.map.appendChild(this.self)
         this.determineTileOrigin(tileY, tileX)
         this.move(this.tileOrigin.y, this.tileOrigin.x)
     }
@@ -609,7 +609,7 @@ class Player extends Entity {
         let camera_left = pixelSize * 112;
 
         // moving the map and player
-        this.map.style.transform = `translate3d( ${-mapX * pixelSize + camera_left}px, ${-mapY * pixelSize + camera_top}px, 0 )`;
+        game.map.style.transform = `translate3d( ${-mapX * pixelSize + camera_left}px, ${-mapY * pixelSize + camera_top}px, 0 )`;
         this.self.style.transform = `translate3d( ${this.x * pixelSize}px, ${this.y * pixelSize}px, 0 )`;
 
         }
@@ -634,7 +634,7 @@ class Enemy extends Entity {
         this.x = (tileX -1) * mazeScale + 20;
         this.y = (tileY -1) * mazeScale + 40;
         this.currentTile = {y: tileY, x: tileX};
-        this.map.appendChild(this.self)
+        game.map.appendChild(this.self)
         this.self.style.transform = `translate3d( ${this.x * pixelSize}px, ${this.y * pixelSize}px, 0 )`;
     }
 
@@ -806,6 +806,10 @@ class GameController{
 
         this.held_directions = [];
         this.activeInventorySlot = 0;
+
+        this.map = document.querySelector('.map');
+        //background-image: url("/static/img/maze/fullmaze.png");
+        this.map.style.backgroundImage = `url(/static/img/maze/${mazeSeed}.png)`
     }
 
     checkWinCondition() {

@@ -84,7 +84,7 @@ button {
 
 .map {
     image-rendering: pixelated;
-    background-image: url("/static/img/maze/fullmaze.png");
+
     background-size: 100%;
     width: calc((var(--map-width) * var(--grid-cell) * 2) - var(--grid-cell));
     height: calc((var(--map-height) * var(--grid-cell) * 2) - var(--grid-cell));
