@@ -809,7 +809,7 @@ class GameController{
 
         this.map = document.querySelector('.map');
         //background-image: url("/static/img/maze/fullmaze.png");
-        this.map.style.backgroundImage = `url(/static/img/maze/${mazeSeed}.png)`
+        this.map.style.backgroundImage = `url(/mazeimages/${mazeSeed}.png)`
     }
 
     setActiveInventorySlot(slot){
