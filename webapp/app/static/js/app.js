@@ -92,7 +92,6 @@ class ObjectGroupReference{
 }
 
 
-
 class Item{
     constructor(type, id) {
         this.type = type;
@@ -122,7 +121,7 @@ class Lock extends Item{
 
     unlock(){
         this.locked = false;
-        this.entity.self.style.visibility = 'hidden';
+        this.entity.self.outerHTML = "";
     }
 }
 
@@ -432,9 +431,8 @@ class ItemEntity extends Entity{
     }
 
     spawn(tileY, tileX){
-        game.map.appendChild(this.self)
         this.determineTileOrigin(tileY, tileX)
-        this.move(this.tileOrigin.y, this.tileOrigin.x)
+        this.move(this.tileOrigin.y+20, this.tileOrigin.x+28)
     }
 
     updatePosition(){
@@ -442,16 +440,17 @@ class ItemEntity extends Entity{
     }
 
     move(y, x){
-        this.determineCurrentTile(y, x)
-        this.x = this.tileOrigin.x + 20;
-        this.y = this.tileOrigin.y + 28;
+        game.map.appendChild(this.self)
+        this.x = x;
+        this.y = y;
         console.log(this.x, this.y)
         this.updatePosition()
-        this.self.style.visibility = 'visible';
+        //this.self.style.visibility = 'visible';
     }
 
     remove(){
-        this.self.style.visibility = 'hidden';
+        //this.self.style.visibility = 'hidden';
+        this.self.outerHTML = "";
     }
 }
 
@@ -462,13 +461,12 @@ class Inventory {
     }
 
     setDocumentInventorySlot(slot, type){
-        let slotView = document.getElementById(slot);
+        let slotView = document.getElementById(slot).firstElementChild;
         if (type !== null){
-            slotView.setAttribute('item', type);
+            slotView.id = type
         } else {
-            slotView.removeAttribute('item');
+            slotView.id = "";
         }
-
     }
 
     getItemFromSlot(slot){
@@ -537,6 +535,7 @@ class Player extends Entity {
                 let itemReference = this.inventory.getItemFromSlot(game.activeInventorySlot);
                 if (itemReference.objectType === 'key'){
                     lock.unlock();
+                    this.currentTile.contains = undefined;
                     this.inventory.removeItem(game.activeInventorySlot);
                     game.checkWinCondition();
                 }
@@ -642,7 +641,7 @@ class Enemy extends Entity {
         this.health -= damageTaken
         if (this.health < 0){
             this.health = 0;
-            this.self.style.visibility = 'hidden';
+            this.self.outerHTML = "";
             let index = game.enemyGroup.idToIndex[this.id]
             game.enemyGroup.objectList.splice(index)
         }
@@ -806,10 +805,22 @@ class GameController{
 
         this.held_directions = [];
         this.activeInventorySlot = 0;
+        document.getElementById(`slot-${this.activeInventorySlot}`).style.backgroundImage = "url(/static/img/active_slot.png)"
 
         this.map = document.querySelector('.map');
         //background-image: url("/static/img/maze/fullmaze.png");
         this.map.style.backgroundImage = `url(/static/img/maze/${mazeSeed}.png)`
+    }
+
+    setActiveInventorySlot(slot){
+        if (this.activeInventorySlot !== slot){
+            let prevSlot = this.activeInventorySlot
+            this.activeInventorySlot = slot
+            let slotView = document.getElementById(`slot-${slot}`);
+            let prevSlotView = document.getElementById(`slot-${prevSlot}`)
+            slotView.style.backgroundImage = "url(/static/img/active_slot.png)"
+            prevSlotView.style.backgroundImage = "none"
+        }
     }
 
     checkWinCondition() {
@@ -834,6 +845,9 @@ class GameController{
 
     spawnPlayer(){
         this.player = new Player();
+        let sword = new Item('sword', 1);
+        let swordReference = this.itemGroup.push(sword);
+        this.player.inventory.insertItem(swordReference, 0);
     }
 
     defineMaze(){
@@ -899,14 +913,14 @@ class GameController{
 
             if (n % 2 === even) {
                 let key = new Item('key', n)
-                let keyReference = game.itemGroup.push(key)
+                let keyReference = this.itemGroup.push(key)
                 key.entity.spawn(nodePosition.y, nodePosition.x)
 
                 this.maze.adjacencyList[nodePosition.y - 1][nodePosition.x - 1].contains = keyReference;
                 usedEnds.push([nodePosition.y, nodePosition.x])
             } else if (n % 2 !== even) {
                 let lock = new Lock(n);
-                let lockReference = game.lockGroup.push(lock)
+                let lockReference = this.lockGroup.push(lock)
                 lock.entity.spawn(nodePosition.y, nodePosition.x)
 
                 this.maze.adjacencyList[nodePosition.y - 1][nodePosition.x - 1].contains = lockReference;
@@ -971,7 +985,7 @@ document.addEventListener('keydown', function (e) {
     if (direction && game.held_directions.indexOf(direction) === -1) {
         game.held_directions.unshift(direction);
     } else if (inventorySlot) {
-        game.activeInventorySlot = inventorySlot-1;
+        game.setActiveInventorySlot(inventorySlot-1);
     } else if (command){
         game.player.executeCommand(command)
     }

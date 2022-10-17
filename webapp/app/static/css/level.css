@@ -157,7 +157,14 @@ position: relative;
     background-image: url('/static/img/lock.png')
 }
 
+#sword {
+    background-image: url('/static/img/sword.png');
+}
+
 .slot{
+    image-rendering: pixelated;
+    background-size: 100%;
+    position: relative;
     width: calc(var(--pixel-size) * 30);
     height: calc(var(--pixel-size) * 30);
 }
@@ -174,6 +181,10 @@ position: relative;
 
 .slot[item='key'] .slot_sprite{
     background-image: url('/static/img/key.png');
+}
+
+.slot[item='sword'] .slot_sprite{
+    background-image: url("/static/img/sword.png");
 }
 
 @keyframes walkAnimation {
