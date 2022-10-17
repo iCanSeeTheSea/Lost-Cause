@@ -639,7 +639,7 @@ class Enemy extends Entity {
 
     damage(damageTaken){
         this.health -= damageTaken
-        if (this.health < 0){
+        if (this.health <= 0){
             this.health = 0;
             this.self.outerHTML = "";
             let index = game.enemyGroup.idToIndex[this.id]

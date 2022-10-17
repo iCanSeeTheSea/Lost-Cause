@@ -1,5 +1,5 @@
 from app import app, generateMaze
-from flask import render_template, redirect, send_from_directory
+from flask import render_template, redirect, send_from_directory, request
 import os
 from PIL import Image
 from pathlib import Path
@@ -22,10 +22,21 @@ def get_maze_image(file_name):
     return send_from_directory(os.path.join(app.root_path, "mazeimages"), file_name)
 
 
-@app.route('/play')
-def play():
-    seedGenerator.height = 3
-    seedGenerator.width = 3
+# @app.route('/play')
+# def play():
+#     seedGenerator.height = 8
+#     seedGenerator.width = 8
+#     maze_image = seedGenerator.create_base_64_seed()
+#     save_maze_image(maze_image)
+#
+#     return redirect(f'/play/{seedGenerator.seed}')
+
+
+@app.route('/play', methods=['GET'])
+def play_with_size():
+    args = request.args.to_dict()
+    seedGenerator.height = int(args['height'])
+    seedGenerator.width = int(args['width'])
     maze_image = seedGenerator.create_base_64_seed()
     save_maze_image(maze_image)
 

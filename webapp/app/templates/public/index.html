@@ -1,14 +1,14 @@
 {% extends "public/templates/public_template.html" %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Lost Cause{% endblock %}
 
 {% block main %}
 
 <div class="title">
-  <img src="{{ url_for('static', filename='img/lostcausetitle.png') }}" alt="">
+    <img src="{{ url_for('static', filename='img/lostcausetitle.png') }}" alt="">
 </div>
 <div class="container">
-  <button onclick="window.location.href='/play'">Play?</button>
+    <button onclick="window.location.href='/play?height=3&width=3'">Play?</button>
 </div>
 
 
