@@ -291,6 +291,9 @@ class Entity {
         this.currentTile = {y: 0, x:0};
         this.tileOrigin = {y: 0, x:0}
         this.move_directions = [];
+        this.attackCooldown = 0;
+        this.attackDamage = 0;
+        this.cooldownTimer = 0;
 
     }
 
@@ -406,6 +409,25 @@ class Entity {
         return this.currentTile;
     }
 
+    attack(target){
+        if (this.cooldownTimer === 0){
+            this.self.setAttribute("action", "attacking")
+            if (target.x < this.x){
+                this.self.setAttribute("facing", "left");
+            } else if (target.x > this.x){
+                this.self.setAttribute("facing", "right")
+            } else if (target.y < this.y){
+                this.self.setAttribute("facing", "up")
+            } else if (target.y > this.y){
+                this.self.setAttribute("facing", "down")
+            }
+            target.damage(this.attackDamage)
+            this.cooldownTimer = this.attackCooldown
+        } else {
+            this.cooldownTimer -= 1
+        }
+
+    }
 }
 
 class ItemEntity extends Entity{
@@ -509,6 +531,8 @@ class Player extends Entity {
         this.health = this.maxHealth;
         this.currentTile = game.maze.getNode(1, 1);
         this.speed = 1;
+        this.attackCooldown = 20;
+        this.attackDamage = 5;
         this.inventory = new Inventory();
         this.self = document.querySelector('.character');
     }
@@ -565,17 +589,7 @@ class Player extends Entity {
                 }
             }
             if (enemyInRange) {
-                this.self.setAttribute("action", "attacking")
-                if (closestEnemy.x < this.x){
-                    this.self.setAttribute("facing", "left");
-                } else if (closestEnemy.x > this.x){
-                    this.self.setAttribute("facing", "right")
-                } else if (closestEnemy.y < this.y){
-                    this.self.setAttribute("facing", "up")
-                } else if (closestEnemy.y > this.y){
-                    this.self.setAttribute("facing", "down")
-                }
-                closestEnemy.damage(5);
+                super.attack(closestEnemy)
             }
         }
     }
@@ -585,6 +599,14 @@ class Player extends Entity {
             this.currentTile.contains = this.inventory.removeItem(game.activeInventorySlot);
             this.currentTile.contains.getSelf().place(this.y, this.x)
             game.maze.checkUsedEdge(this.currentTile)
+        }
+    }
+
+    damage(damageTaken){
+        this.health -= damageTaken;
+        if (this.health <= 0){
+            this.health = 0;
+            console.log('game over')
         }
     }
 
@@ -622,6 +644,8 @@ class Enemy extends Entity {
         this.range = 3;
         this.maxHealth = 10;
         this.health = this.maxHealth;
+        this.attackCooldown = 20;
+        this.attackDamage = 3;
         this.path = [];
         this.target = {y: -1, x: -1};
         this.targetTile = {};
@@ -745,6 +769,7 @@ class Enemy extends Entity {
                 }
             }
         }
+
     }
 
 
@@ -800,6 +825,14 @@ class Enemy extends Entity {
         }
         this.self.style.transform = `translate3d( ${this.x * pixelSize}px, ${this.y * pixelSize}px, 0 )`;
     }
+
+    attack(){
+        let distance = Math.abs(Math.sqrt(this.x ** 2 + this.y ** 2) - Math.sqrt(game.player.x ** 2 + game.player.y ** 2));
+        if (distance < 5) {
+            super.attack(game.player)
+        }
+    }
+
 }
 
 
@@ -951,7 +984,8 @@ class GameController{
 
         this.player.move();
         for (const enemy of this.enemyGroup.objectList){
-                enemy.move()
+            enemy.move()
+            enemy.attack()
         }
 
         for (const key of this.itemGroup.objectList){
