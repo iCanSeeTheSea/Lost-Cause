@@ -642,8 +642,14 @@ class Enemy extends Entity {
         if (this.health <= 0){
             this.health = 0;
             this.self.outerHTML = "";
-            let index = game.enemyGroup.idToIndex[this.id]
-            game.enemyGroup.objectList.splice(index)
+            for (let index = 0; index < game.enemyGroup.objectList.length; index++){
+                let enemy = game.enemyGroup.objectList[index]
+                if (enemy.id === this.id){
+                    console.log(enemy, game.enemyGroup.objectList)
+                    game.enemyGroup.objectList.splice(index, 1)
+                    break
+                }
+            }
         }
     }
 
@@ -838,7 +844,7 @@ class GameController{
         for (const coord of this.enemySpawnPositions){
             id += 1
             let enemy = new Enemy(id)
-            this.enemyGroup.objectList.push(enemy);
+            this.enemyGroup.push(enemy);
             enemy.spawn(coord.y,  coord.x)
         }
     }
@@ -947,7 +953,7 @@ class GameController{
 
         this.player.move();
         for (const enemy of this.enemyGroup.objectList){
-            enemy.move()
+                enemy.move()
         }
 
         for (const key of this.itemGroup.objectList){
