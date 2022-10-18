@@ -454,7 +454,7 @@ class ItemEntity extends Entity{
 
     spawn(tileY, tileX){
         this.determineTileOrigin(tileY, tileX)
-        this.move(this.tileOrigin.y+20, this.tileOrigin.x+28)
+        this.move(this.tileOrigin.y+32, this.tileOrigin.x+24)
     }
 
     updatePosition(){
@@ -523,6 +523,20 @@ class Inventory {
     }
 }
 
+class HealthBar{
+    constructor(className, maxHealth) {
+        this.parent = document.querySelector(className)
+        this.self = document.createElement("div");
+        this.self.className = "health_bar"
+        this.parent.appendChild(this.self)
+        this.update(maxHealth)
+    }
+
+    update(health){
+        this.self.style.width= `${pixelSize * health * (1/6)}px`
+    }
+}
+
 class Player extends Entity {
     constructor() {
         super(27, 16);
@@ -531,10 +545,11 @@ class Player extends Entity {
         this.health = this.maxHealth;
         this.currentTile = game.maze.getNode(1, 1);
         this.speed = 1;
-        this.attackCooldown = 20;
+        this.attackCooldown = 0;
         this.attackDamage = 5;
         this.inventory = new Inventory();
         this.self = document.querySelector('.character');
+        this.healthBar = new HealthBar('.character', this.maxHealth)
     }
 
     executeCommand(command){
@@ -608,6 +623,7 @@ class Player extends Entity {
             this.health = 0;
             console.log('game over')
         }
+        this.healthBar.update(this.health)
     }
 
     move(){
@@ -632,8 +648,7 @@ class Player extends Entity {
         // moving the map and player
         game.map.style.transform = `translate3d( ${-mapX * pixelSize + camera_left}px, ${-mapY * pixelSize + camera_top}px, 0 )`;
         this.self.style.transform = `translate3d( ${this.x * pixelSize}px, ${this.y * pixelSize}px, 0 )`;
-
-        }
+    }
 }
 
 class Enemy extends Entity {
@@ -644,13 +659,14 @@ class Enemy extends Entity {
         this.range = 3;
         this.maxHealth = 10;
         this.health = this.maxHealth;
-        this.attackCooldown = 20;
+        this.attackCooldown = 50;
         this.attackDamage = 3;
         this.path = [];
         this.target = {y: -1, x: -1};
         this.targetTile = {};
         this.self = document.createElement("div");
         this.self.className = "enemy"
+
     }
 
     spawn(tileY, tileX){
@@ -659,6 +675,7 @@ class Enemy extends Entity {
         this.currentTile = {y: tileY, x: tileX};
         game.map.appendChild(this.self)
         this.self.style.transform = `translate3d( ${this.x * pixelSize}px, ${this.y * pixelSize}px, 0 )`;
+        this.healhBar = new HealthBar('.enemy', this.maxHealth);
     }
 
     damage(damageTaken){
@@ -675,6 +692,7 @@ class Enemy extends Entity {
                 }
             }
         }
+        this.healhBar.update(this.health);
     }
 
     pathFind(){
@@ -974,7 +992,7 @@ class GameController{
         this.root.style.setProperty('--map-height', this.maze.height);
 
         this.imgWidth = (this.maze.width * mazeScale) - 64;
-        this.imgHeight = (this.maze.height * mazeScale) - 64;
+        this.imgHeight = (this.maze.height * mazeScale) - 50;
     }
 
     // determines where the character (and maze) is positioned every frame

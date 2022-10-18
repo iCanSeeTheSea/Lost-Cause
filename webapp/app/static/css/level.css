@@ -103,7 +103,6 @@ position: relative;
 
 .health_bar{
     background-color: red;
-    width: calc(var(--pixel-size) * 16 * 0.5);
     height: calc(var(--pixel-size) * 2 * 0.5);
     margin: auto
 }
