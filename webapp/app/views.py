@@ -1,15 +1,21 @@
 from app import app, generateMaze
-from flask import render_template, redirect, send_from_directory, request
+from flask import render_template, redirect, send_from_directory, request, session
 import os
+from time import time
 from PIL import Image
 from pathlib import Path
 from base64 import b64encode
 
-seedGenerator = generateMaze.SeedGenerator()
+app.secret_key = os.urandom(12).hex()
+maze_image_dir = os.path.join(app.root_path, "mazeimages")
+seed_generator = generateMaze.SeedGenerator()
 
 
 def save_maze_image(maze_image):
-    maze_image.save(os.path.join(app.root_path, "mazeimages", f"{seedGenerator.seed}.png"))
+    for file in os.scandir(maze_image_dir):
+        os.remove(file)
+    session['image name'] = f"maze{str(time()).split('.')[0]}.png"
+    maze_image.save(os.path.join(maze_image_dir, session['image name']))
 
 
 @app.route('/')
@@ -19,7 +25,7 @@ def index():
 
 @app.route('/mazeimages/<string:file_name>')
 def get_maze_image(file_name):
-    return send_from_directory(os.path.join(app.root_path, "mazeimages"), file_name)
+    return send_from_directory(maze_image_dir, file_name)
 
 
 # @app.route('/play')
@@ -35,21 +41,19 @@ def get_maze_image(file_name):
 @app.route('/play', methods=['GET'])
 def play_with_size():
     args = request.args.to_dict()
-    seedGenerator.height = int(args['height'])
-    seedGenerator.width = int(args['width'])
-    maze_image = seedGenerator.create_base_64_seed()
+    seed_generator.height = int(args['height'])
+    seed_generator.width = int(args['width'])
+    maze_image = seed_generator.create_base_64_seed()
     save_maze_image(maze_image)
 
-    return redirect(f'/play/{seedGenerator.seed}')
+    return redirect(f"/play/{seed_generator.seed}")
 
 
 @app.route('/play/<string:seed>')
 def play_from_seed(seed):
-    if seedGenerator.seed != seed:
-        seedGenerator.seed = seed
-        path = os.path.join(app.root_path, "mazeimages", f"{seed}.png")
-        if not os.path.exists(path):
-            maze_image = seedGenerator.draw_maze_from_seed()
-            save_maze_image(maze_image)
+    if seed_generator.seed != seed:
+        seed_generator.seed = seed
+        maze_image = seed_generator.draw_maze_from_seed()
+        save_maze_image(maze_image)
 
-    return render_template('public/play.html', mazeSeed=seedGenerator.seed)
+    return render_template('public/play.html', mazeImage=session['image name'], mazeSeed=seed_generator.seed)

@@ -814,8 +814,6 @@ class GameController{
         document.getElementById(`slot-${this.activeInventorySlot}`).style.backgroundImage = "url(/static/img/active_slot.png)"
 
         this.map = document.querySelector('.map');
-        //background-image: url("/static/img/maze/fullmaze.png");
-        this.map.style.backgroundImage = `url(/mazeimages/${mazeSeed}.png)`
     }
 
     setActiveInventorySlot(slot){
