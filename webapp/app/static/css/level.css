@@ -95,11 +95,13 @@ position: relative;
     image-rendering: pixelated;
     background-image: url("/static/img/slime.png");
     background-size: 100%;
-    width: calc(var(--pixel-size) * 20);
-    height: calc(var(--pixel-size) * 20);
+    width: calc(var(--pixel-size) * 10);
+    height: calc(var(--pixel-size) * 10);
     position: absolute;
     overflow: hidden;
 }
+
+/*TODO use spritesheet for enemy*/
 
 .health_bar{
     background-color: red;

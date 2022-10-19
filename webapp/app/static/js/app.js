@@ -524,16 +524,17 @@ class Inventory {
 }
 
 class HealthBar{
-    constructor(className, maxHealth) {
-        this.parent = document.querySelector(className)
+    constructor(parentId, maxHealth) {
+        this.maxHealth = maxHealth
+        let parent = document.getElementById(parentId)
         this.self = document.createElement("div");
         this.self.className = "health_bar"
-        this.parent.appendChild(this.self)
+        parent.appendChild(this.self)
         this.update(maxHealth)
     }
 
     update(health){
-        this.self.style.width= `${pixelSize * health * (1/6)}px`
+        this.self.style.width= `${(health/this.maxHealth) * 100}%`
     }
 }
 
@@ -549,7 +550,7 @@ class Player extends Entity {
         this.attackDamage = 5;
         this.inventory = new Inventory();
         this.self = document.querySelector('.character');
-        this.healthBar = new HealthBar('.character', this.maxHealth)
+        this.healthBar = new HealthBar('character-1', this.maxHealth)
     }
 
     executeCommand(command){
@@ -666,6 +667,7 @@ class Enemy extends Entity {
         this.targetTile = {};
         this.self = document.createElement("div");
         this.self.className = "enemy"
+        this.self.id = `enemy-${this.id}`
 
     }
 
@@ -675,7 +677,7 @@ class Enemy extends Entity {
         this.currentTile = {y: tileY, x: tileX};
         game.map.appendChild(this.self)
         this.self.style.transform = `translate3d( ${this.x * pixelSize}px, ${this.y * pixelSize}px, 0 )`;
-        this.healhBar = new HealthBar('.enemy', this.maxHealth);
+        this.healhBar = new HealthBar(this.self.id, this.maxHealth);
     }
 
     damage(damageTaken){
