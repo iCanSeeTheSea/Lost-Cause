@@ -676,6 +676,11 @@ class Enemy extends Entity {
         this.y = (tileY -1) * mazeScale + 40;
         this.currentTile = {y: tileY, x: tileX};
         game.map.appendChild(this.self)
+
+        let spriteSheet = document.createElement("div")
+        spriteSheet.className = "enemy-spritesheet"
+        this.self.appendChild(spriteSheet)
+
         this.self.style.transform = `translate3d( ${this.x * pixelSize}px, ${this.y * pixelSize}px, 0 )`;
         this.healhBar = new HealthBar(this.self.id, this.maxHealth);
     }
