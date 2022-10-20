@@ -864,6 +864,8 @@ class Enemy extends Entity {
 
 class GameController{
     constructor() {
+        this.gameOver = false;
+
         this.itemGroup = new ObjectGroup('item');
         this.lockGroup = new ObjectGroup('lock');
         this.enemyGroup = new ObjectGroup('enemy');
@@ -1009,21 +1011,29 @@ class GameController{
     }
 
     gameEnd(hasWon){
+        this.gameOver = true;
         this.level.id = "hidden"
         this.endScreen.id = "shown"
+        let popOut = this.endScreen.firstElementChild
+        let message = popOut.firstElementChild
         if (hasWon === true){
-            let popOut = this.endScreen.firstElementChild
             let continueButton = document.createElement('button')
             continueButton.onclick = function() {
                 window.location.href=`/play?height=${game.maze.height + 2}&width=${game.maze.width + 2}`
             }
             continueButton.textContent = "Continue?"
             popOut.appendChild(continueButton)
+            message.style.backgroundImage = "url(/static/img/levelcomplete.png)"
+        } else {
+            message.style.backgroundImage = "url(/static/img/gameover.png)"
         }
     }
 
     // determines where the character (and maze) is positioned every frame
     gameLoop() {
+        if (this.gameOver === true){
+            return
+        }
         // need to get pixel size every frame as it varies depending on how large the browser window is
         pixelSize = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--pixel-size'));
 

@@ -57,14 +57,22 @@ body {
 
 .pop-out{
     margin-top: calc(var(--pixel-size) * 50);
-    margin-left: calc(var(--pixel-size) * 110);;
+    margin-left: calc(var(--pixel-size) * 80);;
     text-align: center;
-    width: calc(var(--pixel-size) * 200);
+    width: calc(var(--pixel-size) * 300);
     height: calc(var(--pixel-size) * 100);
-    background-color: #65351d;
+}
+
+.message{
+    image-rendering: pixelated;
+    background-size: 100%;
+    width: calc(var(--pixel-size) * 300);
+    height: calc(var(--pixel-size) * 42);
+    text-align: center;
 }
 
 button {
+    margin-top: calc(var(--pixel-size) * 10);
     background-color: #822510;
     border-color: #8c3a27;
     color: #c9a95d;
@@ -73,7 +81,7 @@ button {
 
 .level{
     margin-top: calc(var(--pixel-size) * 15);
-    margin-left: calc(var(--pixel-size) * 75);
+    margin-left: calc(var(--pixel-size) * 80);
     overflow: hidden;
     position: absolute;
 }
@@ -89,8 +97,6 @@ button {
     position: relative;
 
 }
-
-
 
 .camera {
     float: left;
