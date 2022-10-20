@@ -623,6 +623,7 @@ class Player extends Entity {
         if (this.health <= 0){
             this.health = 0;
             console.log('game over')
+            game.gameEnd(false)
         }
         this.healthBar.update(this.health)
     }
@@ -872,7 +873,11 @@ class GameController{
         document.getElementById(`slot-${this.activeInventorySlot}`).style.backgroundImage = "url(/static/img/active_slot.png)"
 
         this.map = document.querySelector('.map');
+        this.endScreen = document.querySelector('.end-screen')
+        this.level = document.querySelector('.level')
     }
+
+
 
     setActiveInventorySlot(slot){
         if (this.activeInventorySlot !== slot){
@@ -892,6 +897,7 @@ class GameController{
             }
         }
         console.log('you win!')
+        this.gameEnd(true)
         return true;
     }
 
@@ -1000,6 +1006,20 @@ class GameController{
 
         this.imgWidth = (this.maze.width * mazeScale) - 64;
         this.imgHeight = (this.maze.height * mazeScale) - 50;
+    }
+
+    gameEnd(hasWon){
+        this.level.id = "hidden"
+        this.endScreen.id = "shown"
+        if (hasWon === true){
+            let popOut = this.endScreen.firstElementChild
+            let continueButton = document.createElement('button')
+            continueButton.onclick = function() {
+                window.location.href=`/play?height=${game.maze.height + 2}&width=${game.maze.width + 2}`
+            }
+            continueButton.textContent = "Continue?"
+            popOut.appendChild(continueButton)
+        }
     }
 
     // determines where the character (and maze) is positioned every frame

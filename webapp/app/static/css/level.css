@@ -31,23 +31,51 @@ body {
     caret-color: transparent;
 }
 
+#shown{
+    visibility: visible;
+    pointer-events: all;
+}
+
+#hidden{
+    visibility: hidden;
+    pointer-events: none;
+}
+
 .title {
     color: #c9a95d;
     text-align: center;
     padding-top: 10%;
 }
 
-.container {
+.end-screen {
     margin: auto;
-    width: 3%;
-    padding: 10px;
     overflow: hidden;
-  }
+    width: 100%;
+    height: calc(var(--pixel-size) * 250);
+    position: absolute;
+}
+
+.pop-out{
+    margin-top: calc(var(--pixel-size) * 50);
+    margin-left: calc(var(--pixel-size) * 110);;
+    text-align: center;
+    width: calc(var(--pixel-size) * 200);
+    height: calc(var(--pixel-size) * 100);
+    background-color: #65351d;
+}
+
+button {
+    background-color: #822510;
+    border-color: #8c3a27;
+    color: #c9a95d;
+    font-family: fantasy;
+}
 
 .level{
-    margin: auto;
+    margin-top: calc(var(--pixel-size) * 15);
+    margin-left: calc(var(--pixel-size) * 75);
     overflow: hidden;
-    position: relative;
+    position: absolute;
 }
 
 
@@ -57,20 +85,13 @@ body {
     background-size: 100%;
     width: calc(var(--pixel-size) * 30);
     height: calc(var(--pixel-size) * 150);
-    margin-left: calc(var(--pixel-size) * 75);
     float: left;
     position: relative;
 
 }
 
 
-button {
-    background-color: #822510;
-    border-color: #8c3a27;
-    color: #c9a95d;
-    font-family: fantasy;
-}
-    
+
 .camera {
     float: left;
     width: calc(var(--pixel-size) * 224);

@@ -4,8 +4,7 @@
 
 {% block main %}
 
-<p>use wasd to move</p>
-<div class='level'>
+<div class='level' id="shown">
     <div class='inventory'>
         <div class="slot" id="slot-0">
             <div class="slot_sprite"></div>
@@ -31,13 +30,18 @@
         </div>
     </div>
 </div>
+<div class='end-screen' id="hidden">
+    <div class="pop-out">
+        <button onClick="window.location.href=window.location.href">Try again?</button>
+    </div>
+</div>
 
 {% endblock %}
 
 {% block script %}
 <script>
   // use with function from external js
-  let mazeSeed = "{{ mazeSeed | safe}}";
+    let mazeSeed = "{{ mazeSeed | safe}}";
 
 </script>
 {% endblock %}
