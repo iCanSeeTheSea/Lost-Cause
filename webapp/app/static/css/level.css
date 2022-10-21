@@ -141,10 +141,11 @@ position: relative;
     position: absolute;
 }
 
-.enemy[action="walking"] .enemy-spritesheet{
+.enemy[walking="true"][attacking="false"] .enemy-spritesheet{
     animation: walkAnimation 0.6s steps(4) infinite;
 }
-.enemy[action="attacking"] .enemy_spritesheet{
+
+.enemy[attacking="true"] .enemy-spritesheet{
     animation: attackAnimation 0.2s steps(4);
 }
 
@@ -167,20 +168,19 @@ position: relative;
     position: absolute;
 }
 
-.character[facing="down"] .character_spritesheet {
+.character[facing="down"][attacking="false"] .character_spritesheet {
     background-position-y: calc(var(--pixel-size) * -13.5);
 }
 .character[facing="left"] .character_spritesheet {
     background-position-y: calc(var(--pixel-size) * -27);
 }
-.character[facing="up"] .character_spritesheet {
+.character[facing="up"][attacking="false"] .character_spritesheet {
     background-position-y: calc(var(--pixel-size) * -40.5);
 }
-.character[action="walking"] .character_spritesheet {
+.character[walking="true"][attacking="false"] .character_spritesheet {
     animation: walkAnimation 0.6s steps(4) infinite;
 }
-
-.character[action="attacking"] .character_spritesheet{
+.character[attacking="true"] .character_spritesheet{
     animation: attackAnimation 0.2s steps(4);
 }
 

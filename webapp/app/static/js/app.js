@@ -293,7 +293,6 @@ class Entity {
         this.move_directions = [];
         this.attackCooldown = 0;
         this.attackDamage = 0;
-        this.cooldownTimer = 0;
 
     }
 
@@ -396,14 +395,11 @@ class Entity {
             }
 
             this.checkCollision(originalX, originalY);
-            if (this.self.getAttribute("action") !== 'attacking') {
-                this.self.setAttribute("facing", this.move_directions[0]);
-                this.self.setAttribute("action", "walking");
-            }
+            this.self.setAttribute("facing", this.move_directions[0]);
+            this.self.setAttribute("walking", "true");
+
         } else {
-            if (this.self.getAttribute("action") !== 'attacking'){
-                this.self.removeAttribute("action");
-            }
+            this.self.setAttribute("walking", "false");
         }
     }
 
@@ -412,22 +408,18 @@ class Entity {
     }
 
     attack(target){
-        if (this.cooldownTimer === 0){
-            this.self.setAttribute("action", "attacking");
+        if (this.self.getAttribute("attacking") !== "true"){
+            this.self.setAttribute("attacking", "true");
             if (target.x <= this.x){
                 this.self.setAttribute("facing", "left");
             } else if (target.x > this.x) {
                 this.self.setAttribute("facing", "right")
             }
             target.damage(this.attackDamage)
-            this.cooldownTimer = this.attackCooldown
             window.setTimeout(function (self){
-                self.removeAttribute("action");
-            }, 200, this.self)
-        } else {
-            this.cooldownTimer -= 1
+                self.setAttribute("attacking", "false");
+            }, this.attackCooldown, this.self)
         }
-
     }
 }
 
@@ -547,7 +539,7 @@ class Player extends Entity {
         this.health = this.maxHealth;
         this.currentTile = game.maze.getNode(1, 1);
         this.speed = 1;
-        this.attackCooldown = 0;
+        this.attackCooldown = 200;
         this.attackDamage = 5;
         this.inventory = new Inventory();
         this.self = document.querySelector('.character');
@@ -599,7 +591,7 @@ class Player extends Entity {
             let enemyInRange = false
             for (const enemy of game.enemyGroup.objectList) {
                 if (enemy.currentTile.x === this.currentTile.x && enemy.currentTile.y === enemy.currentTile.y) {
-                    let distance = Math.abs(Math.sqrt(this.x**2 + this.y**2) - Math.sqrt(enemy.x**2 + enemy.y**2));
+                    let distance = Math.sqrt(Math.abs(this.x - enemy.x) **2 + Math.abs(this.y  - enemy.y )**2)
                     if (distance < closestDistance){
                         closestDistance = distance
                         closestEnemy = enemy
@@ -664,7 +656,7 @@ class Enemy extends Entity {
         this.range = 3;
         this.maxHealth = 10;
         this.health = this.maxHealth;
-        this.attackCooldown = 50;
+        this.attackCooldown = 1000;
         this.attackDamage = 3;
         this.path = [];
         this.target = {y: -1, x: -1};
@@ -676,6 +668,8 @@ class Enemy extends Entity {
     }
 
     spawn(tileY, tileX){
+        this.self.setAttribute("attacking", "false")
+
         this.x = (tileX -1) * mazeScale + 20;
         this.y = (tileY -1) * mazeScale + 40;
         this.currentTile = {y: tileY, x: tileX};
@@ -856,7 +850,7 @@ class Enemy extends Entity {
     }
 
     attack(){
-        let distance = Math.abs(Math.sqrt(this.x ** 2 + this.y ** 2) - Math.sqrt(game.player.x ** 2 + game.player.y ** 2));
+        let distance = Math.sqrt(Math.abs(this.x - game.player.x) **2 + Math.abs(this.y  - game.player.y )**2);
         if (distance < 5) {
             super.attack(game.player)
         }
