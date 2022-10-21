@@ -421,10 +421,9 @@ class Entity {
             }
             target.damage(this.attackDamage)
             this.cooldownTimer = this.attackCooldown
-            window.setTimeout(function (){
-                game.player.self.removeAttribute("action");
-                console.log(game.player.self)
-            }, 200)
+            window.setTimeout(function (self){
+                self.removeAttribute("action");
+            }, 200, this.self)
         } else {
             this.cooldownTimer -= 1
         }
