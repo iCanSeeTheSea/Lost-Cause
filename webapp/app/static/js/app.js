@@ -396,12 +396,14 @@ class Entity {
             }
 
             this.checkCollision(originalX, originalY);
-
-            this.self.setAttribute("facing", this.move_directions[0]);
-            this.self.setAttribute("action", "walking");
-
+            if (this.self.getAttribute("action") !== 'attacking') {
+                this.self.setAttribute("facing", this.move_directions[0]);
+                this.self.setAttribute("action", "walking");
+            }
         } else {
-            this.self.removeAttribute("action");
+            if (this.self.getAttribute("action") !== 'attacking'){
+                this.self.removeAttribute("action");
+            }
         }
     }
 
@@ -411,7 +413,7 @@ class Entity {
 
     attack(target){
         if (this.cooldownTimer === 0){
-            this.self.setAttribute("action", "attacking")
+            this.self.setAttribute("action", "attacking");
             if (target.x <= this.x){
                 this.self.setAttribute("facing", "left");
             } else if (target.x > this.x) {
@@ -419,6 +421,10 @@ class Entity {
             }
             target.damage(this.attackDamage)
             this.cooldownTimer = this.attackCooldown
+            window.setTimeout(function (){
+                game.player.self.removeAttribute("action");
+                console.log(game.player.self)
+            }, 200)
         } else {
             this.cooldownTimer -= 1
         }
@@ -530,7 +536,7 @@ class HealthBar{
     }
 
     update(health){
-        this.self.style.width= `${(health/this.maxHealth) * 100}%`
+        this.self.style.width= `${(health/this.maxHealth) * 50}%`
     }
 }
 

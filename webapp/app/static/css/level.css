@@ -159,31 +159,26 @@ position: relative;
     background: url('/static/img/player-spritesheet.png') no-repeat no-repeat;
     background-size: 100%;
     height: calc(var(--pixel-size) * 27 * 2);
-    width: calc(var(--pixel-size) * 37 * 2);
+    width: calc(var(--pixel-size) * 37 * 4);
     margin-top: calc(var(--pixel-size) * 1);;
     position: absolute;
 }
 
 .character[facing="down"] .character_spritesheet {
-    --y-position: calc(var(--pixel-size) * -13.5);
-    background-position-y: var(--y-position);
+    background-position-y: calc(var(--pixel-size) * -13.5);
 }
 .character[facing="left"] .character_spritesheet {
-    --y-position: calc(var(--pixel-size) * -27);
-    background-position-y: var(--y-position);
+    background-position-y: calc(var(--pixel-size) * -27);
 }
 .character[facing="up"] .character_spritesheet {
-    --y-position: calc(var(--pixel-size) * -40.5);
-    background-position-y: var(--y-position);
+    background-position-y: calc(var(--pixel-size) * -40.5);
 }
 .character[action="walking"] .character_spritesheet {
     animation: walkAnimation 0.6s steps(4) infinite;
 }
 
 .character[action="attacking"] .character_spritesheet{
-    --y-position: calc(var(--y-position) - (var(--pixel-size) * -54));
-    background-position-y: var(--y-position);
-    animation: walkAnimation 0.2s steps(4);
+    animation: attackAnimation 0.2s steps(4);
 }
 
 .item{
@@ -238,7 +233,17 @@ position: relative;
         transform: translate3d(0%,0%,0);
     }
     to {
-        transform: translate3d(-100%,0%,0);
+        transform: translate3d(-50%,0%,0);
     }
+}
+
+@keyframes attackAnimation {
+    from {
+        transform: translate3d(-50%, 0%, 0);
+    }
+    to{
+        transform: translate3d(-100%, 0%, 0);
+    }
+
 }
 
