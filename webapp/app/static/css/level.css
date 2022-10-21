@@ -150,7 +150,7 @@ position: relative;
     /*color: transparent;*/
     position: absolute;
     overflow: hidden;
-    width: calc(var(--pixel-size) * 17 * 0.5);
+    width: calc(var(--pixel-size) * 37 * 0.5);
     height: calc(var(--pixel-size) * 29 * 0.5);
 }
 
@@ -159,7 +159,7 @@ position: relative;
     background: url('/static/img/player-spritesheet.png') no-repeat no-repeat;
     background-size: 100%;
     height: calc(var(--pixel-size) * 27 * 2);
-    width: calc(var(--pixel-size) * 17 * 2);
+    width: calc(var(--pixel-size) * 37 * 2);
     margin-top: calc(var(--pixel-size) * 1);;
     position: absolute;
 }
@@ -183,7 +183,7 @@ position: relative;
 .character[action="attacking"] .character_spritesheet{
     --y-position: calc(var(--y-position) - (var(--pixel-size) * -54));
     background-position-y: var(--y-position);
-    animation: attackAnimation 0.3s steps(5);
+    animation: walkAnimation 0.2s steps(4);
 }
 
 .item{

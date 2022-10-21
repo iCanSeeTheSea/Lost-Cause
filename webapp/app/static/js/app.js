@@ -412,14 +412,10 @@ class Entity {
     attack(target){
         if (this.cooldownTimer === 0){
             this.self.setAttribute("action", "attacking")
-            if (target.x < this.x){
+            if (target.x <= this.x){
                 this.self.setAttribute("facing", "left");
-            } else if (target.x > this.x){
+            } else if (target.x > this.x) {
                 this.self.setAttribute("facing", "right")
-            } else if (target.y < this.y){
-                this.self.setAttribute("facing", "up")
-            } else if (target.y > this.y){
-                this.self.setAttribute("facing", "down")
             }
             target.damage(this.attackDamage)
             this.cooldownTimer = this.attackCooldown
@@ -552,6 +548,8 @@ class Player extends Entity {
         this.self = document.querySelector('.character');
         this.healthBar = new HealthBar('character-1', this.maxHealth)
     }
+
+
 
     executeCommand(command){
         console.log(command)
