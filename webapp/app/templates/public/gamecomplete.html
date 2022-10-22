@@ -1,0 +1,28 @@
+{% extends "public/templates/public_template.html" %}
+
+{% block title %}Lost Cause{% endblock %}
+
+{% block main %}
+    <div class="title"></div>
+    <div class="maze-list"></div>
+    <div class="custom-maze">
+    <form></form>
+    </div>
+
+{% endblock %}
+
+{% block script %}
+    <script>
+        let seedList = {{ mazeList | safe }};
+        window.onload = function(){
+            let mazeList = document.querySelector('.maze-list');
+            for (const seed of seedList) {
+                let link = document.createElement('a')
+                link.href = `/play/${seed}`
+                link.textContent = `${seed}`
+                console.log(link)
+                mazeList.appendChild(link)
+            }
+        }
+    </script>
+{% endblock %}

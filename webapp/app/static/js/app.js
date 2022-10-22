@@ -1035,17 +1035,21 @@ class GameController{
         let restartButton = document.createElement('button');
         popOut.appendChild(restartButton)
         if (hasWon === true){
-            restartButton.textContent = "Try again?"
-            restartButton.onclick = function(){
-                window.location.href = "window.location.href"
+            if (game.maze.height*game.maze.width >= 9){
+                window.location.href = "/gamecomplete"
+            } else {
+                restartButton.textContent = "Try again?"
+                restartButton.onclick = function(){
+                    window.location.href = "window.location.href"
+                }
+                let continueButton = document.createElement('button')
+                continueButton.textContent = "Continue?"
+                continueButton.onclick = function() {
+                    window.location.href=`/play?height=${game.maze.height + 2}&width=${game.maze.width + 2}`
+                }
+                popOut.appendChild(continueButton)
+                message.style.backgroundImage = "url(/static/img/levelcomplete.png)"
             }
-            let continueButton = document.createElement('button')
-            continueButton.textContent = "Continue?"
-            continueButton.onclick = function() {
-                window.location.href=`/play?height=${game.maze.height + 2}&width=${game.maze.width + 2}`
-            }
-            popOut.appendChild(continueButton)
-            message.style.backgroundImage = "url(/static/img/levelcomplete.png)"
         } else {
             restartButton.textContent = "Restart?"
             restartButton.onclick = function(){
