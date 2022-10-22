@@ -27,7 +27,6 @@ body {
     background-color:#5e1605;
     color: #c9a95d;
     font-family: monospace;
-    font-weight: bold;
     caret-color: transparent;
 }
 
@@ -69,6 +68,11 @@ body {
     width: calc(var(--pixel-size) * 300);
     height: calc(var(--pixel-size) * 42);
     text-align: center;
+}
+
+.score{
+    font-family: fantasy;
+    font-size: large;
 }
 
 button {

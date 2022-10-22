@@ -544,6 +544,11 @@ class Player extends Entity {
         this.inventory = new Inventory();
         this.self = document.querySelector('.character');
         this.healthBar = new HealthBar('character-1', this.maxHealth)
+        this.enemiesKilled = 0
+        this.locksOpened = 0
+
+
+        // * score:  Math.floor(area/100 * (((2 ** -((time/200) - 10)) + 50) + (enemiesKilled * 10) + (locksOpened * 15)))
     }
 
 
@@ -572,6 +577,7 @@ class Player extends Entity {
                     lock.unlock();
                     this.currentTile.contains = undefined;
                     this.inventory.removeItem(game.activeInventorySlot);
+                    this.locksOpened += 1;
                     game.checkWinCondition();
                 }
             } else {
@@ -667,6 +673,8 @@ class Enemy extends Entity {
 
     }
 
+
+
     spawn(tileY, tileX){
         this.self.setAttribute("attacking", "false")
 
@@ -688,6 +696,7 @@ class Enemy extends Entity {
         if (this.health <= 0){
             this.health = 0;
             this.self.outerHTML = "";
+            game.player.enemiesKilled += 1;
             for (let index = 0; index < game.enemyGroup.objectList.length; index++){
                 let enemy = game.enemyGroup.objectList[index]
                 if (enemy.id === this.id){
@@ -874,6 +883,13 @@ class GameController{
         this.map = document.querySelector('.map');
         this.endScreen = document.querySelector('.end-screen')
         this.level = document.querySelector('.level')
+
+        this.timeElapsed = 0
+        let timer = setInterval(function(){
+            game.timeElapsed += 1
+        }, 1000)
+
+
     }
 
 
@@ -1011,17 +1027,30 @@ class GameController{
         this.gameOver = true;
         this.level.id = "hidden"
         this.endScreen.id = "shown"
+        let score = Math.floor((this.maze.height * this.maze.width)/100 * (((2 ** -((this.timeElapsed/200) - 10)) + 50) + (this.player.enemiesKilled * 10) + (this.player.locksOpened * 15)))
         let popOut = this.endScreen.firstElementChild
         let message = popOut.firstElementChild
+        let scoreDisplay = document.querySelector(".score");
+        scoreDisplay.textContent = `Score: ${score}`
+        let restartButton = document.createElement('button');
+        popOut.appendChild(restartButton)
         if (hasWon === true){
+            restartButton.textContent = "Try again?"
+            restartButton.onclick = function(){
+                window.location.href = "window.location.href"
+            }
             let continueButton = document.createElement('button')
+            continueButton.textContent = "Continue?"
             continueButton.onclick = function() {
                 window.location.href=`/play?height=${game.maze.height + 2}&width=${game.maze.width + 2}`
             }
-            continueButton.textContent = "Continue?"
             popOut.appendChild(continueButton)
             message.style.backgroundImage = "url(/static/img/levelcomplete.png)"
         } else {
+            restartButton.textContent = "Restart?"
+            restartButton.onclick = function(){
+                window.location.href = "/play?height=3&width=3"
+            }
             message.style.backgroundImage = "url(/static/img/gameover.png)"
         }
     }
