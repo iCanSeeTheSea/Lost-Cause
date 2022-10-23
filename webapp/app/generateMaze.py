@@ -139,7 +139,7 @@ class MazeGenerator:
         img = Image.open(base)
 
         # tiles are 32x32
-        img = img.resize((self._max_x * 32 * 2 - 32, self._max_y * 32 * 2 - 32))
+        img = img.resize((self._max_x * 32 * 2 - 32, self._max_y * 32 * 2 - 25))
 
         # debug = Image.open(maze_path / 'debug-tile.png')
 

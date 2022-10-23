@@ -122,11 +122,10 @@ button {
 
 .map {
     image-rendering: pixelated;
-
     background-size: 100%;
-    width: calc((var(--map-width) * var(--grid-cell) * 2) - var(--grid-cell));
-    height: calc((var(--map-height) * var(--grid-cell) * 2) - var(--grid-cell));
-position: relative;
+    width: calc(var(--pixel-size) * ((var(--map-width) * 128) - 64));
+    height: calc(var(--pixel-size) * ((var(--map-height) * 128) - 50));
+    position: relative;
 }
 
 .health_bar{
