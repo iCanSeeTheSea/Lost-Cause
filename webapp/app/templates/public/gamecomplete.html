@@ -3,10 +3,22 @@
 {% block title %}Lost Cause{% endblock %}
 
 {% block main %}
-    <div class="title"></div>
-    <div class="maze-list"></div>
-    <div class="custom-maze">
-    <form></form>
+    <div class="title" id="gamecomplete"></div>
+    <div class="container">
+        <div class="maze-list">Mazes completed:</div>
+        <div class="custom-maze">
+        <form action="/play" method="get">
+            <label for="height">Height:</label><br>
+            <input type="number" id="height" name="height" size="2" min="3" max="25" required><br>
+            <label for="width">Width:</label><br>
+            <input type="number" id="width" name="width" size="2" min="3" max="25" required><br>
+            <label for="maxEnemies">Maximum enemies: (-1 for no limit)</label><br>
+            <input type="number" id="maxEnemies" name="maxEnemies" size="3" min="-1" max="999" value="-1" required><br>
+            <label for="maxLocks">Maximum locks: (-1 for no limit)</label><br>
+            <input type="number" id="maxLocks" name="maxLocks" size="3" min="-1" max="999" value="-1" required><br><br>
+            <input type="submit" value="Submit">
+        </form>
+        </div>
     </div>
 
 {% endblock %}
@@ -21,6 +33,7 @@
                 link.href = `/play/${seed}`
                 link.textContent = `${seed}`
                 console.log(link)
+                mazeList.appendChild((document.createElement('br')))
                 mazeList.appendChild(link)
             }
         }

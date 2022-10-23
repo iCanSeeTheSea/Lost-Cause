@@ -29,6 +29,11 @@
             </div>
         </div>
     </div>
+    <div class="game-status">
+        <div class="time-elapsed"></div>
+        <div class="locks-remaining"></div>
+        <div class="enemies-defeated"></div>
+    </div>
 </div>
 <div class='end-screen' id="hidden">
     <div class="pop-out">
@@ -43,6 +48,7 @@
 <script>
   // use with function from external js
     let mazeSeed = "{{ mazeSeed | safe}}";
+    const gameComplete = {{ gameComplete | safe }}
 
 </script>
 {% endblock %}

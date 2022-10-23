@@ -1,5 +1,5 @@
 from app import app, generateMaze
-from flask import render_template, redirect, send_from_directory, request, session
+from flask import render_template, redirect, send_from_directory, request, session, Response
 import os
 from time import time
 from PIL import Image
@@ -28,22 +28,13 @@ def get_maze_image(file_name):
     return send_from_directory(maze_image_dir, file_name)
 
 
-# @app.route('/play')
-# def play():
-#     seedGenerator.height = 8
-#     seedGenerator.width = 8
-#     maze_image = seedGenerator.create_base_64_seed()
-#     save_maze_image(maze_image)
-#
-#     return redirect(f'/play/{seedGenerator.seed}')
-
-
 @app.route('/play', methods=['GET'])
 def play_with_size():
     if 'maze list' not in session:
         session['maze list'] = []
 
     args = request.args.to_dict()
+
     seed_generator.height = int(args['height'])
     seed_generator.width = int(args['width'])
     maze_image = seed_generator.create_base_64_seed()
@@ -64,10 +55,14 @@ def play_from_seed(seed):
         save_maze_image(maze_image)
         session['maze list'].append(seed)
 
-    return render_template('public/play.html', mazeImage=session['image name'], mazeSeed=seed_generator.seed)
+    if 'game complete' not in session:
+        session['game complete'] = 0
+
+    return render_template('public/play.html', mazeImage=session['image name'], mazeSeed=seed_generator.seed, gameComplete=session['game complete'])
 
 
 @app.route('/gamecomplete')
 def game_complete():
+    session['game complete'] = 1
     print(session['maze list'])
     return render_template('public/gamecomplete.html', mazeList=session['maze list'])

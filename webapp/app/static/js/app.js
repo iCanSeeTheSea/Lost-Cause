@@ -535,7 +535,7 @@ class Player extends Entity {
     constructor() {
         super(27, 16);
         this.prevTile = {y:0, x:0};
-        this.maxHealth = 50;
+        this.maxHealth = 100;
         this.health = this.maxHealth;
         this.currentTile = game.maze.getNode(1, 1);
         this.speed = 1;
@@ -546,10 +546,7 @@ class Player extends Entity {
         this.healthBar = new HealthBar('character-1', this.maxHealth)
         this.enemiesKilled = 0
         this.locksOpened = 0
-
-
-        // * score:  Math.floor(area/100 * (((2 ** -((time/200) - 10)) + 50) + (enemiesKilled * 10) + (locksOpened * 15)))
-    }
+        }
 
 
 
@@ -889,10 +886,23 @@ class GameController{
             game.timeElapsed += 1
         }, 1000)
 
+        this.timerView = document.querySelector(".time-elapsed")
+        this.locksView = document.querySelector(".locks-remaining")
+        this.enemiesView = document.querySelector(".enemies-defeated")
 
     }
 
+    updateGameStatus(){
+        let minutes = Math.floor(this.timeElapsed /60)
+        let seconds = (this.timeElapsed/60 - minutes)*60
+        if (String(seconds).length < 2){
+            seconds = `0${seconds}`
+        }
 
+        this.timerView.textContent = `time elapsed: ${minutes}:${seconds}`
+        this.locksView.textContent = `Locks remaining: ${this.lockGroup.objectList.length}`
+        this.enemiesView.textContent = `Enemies defeated: ${this.player.enemiesKilled}`
+    }
 
     setActiveInventorySlot(slot){
         if (this.activeInventorySlot !== slot){
@@ -1023,37 +1033,53 @@ class GameController{
         this.imgHeight = (this.maze.height * mazeScale) - 50;
     }
 
+
+
     gameEnd(hasWon){
+        if (hasWon === true && (game.maze.height*game.maze.width >= 25 || gameComplete === 1)){
+            let continueLocation = "/gamecomplete"
+        }
+
         this.gameOver = true;
         this.level.id = "hidden"
         this.endScreen.id = "shown"
         let score = Math.floor((this.maze.height * this.maze.width)/100 * (((2 ** -((this.timeElapsed/200) - 10)) + 50) + (this.player.enemiesKilled * 10) + (this.player.locksOpened * 15)))
+
         let popOut = this.endScreen.firstElementChild
         let message = popOut.firstElementChild
+
         let scoreDisplay = document.querySelector(".score");
         scoreDisplay.textContent = `Score: ${score}`
+
         let restartButton = document.createElement('button');
         popOut.appendChild(restartButton)
+
         if (hasWon === true){
-            if (game.maze.height*game.maze.width >= 9){
-                window.location.href = "/gamecomplete"
-            } else {
-                restartButton.textContent = "Try again?"
-                restartButton.onclick = function(){
-                    window.location.href = "window.location.href"
-                }
-                let continueButton = document.createElement('button')
-                continueButton.textContent = "Continue?"
-                continueButton.onclick = function() {
-                    window.location.href=`/play?height=${game.maze.height + 2}&width=${game.maze.width + 2}`
-                }
-                popOut.appendChild(continueButton)
-                message.style.backgroundImage = "url(/static/img/levelcomplete.png)"
+            let sizeIncrease = 2
+            if (this.maze.height % 5 === 0){
+                sizeIncrease = 3
             }
+            let continueLocation = `/play?height=${this.maze.height + sizeIncrease}&width=${this.maze.width + sizeIncrease}`
+
+
+            restartButton.textContent = "Try again?"
+            restartButton.onclick = function(){
+                window.location.href = "window.location.href"
+            }
+
+            let continueButton = document.createElement('button')
+            continueButton.textContent = "Continue?"
+            continueButton.onclick = function() {
+                window.location.href = continueLocation
+            }
+
+            popOut.appendChild(continueButton)
+            message.style.backgroundImage = "url(/static/img/levelcomplete.png)"
+
         } else {
             restartButton.textContent = "Restart?"
             restartButton.onclick = function(){
-                window.location.href = "/play?height=3&width=3"
+                window.location.href = "/"
             }
             message.style.backgroundImage = "url(/static/img/gameover.png)"
         }
@@ -1080,6 +1106,7 @@ class GameController{
         for (const lock of this.lockGroup.objectList){
             lock.update()
         }
+        this.updateGameStatus()
     }
 
     // steps through every frame

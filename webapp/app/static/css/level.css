@@ -75,6 +75,13 @@ body {
     font-size: large;
 }
 
+.game-status{
+    position: relative;
+    margin-left: calc(var(--pixel-size) * 260);
+    width: calc(var(--pixel-size) * 60);
+    height: calc(var(--pixel-size) * 20);
+}
+
 button {
     margin-top: calc(var(--pixel-size) * 10);
     background-color: #822510;
