@@ -42,7 +42,7 @@ def play_with_size():
 
     if 'maxEnemies' in args:
         session['max enemies'] = int(args['maxEnemies'])
-    if  'maxLocks' in args:
+    if 'maxLocks' in args:
         session['max locks'] = int(args['maxLocks'])
 
     seed_generator.height = int(args['height'])

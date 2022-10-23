@@ -332,7 +332,7 @@ class Entity {
         this.determineCurrentTile();
 
         // left
-        if (this.x < this.tileOrigin.x + 1) {
+        if (this.x < this.tileOrigin.x + 3) {
             if (this.currentTile.left === 1) {
                 this.x = originalX;
             } else if (this.currentTile.left === 0 && (this.y > this.tileOrigin.y + 46 || this.y < this.tileOrigin.y + 5)) {
@@ -341,7 +341,7 @@ class Entity {
             }
         }
         // right
-        if (this.x > this.tileOrigin.x + 48) {
+        if (this.x > this.tileOrigin.x + 45) {
             if (this.currentTile.right === 1) {
                 this.x = originalX;
             } else if (this.currentTile.right === 0 && (this.y > this.tileOrigin.y + 46 || this.y < this.tileOrigin.y + 5)) {
@@ -352,7 +352,7 @@ class Entity {
         if (this.y < this.tileOrigin.y + 5) {
             if (this.currentTile.top === 1) {
                 this.y = originalY;
-            } else if (this.currentTile.top === 0 && (this.x < this.tileOrigin.x + 4|| this.x > this.tileOrigin.x + 48)) {
+            } else if (this.currentTile.top === 0 && (this.x < this.tileOrigin.x + 3|| this.x > this.tileOrigin.x + 45)) {
                 this.x = originalX;
             }
         }
@@ -360,7 +360,7 @@ class Entity {
         if (this.y > this.tileOrigin.y + 46) {
             if (this.currentTile.bottom === 1) {
                 this.y = originalY;
-            } else if (this.currentTile.bottom === 0 && (this.x < this.tileOrigin.x + 4|| this.x > this.tileOrigin.x + 48)) {
+            } else if (this.currentTile.bottom === 0 && (this.x < this.tileOrigin.x + 3|| this.x > this.tileOrigin.x + 45)) {
                 this.x = originalX;
             }
         }
@@ -1035,13 +1035,11 @@ class GameController{
     }
 
     defineMazeProperties(){
-        // setting css properties to correct values
-        this.root = document.querySelector(':root');
-        this.root.style.setProperty('--map-width', this.maze.width);
-        this.root.style.setProperty('--map-height', this.maze.height);
-
         this.imgWidth = (this.maze.width * mazeScale) - 64;
         this.imgHeight = (this.maze.height * mazeScale) - 50;
+
+        this.map.style.width = `${this.imgWidth * pixelSize}px`
+        this.map.style.height = `${this.imgWidth * pixelSize}px`
     }
 
 

@@ -76,7 +76,7 @@ class Node:
 
 
 class Maze:
-    def __init__(self, max_x, max_y):
+    def __init__(self, max_y, max_x):
         # 2D list to store node objects - index matches coordinate in the maze
         self._max_x = max_x
         self._max_y = max_y
@@ -104,8 +104,8 @@ class Maze:
 
 
 class MazeGenerator:
-    def __init__(self, max_x, max_y):
-        self._maze = Maze(max_x, max_y)
+    def __init__(self, max_y, max_x):
+        self._maze = Maze(max_y, max_x)
 
         self._nodes = []
 
@@ -191,7 +191,7 @@ class MazeGenerator:
                     tile_image = Image.open(tile)
                     img.paste(tile_image, (int((join_x - 1) * 64), int((join_y - 1) * 64)))
 
-        print(self._maze.binary_string)
+        print(self._maze._nodeList)
         return img
 
     # recursive backtracking | 19/09/21
@@ -375,7 +375,6 @@ class SeedGenerator:
             base_64_string += self._to64[value]
         base_64_string += '=' * padding
 
-        print(base_64_string)
         self._seed = base_64_string
         return image
 

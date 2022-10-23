@@ -88,6 +88,7 @@ button {
     border-color: #8c3a27;
     color: #c9a95d;
     font-family: fantasy;
+    margin-left: 5px;
 }
 
 .level{
@@ -123,8 +124,6 @@ button {
 .map {
     image-rendering: pixelated;
     background-size: 100%;
-    width: calc(var(--pixel-size) * ((var(--map-width) * 128) - 64));
-    height: calc(var(--pixel-size) * ((var(--map-height) * 128) - 50));
     position: relative;
 }
 
