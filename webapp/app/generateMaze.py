@@ -391,8 +391,11 @@ class SeedGenerator:
         padding = self._seed.count('=')
         self._height = int(binary_string[:8], 2)
         self._width = int(binary_string[8:16], 2)
-        binary_string = binary_string[16:-padding * 8]
+        if padding:
+            binary_string = binary_string[16:-padding * 8]
+        else:
+            binary_string = binary_string[16:]
 
-        if self._mazeGenerator is None:
-            self._mazeGenerator = MazeGenerator(self._height, self._width)
+        self._mazeGenerator = MazeGenerator(self._height, self._width)
+
         return self._mazeGenerator.draw_maze(binary_string)
