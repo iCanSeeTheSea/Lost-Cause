@@ -341,7 +341,7 @@ class Entity {
             }
         }
         // right
-        if (this.x > this.tileOrigin.x + 45) {
+        if (this.x > this.tileOrigin.x + 48) {
             if (this.currentTile.right === 1) {
                 this.x = originalX;
             } else if (this.currentTile.right === 0 && (this.y > this.tileOrigin.y + 46 || this.y < this.tileOrigin.y + 5)) {
@@ -894,13 +894,13 @@ class GameController{
 
     updateGameStatus(){
         let minutes = Math.floor(this.timeElapsed /60)
-        let seconds = (this.timeElapsed/60 - minutes)*60
+        let seconds = Math.floor((this.timeElapsed/60 - minutes)*60)
         if (String(seconds).length < 2){
             seconds = `0${seconds}`
         }
 
         this.timerView.textContent = `time elapsed: ${minutes}:${seconds}`
-        this.locksView.textContent = `Locks remaining: ${this.lockGroup.objectList.length}`
+        this.locksView.textContent = `Locks remaining: ${this.lockGroup.objectList.length - this.player.locksOpened}`
         this.enemiesView.textContent = `Enemies defeated: ${this.player.enemiesKilled}`
     }
 
@@ -1064,7 +1064,7 @@ class GameController{
 
             restartButton.textContent = "Try again?"
             restartButton.onclick = function(){
-                window.location.href = "window.location.href"
+                window.location.href = window.location.href
             }
 
             let continueButton = document.createElement('button')
