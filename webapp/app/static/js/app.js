@@ -535,7 +535,7 @@ class Player extends Entity {
     constructor() {
         super(27, 16);
         this.prevTile = {y:0, x:0};
-        this.maxHealth = 100;
+        this.maxHealth = 50;
         this.health = this.maxHealth;
         this.currentTile = game.maze.getNode(1, 1);
         this.speed = 1;
@@ -949,7 +949,14 @@ class GameController{
 
         // populating tree and calculating enemy spawn positions
         let enemyNumber = Math.floor(3**(((this.maze.height*this.maze.width)**(1/2))/5))
+        if (enemyNumber > maxEnemies && maxEnemies !== -1){
+            enemyNumber = maxEnemies
+        }
         let enemySpawnSpacing = Math.floor((this.maze.height*this.maze.width)/enemyNumber)
+        if (enemyNumber === 0){
+            enemySpawnSpacing = 0
+        }
+
         console.log(enemySpawnSpacing, enemyNumber)
 
         let index = 0;
@@ -968,7 +975,7 @@ class GameController{
 
                 if (deadEndCodes.includes(bin)){
                     this.deadEndPositions.push({y:row, x:column})
-                } else if (!corridorCodes.includes(bin) && (index%(enemySpawnSpacing-Math.floor(enemySpawnSpacing/2)) === 0)){
+                } else if (!corridorCodes.includes(bin) && (index%(enemySpawnSpacing-Math.floor(enemySpawnSpacing/2)) === 0) && enemyNumber !==  0){
                     this.enemySpawnPositions.push({y:row, x:column})
                 }
 
@@ -994,6 +1001,10 @@ class GameController{
         // spawning locks and keys
         let noDeadEnds = this.deadEndPositions.length;
         let even = 0
+        if (noDeadEnds > maxLocks && maxLocks !== -1){
+            noDeadEnds = maxLocks
+        }
+
         if ((noDeadEnds-1)%2 === 1){
             even = 1;
         }

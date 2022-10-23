@@ -6,15 +6,15 @@
     <div class="title" id="gamecomplete"></div>
     <div class="container">
         <div class="maze-list">Mazes completed:</div>
-        <div class="custom-maze">
+        <div class="custom-maze">Custom Maze:
         <form action="/play" method="get">
-            <label for="height">Height:</label><br>
+            <label for="height">Height:</label>
             <input type="number" id="height" name="height" size="2" min="3" max="25" required><br>
-            <label for="width">Width:</label><br>
+            <label for="width">Width:</label>
             <input type="number" id="width" name="width" size="2" min="3" max="25" required><br>
-            <label for="maxEnemies">Maximum enemies: (-1 for no limit)</label><br>
+            <label for="maxEnemies">Maximum enemies: (-1 for no limit)</label>
             <input type="number" id="maxEnemies" name="maxEnemies" size="3" min="-1" max="999" value="-1" required><br>
-            <label for="maxLocks">Maximum locks: (-1 for no limit)</label><br>
+            <label for="maxLocks">Maximum locks: (-1 for no limit)</label>
             <input type="number" id="maxLocks" name="maxLocks" size="3" min="-1" max="999" value="-1" required><br><br>
             <input type="submit" value="Submit">
         </form>

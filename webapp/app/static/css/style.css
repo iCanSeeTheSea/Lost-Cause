@@ -27,18 +27,23 @@ body {
 }
 
 .container {
-    margin-left: 40%;
-    width: 28%;
+    width: 100%;
     padding: 10px;
-  }
+}
 
 .custom-maze{
     padding: 20px;
     width: auto;
+    margin-left:40%;
+}
+
+.maze-list{
+    text-align: center;
+
 }
 
 button {
-    margin-left: 30%;
+    margin-left: 48%;
     background-color: #822510;
     border-color: #8c3a27;
     color: #c9a95d;
@@ -50,4 +55,5 @@ input {
     border-color: #8c3a27;
     background-color: #822510;
     caret-color: #c9a95d;
+    margin-left: auto;
 }
