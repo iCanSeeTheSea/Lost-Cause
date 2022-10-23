@@ -1035,19 +1035,23 @@ class GameController{
     }
 
     defineMazeProperties(){
+        // setting css properties to correct values
+        this.root = document.querySelector(':root');
+        this.root.style.setProperty('--map-width', this.maze.width);
+        this.root.style.setProperty('--map-height', this.maze.height);
+
         this.imgWidth = (this.maze.width * mazeScale) - 64;
         this.imgHeight = (this.maze.height * mazeScale) - 50;
-
-        this.map.style.width = `${this.imgWidth * pixelSize}px`
-        this.map.style.height = `${this.imgWidth * pixelSize}px`
     }
 
 
 
     gameEnd(hasWon){
-        if (hasWon === true && (game.maze.height*game.maze.width >= 25 || gameComplete === 1)){
-            let continueLocation = "/gamecomplete"
+        let continueLocation = ""
+        if ((hasWon === true && game.maze.height*game.maze.width >= 25) || gameComplete === 1){
+            continueLocation = "/gamecomplete"
         }
+        console.log(continueLocation)
 
         this.gameOver = true;
         this.level.id = "hidden"
@@ -1068,7 +1072,9 @@ class GameController{
             if (this.maze.height % 5 === 0){
                 sizeIncrease = 3
             }
-            let continueLocation = `/play?height=${this.maze.height + sizeIncrease}&width=${this.maze.width + sizeIncrease}`
+            if (continueLocation === ""){
+            continueLocation = `/play?height=${this.maze.height + sizeIncrease}&width=${this.maze.width + sizeIncrease}`
+            }
 
 
             restartButton.textContent = "Try again?"

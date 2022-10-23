@@ -124,6 +124,8 @@ button {
 .map {
     image-rendering: pixelated;
     background-size: 100%;
+    width: calc(var(--pixel-size) * ((var(--map-width) * 128) - 64));
+    height: calc(var(--pixel-size) * ((var(--map-height) * 128) - 50));
     position: relative;
 }
 
