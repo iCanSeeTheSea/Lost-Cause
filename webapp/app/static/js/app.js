@@ -74,8 +74,8 @@ class ObjectGroup{
 
     push(object){
         this.objectList.push(object);
-        this.idToIndex[object.id] = this.objectList.length-1
-        return new ObjectGroupReference(object.type, this.objectList.length-1, this)
+        this.idToIndex[object.id] = this.objectList.length-1;
+        return new ObjectGroupReference(object.type, this.objectList.length-1, this);
     }
 }
 
@@ -95,27 +95,27 @@ class ObjectGroupReference{
 class Item{
     constructor(type, id) {
         this.type = type;
-        this.entity = new ItemEntity(0, 0)
+        this.entity = new ItemEntity(0, 0);
         this.id = id;
         this.entity.self.id = type;
     }
 
     place(y, x){
-        this.entity.move(y, x)
+        this.entity.move(y, x);
     }
 
     take(){
-        this.entity.remove()
+        this.entity.remove();
     }
 
     update(){
-        this.entity.updatePosition()
+        this.entity.updatePosition();
     }
 }
 
 class Lock extends Item{
     constructor() {
-        super('lock')
+        super('lock');
         this.locked = true;
     }
 
@@ -166,7 +166,7 @@ class NodeList{
 
 class Node{
     constructor(y, x, walls) {
-        this.type = 'node'
+        this.type = 'node';
         this.x = x;
         this.y = y;
         this.top = walls.top;
@@ -175,10 +175,6 @@ class Node{
         this.right = walls.right;
         this.walls = walls;
         this.contains = undefined;
-    }
-
-    wallString(){
-        return this.walls.toString();
     }
 
     position(){
@@ -249,9 +245,9 @@ class Maze {
         if (tile.type === 'edge'){
             if (tile.contains === undefined){
                 // concatenate y and x values to create a unique key for any edge
-                delete this.usedEdges[String(tile.y)+String(tile.x)]
+                delete this.usedEdges[String(tile.y)+String(tile.x)];
             } else {
-                this.usedEdges[String(tile.y)+String(tile.x)] = tile
+                this.usedEdges[String(tile.y)+String(tile.x)] = tile;
             }
         }
     }
@@ -261,9 +257,9 @@ class Maze {
             if (x % 1 === 0 && y % 1 === 0){
                 return this.adjacencyList[y - 1][x - 1];
             } else {
-                let edgeUsed = this.usedEdges[String(y)+String(x)]
+                let edgeUsed = this.usedEdges[String(y)+String(x)];
                 if (edgeUsed !== undefined){
-                    return edgeUsed
+                    return edgeUsed;
                 } else {
                     if (x % 1 !== 0) {
                         return new HorizontalEdge(y, x);
@@ -413,12 +409,12 @@ class Entity {
             if (target.x <= this.x){
                 this.self.setAttribute("facing", "left");
             } else if (target.x > this.x) {
-                this.self.setAttribute("facing", "right")
+                this.self.setAttribute("facing", "right");
             }
-            target.damage(this.attackDamage)
+            target.damage(this.attackDamage);
             window.setTimeout(function (self){
                 self.setAttribute("attacking", "false");
-            }, this.attackCooldown, this.self)
+            }, this.attackCooldown, this.self);
         }
     }
 }
@@ -428,7 +424,7 @@ class ItemEntity extends Entity{
         super(20, 28);
         this.determineCurrentTile();
         this.self = document.createElement("div");
-        this.self.className = "item"
+        this.self.className = "item";
     }
 
     determineCurrentTile(y, x){
@@ -436,7 +432,7 @@ class ItemEntity extends Entity{
         let tileX = this.roundTileCoord((x / mazeScale) + 1);
         let tileY = this.roundTileCoord((y / mazeScale) + 1);
 
-        this.determineTileOrigin(tileY, tileX)
+        this.determineTileOrigin(tileY, tileX);
     }
 
     determineTileOrigin(tileY, tileX){
@@ -446,8 +442,8 @@ class ItemEntity extends Entity{
     }
 
     spawn(tileY, tileX){
-        this.determineTileOrigin(tileY, tileX)
-        this.move(this.tileOrigin.y+32, this.tileOrigin.x+24)
+        this.determineTileOrigin(tileY, tileX);
+        this.move(this.tileOrigin.y+32, this.tileOrigin.x+24);
     }
 
     updatePosition(){
@@ -455,16 +451,14 @@ class ItemEntity extends Entity{
     }
 
     move(y, x){
-        game.map.appendChild(this.self)
+        game.map.appendChild(this.self);
         this.x = x;
         this.y = y;
-        console.log(this.x, this.y)
-        this.updatePosition()
-        //this.self.style.visibility = 'visible';
+        console.log(this.x, this.y);
+        this.updatePosition();
     }
 
     remove(){
-        //this.self.style.visibility = 'hidden';
         this.self.outerHTML = "";
     }
 }
@@ -478,7 +472,7 @@ class Inventory {
     setDocumentInventorySlot(slot, type){
         let slotView = document.getElementById(slot).firstElementChild;
         if (type !== null){
-            slotView.id = type
+            slotView.id = type;
         } else {
             slotView.id = "";
         }
@@ -500,34 +494,33 @@ class Inventory {
                 slot = 'slot-' + index.toString();
                 break;
             } else if (index === this.size-1){
-                //this.contents[activeSlot].drop();
                 this.contents[activeSlot] = itemReference;
                 slot = 'slot-' + activeSlot.toString();
             }
         }
-        this.setDocumentInventorySlot(slot, itemReference.objectType)
+        this.setDocumentInventorySlot(slot, itemReference.objectType);
     }
 
     removeItem(activeSlot){
         let itemReference = this.contents[activeSlot];
         this.contents[activeSlot] = undefined;
-        this.setDocumentInventorySlot('slot-' + activeSlot.toString(), null)
+        this.setDocumentInventorySlot('slot-' + activeSlot.toString(), null);
         return itemReference;
     }
 }
 
 class HealthBar{
     constructor(parentId, maxHealth) {
-        this.maxHealth = maxHealth
-        let parent = document.getElementById(parentId)
+        this.maxHealth = maxHealth;
+        let parent = document.getElementById(parentId);
         this.self = document.createElement("div");
-        this.self.className = "health_bar"
-        parent.appendChild(this.self)
-        this.update(maxHealth)
+        this.self.className = "health_bar";
+        parent.appendChild(this.self);
+        this.update(maxHealth);
     }
 
     update(health){
-        this.self.style.width= `${(health/this.maxHealth) * 50}%`
+        this.self.style.width= `${(health/this.maxHealth) * 50}%`;
     }
 }
 
@@ -543,9 +536,9 @@ class Player extends Entity {
         this.attackDamage = 5;
         this.inventory = new Inventory();
         this.self = document.querySelector('.character');
-        this.healthBar = new HealthBar('character-1', this.maxHealth)
-        this.enemiesKilled = 0
-        this.locksOpened = 0
+        this.healthBar = new HealthBar('character-1', this.maxHealth);
+        this.enemiesKilled = 0;
+        this.locksOpened = 0;
         }
 
 
@@ -568,7 +561,7 @@ class Player extends Entity {
     interact(){
         if (this.currentTile.contains !== undefined){
             if (this.currentTile.contains.objectType === 'lock'){
-                let lock = this.currentTile.contains.getSelf()
+                let lock = this.currentTile.contains.getSelf();
                 let itemReference = this.inventory.getItemFromSlot(game.activeInventorySlot);
                 if (itemReference.objectType === 'key'){
                     lock.unlock();
@@ -580,7 +573,7 @@ class Player extends Entity {
             } else {
                 let itemReference = this.currentTile.contains;
                 this.inventory.insertItem(itemReference, game.activeInventorySlot);
-                this.currentTile.contains.getSelf().take()
+                this.currentTile.contains.getSelf().take();
                 this.currentTile.contains = undefined;
                 game.maze.checkUsedEdge(this.currentTile);
             }
@@ -589,21 +582,21 @@ class Player extends Entity {
 
     attack(){
         if (this.inventory.getItemFromSlot(game.activeInventorySlot).objectType === 'sword'){
-            let closestEnemy = game.enemyGroup.objectList[0]
-            let closestDistance = 10
-            let enemyInRange = false
+            let closestEnemy = game.enemyGroup.objectList[0];
+            let closestDistance = 10;
+            let enemyInRange = false;
             for (const enemy of game.enemyGroup.objectList) {
                 if (enemy.currentTile.x === this.currentTile.x && enemy.currentTile.y === enemy.currentTile.y) {
-                    let distance = Math.sqrt(Math.abs(this.x - enemy.x) **2 + Math.abs(this.y  - enemy.y )**2)
+                    let distance = Math.sqrt(Math.abs(this.x - enemy.x) **2 + Math.abs(this.y  - enemy.y )**2);
                     if (distance < closestDistance){
-                        closestDistance = distance
-                        closestEnemy = enemy
-                        enemyInRange = true
+                        closestDistance = distance;
+                        closestEnemy = enemy;
+                        enemyInRange = true;
                     }
                 }
             }
             if (enemyInRange) {
-                super.attack(closestEnemy)
+                super.attack(closestEnemy);
             }
         }
     }
@@ -611,8 +604,8 @@ class Player extends Entity {
     drop(){
         if (this.inventory.getItemFromSlot(game.activeInventorySlot) !== undefined && this.currentTile.contains === undefined){
             this.currentTile.contains = this.inventory.removeItem(game.activeInventorySlot);
-            this.currentTile.contains.getSelf().place(this.y, this.x)
-            game.maze.checkUsedEdge(this.currentTile)
+            this.currentTile.contains.getSelf().place(this.y, this.x);
+            game.maze.checkUsedEdge(this.currentTile);
         }
     }
 
@@ -620,10 +613,10 @@ class Player extends Entity {
         this.health -= damageTaken;
         if (this.health <= 0){
             this.health = 0;
-            console.log('game over')
-            game.gameEnd(false)
+            console.log('game over');
+            game.gameEnd(false);
         }
-        this.healthBar.update(this.health)
+        this.healthBar.update(this.health);
     }
 
     move(){
@@ -635,8 +628,8 @@ class Player extends Entity {
         this.move_directions = game.held_directions;
         super.move();
 
-        let widthM = game.imgWidth
-        let heightM = game.imgHeight
+        let widthM = game.imgWidth;
+        let heightM = game.imgHeight;
         // smooth camera movement - moves the map against the player while the player is in the centre of the map
         if (mapX < 112) { mapX = 112; } // left
         if (mapX > widthM - 112) { mapX = widthM - 112; } // right
@@ -665,41 +658,41 @@ class Enemy extends Entity {
         this.target = {y: -1, x: -1};
         this.targetTile = {};
         this.self = document.createElement("div");
-        this.self.className = "enemy"
-        this.self.id = `enemy-${this.id}`
+        this.self.className = "enemy";
+        this.self.id = `enemy-${this.id}`;
 
     }
 
 
 
     spawn(tileY, tileX){
-        this.self.setAttribute("attacking", "false")
+        this.self.setAttribute("attacking", "false");
 
         this.x = (tileX -1) * mazeScale + 20;
         this.y = (tileY -1) * mazeScale + 40;
         this.currentTile = {y: tileY, x: tileX};
         game.map.appendChild(this.self)
 
-        let spriteSheet = document.createElement("div")
-        spriteSheet.className = "enemy-spritesheet"
-        this.self.appendChild(spriteSheet)
+        let spriteSheet = document.createElement("div");
+        spriteSheet.className = "enemy-spritesheet";
+        this.self.appendChild(spriteSheet);
 
         this.self.style.transform = `translate3d( ${this.x * pixelSize}px, ${this.y * pixelSize}px, 0 )`;
         this.healhBar = new HealthBar(this.self.id, this.maxHealth);
     }
 
     damage(damageTaken){
-        this.health -= damageTaken
+        this.health -= damageTaken;
         if (this.health <= 0){
             this.health = 0;
             this.self.outerHTML = "";
             game.player.enemiesKilled += 1;
             for (let index = 0; index < game.enemyGroup.objectList.length; index++){
-                let enemy = game.enemyGroup.objectList[index]
+                let enemy = game.enemyGroup.objectList[index];
                 if (enemy.id === this.id){
-                    console.log(enemy, game.enemyGroup.objectList)
-                    game.enemyGroup.objectList.splice(index, 1)
-                    break
+                    console.log(enemy, game.enemyGroup.objectList);
+                    game.enemyGroup.objectList.splice(index, 1);
+                    break;
                 }
             }
         }
@@ -707,7 +700,6 @@ class Enemy extends Entity {
     }
 
     pathFind(){
-        //console.log(this.targetTile)
         let targetPosition = this.targetTile.position();
         if (this.path.length > 0 || (targetPosition.y === this.currentTile.y && targetPosition.x === this.currentTile.x)){
             return;
@@ -858,7 +850,7 @@ class Enemy extends Entity {
     attack(){
         let distance = Math.sqrt(Math.abs(this.x - game.player.x) **2 + Math.abs(this.y  - game.player.y )**2);
         if (distance < 5) {
-            super.attack(game.player)
+            super.attack(game.player);
         }
     }
 
@@ -875,43 +867,43 @@ class GameController{
 
         this.held_directions = [];
         this.activeInventorySlot = 0;
-        document.getElementById(`slot-${this.activeInventorySlot}`).style.backgroundImage = "url(/static/img/active_slot.png)"
+        document.getElementById(`slot-${this.activeInventorySlot}`).style.backgroundImage = "url(/static/img/active_slot.png)";
 
         this.map = document.querySelector('.map');
-        this.endScreen = document.querySelector('.end-screen')
-        this.level = document.querySelector('.level')
+        this.endScreen = document.querySelector('.end-screen');
+        this.level = document.querySelector('.level');
 
-        this.timeElapsed = 0
+        this.timeElapsed = 0;
         let timer = setInterval(function(){
-            game.timeElapsed += 1
-        }, 1000)
+            game.timeElapsed += 1;
+        }, 1000);
 
-        this.timerView = document.querySelector(".time-elapsed")
-        this.locksView = document.querySelector(".locks-remaining")
-        this.enemiesView = document.querySelector(".enemies-defeated")
+        this.timerView = document.querySelector(".time-elapsed");
+        this.locksView = document.querySelector(".locks-remaining");
+        this.enemiesView = document.querySelector(".enemies-defeated");
 
     }
 
     updateGameStatus(){
-        let minutes = Math.floor(this.timeElapsed /60)
-        let seconds = Math.floor((this.timeElapsed/60 - minutes)*60)
+        let minutes = Math.floor(this.timeElapsed /60);
+        let seconds = Math.floor((this.timeElapsed/60 - minutes)*60);
         if (String(seconds).length < 2){
-            seconds = `0${seconds}`
+            seconds = `0${seconds}`;
         }
 
-        this.timerView.textContent = `time elapsed: ${minutes}:${seconds}`
-        this.locksView.textContent = `Locks remaining: ${this.lockGroup.objectList.length - this.player.locksOpened}`
-        this.enemiesView.textContent = `Enemies defeated: ${this.player.enemiesKilled}`
+        this.timerView.textContent = `time elapsed: ${minutes}:${seconds}`;
+        this.locksView.textContent = `Locks remaining: ${this.lockGroup.objectList.length - this.player.locksOpened}`;
+        this.enemiesView.textContent = `Enemies defeated: ${this.player.enemiesKilled}`;
     }
 
     setActiveInventorySlot(slot){
         if (this.activeInventorySlot !== slot){
-            let prevSlot = this.activeInventorySlot
-            this.activeInventorySlot = slot
+            let prevSlot = this.activeInventorySlot;
+            this.activeInventorySlot = slot;
             let slotView = document.getElementById(`slot-${slot}`);
-            let prevSlotView = document.getElementById(`slot-${prevSlot}`)
-            slotView.style.backgroundImage = "url(/static/img/active_slot.png)"
-            prevSlotView.style.backgroundImage = "none"
+            let prevSlotView = document.getElementById(`slot-${prevSlot}`);
+            slotView.style.backgroundImage = "url(/static/img/active_slot.png)";
+            prevSlotView.style.backgroundImage = "none";
         }
     }
 
@@ -921,18 +913,17 @@ class GameController{
                 return false;
             }
         }
-        console.log('you win!')
-        this.gameEnd(true)
+        this.gameEnd(true);
         return true;
     }
 
     spawnEnemies(){
         let id = 0;
         for (const coord of this.enemySpawnPositions){
-            id += 1
-            let enemy = new Enemy(id)
+            id += 1;
+            let enemy = new Enemy(id);
             this.enemyGroup.push(enemy);
-            enemy.spawn(coord.y,  coord.x)
+            enemy.spawn(coord.y,  coord.x);
         }
     }
 
@@ -948,23 +939,23 @@ class GameController{
 
 
         // populating tree and calculating enemy spawn positions
-        let enemyNumber = Math.floor(3**(((this.maze.height*this.maze.width)**(1/2))/5))
+        let enemyNumber = Math.floor(3**(((this.maze.height*this.maze.width)**(1/2))/5));
         if (enemyNumber > maxEnemies && maxEnemies !== -1){
-            enemyNumber = maxEnemies
+            enemyNumber = maxEnemies;
         }
-        let enemySpawnSpacing = Math.floor((this.maze.height*this.maze.width)/enemyNumber)
+        let enemySpawnSpacing = Math.floor((this.maze.height*this.maze.width)/enemyNumber);
         if (enemyNumber === 0){
-            enemySpawnSpacing = 0
+            enemySpawnSpacing = 0;
         }
 
-        console.log(enemySpawnSpacing, enemyNumber)
+        console.log(enemySpawnSpacing, enemyNumber);
 
         let index = 0;
         let deadEndCodes = ['0111', '1011', '1101', '1110'];
-        this.deadEndPositions = []
-        let corridorCodes = ['1010', '0101']
+        this.deadEndPositions = [];
+        let corridorCodes = ['1010', '0101'];
 
-        this.enemySpawnPositions = []
+        this.enemySpawnPositions = [];
 
 
         for (let row = 1; row <= this.maze.height; row++) {
@@ -974,9 +965,9 @@ class GameController{
                 let bin = this.maze.binaryString.slice(0,4);
 
                 if (deadEndCodes.includes(bin)){
-                    this.deadEndPositions.push({y:row, x:column})
+                    this.deadEndPositions.push({y:row, x:column});
                 } else if (!corridorCodes.includes(bin) && (index%(enemySpawnSpacing-Math.floor(enemySpawnSpacing/2)) === 0) && enemyNumber !==  0){
-                    this.enemySpawnPositions.push({y:row, x:column})
+                    this.enemySpawnPositions.push({y:row, x:column});
                 }
 
 
@@ -992,46 +983,46 @@ class GameController{
         }
 
         this.maze.output();
-        console.log(this.enemySpawnPositions)
+        console.log(this.enemySpawnPositions);
 
-        this.determineLockAndKeyPositions()
+        this.determineLockAndKeyPositions();
     }
 
     determineLockAndKeyPositions(){
         // spawning locks and keys
         let noDeadEnds = this.deadEndPositions.length;
-        let even = 0
+        let even = 0;
         if (noDeadEnds > maxLocks && maxLocks !== -1){
-            noDeadEnds = maxLocks
+            noDeadEnds = maxLocks;
         }
 
         if ((noDeadEnds-1)%2 === 1){
             even = 1;
         }
 
-        let usedEnds = []
+        let usedEnds = [];
         for (let n = noDeadEnds-1; n >= noDeadEnds%2; n--) {
 
             let nodePosition = this.deadEndPositions[n];
-            console.log(nodePosition)
+            console.log(nodePosition);
 
             if (n % 2 === even) {
-                let key = new Item('key', n)
-                let keyReference = this.itemGroup.push(key)
-                key.entity.spawn(nodePosition.y, nodePosition.x)
+                let key = new Item('key', n);
+                let keyReference = this.itemGroup.push(key);
+                key.entity.spawn(nodePosition.y, nodePosition.x);
 
                 this.maze.adjacencyList[nodePosition.y - 1][nodePosition.x - 1].contains = keyReference;
-                usedEnds.push([nodePosition.y, nodePosition.x])
+                usedEnds.push([nodePosition.y, nodePosition.x]);
             } else if (n % 2 !== even) {
                 let lock = new Lock(n);
-                let lockReference = this.lockGroup.push(lock)
-                lock.entity.spawn(nodePosition.y, nodePosition.x)
+                let lockReference = this.lockGroup.push(lock);
+                lock.entity.spawn(nodePosition.y, nodePosition.x);
 
                 this.maze.adjacencyList[nodePosition.y - 1][nodePosition.x - 1].contains = lockReference;
-                usedEnds.push([nodePosition.y, nodePosition.x])
+                usedEnds.push([nodePosition.y, nodePosition.x]);
             }
         }
-        console.log(usedEnds)
+        console.log(usedEnds);
     }
 
     defineMazeProperties(){
@@ -1047,81 +1038,81 @@ class GameController{
 
 
     gameEnd(hasWon){
-        let continueLocation = ""
+        let continueLocation = "";
         if ((hasWon === true && game.maze.height*game.maze.width >= 25) || gameComplete === 1){
-            continueLocation = "/gamecomplete"
+            continueLocation = "/gamecomplete";
         }
-        console.log(continueLocation)
+        console.log(continueLocation);
 
         this.gameOver = true;
-        this.level.id = "hidden"
-        this.endScreen.id = "shown"
-        let score = Math.floor((this.maze.height * this.maze.width)/100 * (((2 ** -((this.timeElapsed/200) - 10)) + 50) + (this.player.enemiesKilled * 10) + (this.player.locksOpened * 15)))
+        this.level.id = "hidden";
+        this.endScreen.id = "shown";
+        let score = Math.floor((this.maze.height * this.maze.width)/100 * (((2 ** -((this.timeElapsed/200) - 10)) + 50) + (this.player.enemiesKilled * 10) + (this.player.locksOpened * 15)));
 
-        let popOut = this.endScreen.firstElementChild
-        let message = popOut.firstElementChild
+        let popOut = this.endScreen.firstElementChild;
+        let message = popOut.firstElementChild;
 
         let scoreDisplay = document.querySelector(".score");
-        scoreDisplay.textContent = `Score: ${score}`
+        scoreDisplay.textContent = `Score: ${score}`;
 
         let restartButton = document.createElement('button');
-        popOut.appendChild(restartButton)
+        popOut.appendChild(restartButton);
 
         if (hasWon === true){
-            let sizeIncrease = 2
+            let sizeIncrease = 2;
             if (this.maze.height % 5 === 0){
-                sizeIncrease = 3
+                sizeIncrease = 3;
             }
             if (continueLocation === ""){
-            continueLocation = `/play?height=${this.maze.height + sizeIncrease}&width=${this.maze.width + sizeIncrease}`
+            continueLocation = `/play?height=${this.maze.height + sizeIncrease}&width=${this.maze.width + sizeIncrease}`;
             }
 
 
-            restartButton.textContent = "Try again?"
+            restartButton.textContent = "Try again?";
             restartButton.onclick = function(){
-                window.location.href = window.location.href
+                window.location.href = window.location.href;
             }
 
-            let continueButton = document.createElement('button')
-            continueButton.textContent = "Continue?"
+            let continueButton = document.createElement('button');
+            continueButton.textContent = "Continue?";
             continueButton.onclick = function() {
-                window.location.href = continueLocation
+                window.location.href = continueLocation;
             }
 
             popOut.appendChild(continueButton)
-            message.style.backgroundImage = "url(/static/img/levelcomplete.png)"
+            message.style.backgroundImage = "url(/static/img/levelcomplete.png)";
 
         } else {
-            restartButton.textContent = "Restart?"
+            restartButton.textContent = "Restart?";
             restartButton.onclick = function(){
-                window.location.href = "/"
+                window.location.href = "/";
             }
-            message.style.backgroundImage = "url(/static/img/gameover.png)"
+            message.style.backgroundImage = "url(/static/img/gameover.png)";
         }
     }
 
     // determines where the character (and maze) is positioned every frame
     gameLoop() {
         if (this.gameOver === true){
-            return
+            return;
         }
         // need to get pixel size every frame as it varies depending on how large the browser window is
         pixelSize = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--pixel-size'));
 
         this.player.move();
         for (const enemy of this.enemyGroup.objectList){
-            enemy.move()
-            enemy.attack()
+            enemy.move();
+            enemy.attack();
         }
 
         for (const key of this.itemGroup.objectList){
-            key.update()
+            key.update();
         }
 
         for (const lock of this.lockGroup.objectList){
-            lock.update()
+            lock.update();
         }
-        this.updateGameStatus()
+        this.updateGameStatus();
     }
 
     // steps through every frame
@@ -1133,11 +1124,11 @@ class GameController{
     }
 }
 
-game = new GameController()
-game.defineMaze()
-game.defineMazeProperties()
-game.spawnPlayer()
-game.spawnEnemies()
+game = new GameController();
+game.defineMaze();
+game.defineMazeProperties();
+game.spawnPlayer();
+game.spawnEnemies();
 game.step();
 
 
@@ -1152,7 +1143,7 @@ document.addEventListener('keydown', function (e) {
     } else if (inventorySlot) {
         game.setActiveInventorySlot(inventorySlot-1);
     } else if (command){
-        game.player.executeCommand(command)
+        game.player.executeCommand(command);
     }
 })
 
