@@ -441,9 +441,16 @@ class ItemEntity extends Entity{
         this._tileOrigin.y = (tileY - 1) * mazeScale;
     }
 
+    place(){
+        this.y = this._tileOrigin.y+32;
+        this.x = this._tileOrigin.x+24;
+        game.map.appendChild(this.self);
+        this.updatePosition();
+    }
+
     spawn(tileY, tileX){
-        this.determineTileOrigin(tileY, tileX)
-        this.move(this._tileOrigin.y+32, this._tileOrigin.x+24);
+        this.determineTileOrigin(tileY, tileX);
+        this.place();
     }
 
     updatePosition(){
@@ -451,10 +458,8 @@ class ItemEntity extends Entity{
     }
 
     move(y, x){
-        game.map.appendChild(this.self);
-        this.x = x;
-        this.y = y;
-        this.updatePosition();
+        this.determineCurrentTile(y, x);
+        this.place();
     }
 
     remove(){
@@ -1007,7 +1012,7 @@ class GameController{
 
     gameEnd(hasWon){
         let continueLocation = "";
-        if ((hasWon === true && game.maze.height*game.maze.width >= 25) || gameComplete === 1){
+        if ((hasWon === true && game.maze.height*game.maze.width >= 625) || gameComplete === 1){
             continueLocation = "/gamecomplete";
         }
 
