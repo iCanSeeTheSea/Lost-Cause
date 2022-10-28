@@ -1,10 +1,8 @@
 from app import app, generateMaze
-from flask import render_template, redirect, send_from_directory, request, session, Response
+from flask import render_template, redirect, send_from_directory, request, session
 import os
 from time import time
 from PIL import Image
-from pathlib import Path
-from base64 import b64encode
 
 app.secret_key = os.urandom(12).hex()
 maze_image_dir = os.path.join(app.root_path, "mazeimages")

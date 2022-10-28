@@ -191,7 +191,6 @@ class MazeGenerator:
                     tile_image = Image.open(tile)
                     img.paste(tile_image, (int((join_x - 1) * 64), int((join_y - 1) * 64)))
 
-        print(self._maze._nodeList)
         return img
 
     # recursive backtracking | 19/09/21

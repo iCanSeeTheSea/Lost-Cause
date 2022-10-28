@@ -160,7 +160,6 @@ button {
     animation: attackAnimation 0.2s steps(4);
 }
 
-
 .character{
     /*color: transparent;*/
     position: absolute;
@@ -258,6 +257,5 @@ button {
     to{
         transform: translate3d(-100%, 0%, 0);
     }
-
 }
 
