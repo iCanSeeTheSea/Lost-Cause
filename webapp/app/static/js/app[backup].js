@@ -70,7 +70,7 @@ root.style.setProperty('--map-height', mapHeight);
 
 
 // initial variable declarations
-let held_directions = [];
+let heldDirections = [];
 let character = document.querySelector('.character');
 let map = document.querySelector(".map");
 let x = 16;
@@ -106,7 +106,7 @@ const placeCharacter = function () {
     let originalY = y;
 
     // work out which direction the user wants to move the player
-    const held_direction = held_directions[0];
+    const held_direction = heldDirections[0];
     if (held_direction) {
         switch (held_direction) {
             case directions.right:
@@ -236,17 +236,17 @@ const keys = {
 // event listeners for keys being pressed and released
 document.addEventListener('keydown', function (e) {
     let dir = keys[e.key];
-    // adds last key pressed to the start of the held_directions array
-    if (dir && held_directions.indexOf(dir) === -1) {
-        held_directions.unshift(dir);
+    // adds last key pressed to the start of the heldDirections array
+    if (dir && heldDirections.indexOf(dir) === -1) {
+        heldDirections.unshift(dir);
     }
 })
 
 document.addEventListener('keyup', function (e) {
     let dir = keys[e.key];
-    let index = held_directions.indexOf(dir);
-    // removes key from help_directions when it stops being pressed
+    let index = heldDirections.indexOf(dir);
+    // removes key from helpDirections when it stops being pressed
     if (index > -1) {
-        held_directions.splice(index, 1)
+        heldDirections.splice(index, 1)
     }
 })

@@ -4,7 +4,7 @@ var map = document.querySelector(".map");
 //start in the middle of the map
 var x = 90;
 var y = 34;
-var held_directions = []; //State of which arrow keys we are holding down
+var heldDirections = []; //State of which arrow keys we are holding down
 var speed = 1; //How fast the character moves in pixels per frame
 
 const placeCharacter = () => {
@@ -13,8 +13,8 @@ const placeCharacter = () => {
       getComputedStyle(document.documentElement).getPropertyValue('--pixel-size')
    );
 
-   const held_direction = held_directions[0];
-   console.log(held_directions)
+   const held_direction = heldDirections[0];
+   console.log(heldDirections)
    console.log(held_direction)
    if (held_direction) {
       if (held_direction === directions.right) { x += speed; }
@@ -71,15 +71,15 @@ const keys = {
 }
 document.addEventListener("keydown", (e) => {
    var dir = keys[e.which];
-   if (dir && held_directions.indexOf(dir) === -1) {
-      held_directions.unshift(dir)
+   if (dir && heldDirections.indexOf(dir) === -1) {
+      heldDirections.unshift(dir)
    }
 })
 
 document.addEventListener("keyup", (e) => {
    var dir = keys[e.which];
-   var index = held_directions.indexOf(dir);
+   var index = heldDirections.indexOf(dir);
    if (index > -1) {
-      held_directions.splice(index, 1)
+      heldDirections.splice(index, 1)
    }
 });

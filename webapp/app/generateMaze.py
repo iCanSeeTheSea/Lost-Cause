@@ -10,80 +10,151 @@ class Node:
     __pos: list
 
     def __post_init__(self):
-        # pre-defining parameters after initialisation to be defined later
+        """
+        The function takes the position of the cell and assigns it to the row and column variables
+        """
         self._top = self._bottom = self._left = self._right = "1"
 
         self._row = self.__pos[0]
         self._column = self.__pos[1]
 
     def _wall_value_checker(self, value):
+        """
+        It checks if the value of a wall is either "1" or "0"
+
+        :param value: the value of the cell
+        :return: a boolean value.
+        """
         if value == "1" or value == "0":
             return True
         else:
             raise ValueError("wall value should be either \"1\" or \"0\"")
 
     def debug(self):
+        """
+        It returns a list of the position of the node, the node's walls, and the object's key
+        :return: The position of the node, the boundaries of the node, and the key of the node.
+        """
         return [self.__pos, (self._top, self._bottom, self._left, self._right), self.key]
 
     @property
     def top(self):
+        """
+        getter for property "top"
+        :return: the value of the top wall
+        """
         return self._top
 
     @top.setter
     def top(self, value):
+        """
+        This function checks if the value is a valid wall value, and if it is, it sets the top wall to that value
+
+        :param value: The value of the wall
+        """
         if self._wall_value_checker(value):
             self._top = value
 
     @property
     def bottom(self):
+        """
+        getter for property "bottom"
+        :return: The value for the bottom wall
+        """
         return self._bottom
 
     @bottom.setter
     def bottom(self, value):
+        """
+        It checks if the value is a valid wall value and if it is, it sets the bottom wall to that value.
+
+        :param value: The value of the wall
+        """
         if self._wall_value_checker(value):
             self._bottom = value
 
     @property
     def left(self):
+        """
+        getter for property "left"
+        :return: The value for the left wall
+        """
         return self._left
 
     @left.setter
     def left(self, value):
+        """
+        This function takes in a value and checks if it is a valid wall value. If it is, it sets the left wall value to the
+        value
+
+        :param value: The value of the wall
+        """
         if self._wall_value_checker(value):
             self._left = value
 
     @property
     def right(self):
+        """
+        getter for property "right"
+        :return: The value for the right wall
+        """
         return self._right
 
     @right.setter
     def right(self, value):
+        """
+        This function checks if the value is a valid wall value, and if it is, it sets the right wall to that value
+
+        :param value: The value of the wall
+        """
         if self._wall_value_checker(value):
             self._right = value
 
     @property
     def row(self):
+        """
+        getter for property "row"
+        :return: The row the node is in
+        """
         return self._row
 
     @property
     def column(self):
+        """
+        getter for property "column"
+        :return: The column the node is in
+        """
         return self._column
 
     @property
     def key(self):
-        # key for each node is a 4 digit binary string
+        """
+        The key for each node is a 4 digit binary string, where the first two digits are the top and bottom edges, and the
+        last two digits are the left and right edges.
+        :return: A 4 digit binary string.
+        """
         return self._top + self._bottom + self._left + self._right
 
 
 class Maze:
     def __init__(self, max_y, max_x):
-        # 2D list to store node objects - index matches coordinate in the maze
+        """
+        It creates a 2D list of node objects, where the index of the list matches the coordinate in the maze
+
+        :param max_y: The height of the maze
+        :param max_x: The width of the maze
+        """
         self._max_x = max_x
         self._max_y = max_y
         self._nodeList = [[None for _ in range(max_x)] for _ in range(max_y)]
         self._binary_list = ['' for _ in range(max_y * max_x)]
 
     def insert(self, node_object):
+        """
+        The function takes a node object and inserts it into the node list and binary list
+
+        :param node_object: the node object to be inserted into the maze
+        """
         row = node_object.row
         column = node_object.column
         # maze starts at 1,1 but list indexing starts at [0][0]
@@ -94,17 +165,32 @@ class Maze:
                     column - 1)] = f'{node_object.top}{node_object.bottom}{node_object.left}{node_object.right}'
 
     def node(self, coord):
+        """
+        It returns the node at the given coordinate
+
+        :param coord: The coordinate of the node you want to get
+        :return: The node at the given coordinates.
+        """
         node = self._nodeList[coord[0] - 1][coord[1] - 1]
         return node
 
-    # storing the sequence of node keys as a property that the seed generator can access
     @property
     def binary_string(self):
+        """
+        It takes a list of strings, and joins them together into one string
+        :return: The binary string is being returned.
+        """
         return ''.join(self._binary_list)
 
 
 class MazeGenerator:
     def __init__(self, max_y, max_x):
+        """
+        The function takes in the dimensions of the maze and creates a 2D list of Nodes
+
+        :param max_y: the number of rows in the maze
+        :param max_x: the number of columns in the maze
+        """
         self._maze = Maze(max_y, max_x)
 
         self._nodes = []
@@ -132,6 +218,12 @@ class MazeGenerator:
                            '1110': 'left-dead.png', '1111': 'all-walls.png'}
 
     def draw_maze(self, binary_string):
+        """
+        It takes a binary string, and uses it to generate a maze image
+
+        :param binary_string: the binary string of the maze
+        :return: The image of the maze.
+        """
 
         maze_path = Path('app/static/img/maze/')
 
@@ -193,9 +285,13 @@ class MazeGenerator:
 
         return img
 
-    # recursive backtracking | 19/09/21
-
     def recursive_backtracking(self):
+        """
+        The function starts at a random node, and then checks all adjacent nodes to see if they have been visited. If they
+        have not, it chooses one at random and removes the wall between the two nodes. If they have been visited, it
+        backtracks to the last node that had an unvisited adjacent node
+        :return: A maze object
+        """
 
         stack = []
         start_time = time.time()
@@ -275,6 +371,9 @@ class MazeGenerator:
 
 class SeedGenerator:
     def __init__(self):
+        """
+        Defines variables to be used by SeedGenerator
+        """
         self._mazeGenerator = None
         self._seed = None
         self._maze = None
@@ -321,18 +420,36 @@ class SeedGenerator:
 
     @property
     def seed(self):
+        """
+        getter for seed of the maze.
+        :return: The seed is being returned.
+        """
         return self._seed
 
     @seed.setter
     def seed(self, seed):
+        """
+        The function takes in a seed and sets the seed for the maze
+
+        :param seed: The seed for the maze
+        """
         self._seed = seed
 
     @property
     def height(self):
+        """
+        getter for height of the maze.
+        :return: The height of the maze
+        """
         return self.height
 
     @height.setter
     def height(self, height):
+        """
+        If the height is less than 10, add a 0 to the front of the height
+
+        :param height: The height of the maze
+        """
         if len(str(height)) < 2:
             self._height = int('0' + str(height))
         else:
@@ -340,16 +457,31 @@ class SeedGenerator:
 
     @property
     def width(self):
+        """
+        getter for the width of the maze.
+        :return: The width of the maze
+        """
         return self.width
 
     @width.setter
     def width(self, width):
+        """
+        If the width less than 10, add a 0 to the front of the width
+
+        :param width: The width of the maze
+        """
         if len(str(width)) < 2:
             self._width = int('0' + str(width))
         else:
             self._width = width
 
     def create_base_64_seed(self):
+        """
+        It takes the maze's width and height, turns them into two bytes, adds them to the maze's binary string, pads the
+        binary string with zeros until it's a multiple of 24, splits the binary string into 6 character chunks, and then
+        converts each chunk into a base 64 character
+        :return: The image of the maze is being returned.
+        """
         self._mazeGenerator = MazeGenerator(self._height, self._width)
 
         self._maze = self._mazeGenerator.recursive_backtracking()
@@ -378,6 +510,11 @@ class SeedGenerator:
         return image
 
     def draw_maze_from_seed(self):
+        """
+        It takes a base64 encoded string, converts it to binary, and then uses the binary string to draw a maze
+
+        :return: The image for the maze is being returned.
+        """
         # removing padding before conversion
         base_64_string = self._seed.rstrip('=')
         binary_string = ''
@@ -396,4 +533,6 @@ class SeedGenerator:
 
         self._mazeGenerator = MazeGenerator(self._height, self._width)
 
-        return self._mazeGenerator.draw_maze(binary_string)
+        image = self._mazeGenerator.draw_maze(binary_string)
+
+        return image
