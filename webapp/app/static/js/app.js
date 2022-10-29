@@ -436,7 +436,7 @@ class Entity {
      * If the decimal portion of the tile coordinate is greater than 0.5, round up to the nearest half-tile. Otherwise,
      * round down to the nearest half-tile
      * @param tileCoord - The tile coordinate to round.
-     * @returns The tile coordinate.
+     * @returns The rounded tile coordinate.
      */
     roundTileCoord(tileCoord) {
         if (tileCoord - Math.floor(tileCoord) > 0.5) {
@@ -747,7 +747,6 @@ class Enemy extends Entity {
 
     /**
      * The enemy finds a path to the player by checking the tiles around it and moving in the direction of the player
-     * @returns the direction the enemy should move in.
      */
     pathFind(){
         //console.log(this.targetTile)
@@ -947,8 +946,9 @@ class Player extends Entity {
     /**
      * If the player is standing on a tile that contains an object, and that object is a lock, then if the player has a key
      * in their inventory, the lock is unlocked, the key is removed from the inventory, and the lock is removed from the
-     * tile. If the player is standing on a tile that contains an object, and that object is not a lock, then the object is
-     * added to the player's inventory, and the object is removed from the tile
+     * tile. If the player is standing on a tile that contains an object, and that object is not a lock, and there is
+     * space in the player's inventory, then the object is added to the player's inventory, and the object is removed
+     * from the tile
      */
     interact(){
         if (this._currentTile.contains !== undefined){
@@ -964,10 +964,12 @@ class Player extends Entity {
                 }
             } else {
                 let itemReference = this._currentTile.contains;
-                this.inventory.insertItem(itemReference, game.activeInventorySlot);
-                this._currentTile.contains.getSelf().take()
-                this._currentTile.contains = undefined;
-                game.maze.checkUsedEdge(this._currentTile);
+                if (this.inventory.checkSlotsAvailable()){
+                    this.inventory.insertItem(itemReference, game.activeInventorySlot);
+                    this._currentTile.contains.getSelf().take()
+                    this._currentTile.contains = undefined;
+                    game.maze.checkUsedEdge(this._currentTile);
+                }
             }
         }
     }
@@ -1058,6 +1060,7 @@ class Inventory {
      */
     constructor(){
         this._size = 5;
+        this._slotsAvailable = 5;
         this._contents = [undefined, undefined, undefined, undefined, undefined];
     }
 
@@ -1077,6 +1080,14 @@ class Inventory {
     }
 
     /**
+     * It returns true if the number of slots available is not equal to zero
+     * @returns whether there are slots available or not
+     */
+    checkSlotsAvailable(){
+        return this._slotsAvailable !== 0;
+    }
+
+    /**
      * If the slot is not undefined, return the item in that slot. Otherwise, return false
      * @param slot - The slot number of the item you want to get.
      * @returns The item in the slot.
@@ -1090,35 +1101,36 @@ class Inventory {
     }
 
     /**
-     * If the inventory is not full, the item is added to the first empty slot. If the inventory is full, the item is added
-     * to the active slot
+     * If the inventory is not full, the item is added to the first empty slot. If the inventory is full, the item is
+     * not added
      * @param itemReference - This is the item object that is being added to the inventory.
      * @param activeSlot - The slot that the player is currently hovering over.
      */
-    insertItem(itemReference, activeSlot){
-        let slot = '';
-        for (let index = 0; index < this._size; index++){
-            if (this._contents[index] === undefined){
-                this._contents[index] = itemReference;
-                slot = 'slot-' + index.toString();
-                break;
-            } else if (index === this._size-1){
-                this._contents[activeSlot] = itemReference;
-                slot = 'slot-' + activeSlot.toString();
+    insertItem(itemReference, activeSlot) {
+        if (this.checkSlotsAvailable()) {
+            let slot = '';
+            for (let index = 0; index < this._size; index++) {
+                if (this._contents[index] === undefined) {
+                    this._contents[index] = itemReference;
+                    slot = 'slot-' + index.toString();
+                    this._slotsAvailable -= 1;
+                    break;
+                }
             }
+            this._setDocumentInventorySlot(slot, itemReference.objectType);
         }
-        this._setDocumentInventorySlot(slot, itemReference.objectType);
     }
 
     /**
      * This function removes an item from the inventory and returns a reference to the item.
      * @param activeSlot - The slot number of the item to be removed.
-     * @returns The itemReference is being returned.
+     * @returns The reference to the item being removed
      */
     removeItem(activeSlot){
         let itemReference = this._contents[activeSlot];
         this._contents[activeSlot] = undefined;
         this._setDocumentInventorySlot('slot-' + activeSlot.toString(), null);
+        this._slotsAvailable += 1;
         return itemReference;
     }
 }
@@ -1212,7 +1224,7 @@ class GameController{
 
     /**
      * If any of the locks are locked, return false. Otherwise, end the game and return true
-     * @returns A boolean value.
+     * @returns whether the game has been won or not
      */
     checkWinCondition() {
         for (const lock of this.lockGroup.objectList){
