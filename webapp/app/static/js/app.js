@@ -1183,7 +1183,7 @@ class GameController{
         this.level = document.querySelector('.level');
 
         this.timeElapsed = 0;
-        let timer = setInterval(function(){
+        setInterval(function(){
             game.timeElapsed += 1;
         }, 1000, );
 
@@ -1418,7 +1418,8 @@ class GameController{
 
 
     /**
-     * The gameLoop function is called every frame and it updates the player, enemies, items, and locks
+     * The gameLoop function is called every frame and it updates the items, and locks and allows the player
+     * and enemies to move
      */
     gameLoop() {
         if (this._gameOver === true){
@@ -1428,6 +1429,7 @@ class GameController{
         pixelSize = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--pixel-size'));
 
         this.player.move();
+
         for (const enemy of this.enemyGroup.objectList){
             enemy.move();
             enemy.attack();
