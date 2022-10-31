@@ -449,8 +449,8 @@ class Entity {
     }
 
     /**
-     * If the decimal portion of the tile coordinate is greater than 0.5, round up to the nearest half-tile. Otherwise,
-     * round down to the nearest half-tile
+     * If the decimal portion of the tile coordinate is greater than 0.5, round down to the nearest half-tile. Otherwise,
+     * round down to the nearest tile
      * @param tileCoord - The tile coordinate to round.
      * @returns The rounded tile coordinate.
      */
