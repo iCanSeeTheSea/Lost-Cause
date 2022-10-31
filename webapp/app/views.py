@@ -1,4 +1,4 @@
-from app import app, generateMaze
+from app import app, generate_maze
 from flask import render_template, redirect, send_from_directory, request, session, abort
 import os
 from time import time
@@ -6,7 +6,7 @@ from PIL import Image
 
 app.secret_key = os.urandom(12).hex()
 maze_image_dir = os.path.join(app.root_path, "mazeimages")
-seed_generator = generateMaze.SeedGenerator()
+seed_generator = generate_aze.SeedGenerator()
 
 
 def save_maze_image(maze_image):

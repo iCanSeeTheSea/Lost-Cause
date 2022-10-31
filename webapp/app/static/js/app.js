@@ -243,7 +243,8 @@ class NodeList{
      * @returns A boolean value.
      */
     contains(position){
-        return position in this._positions;
+        let key = this.getKeyFromPos(position)
+        return key in this.dict;
     }
 
     /**
@@ -928,7 +929,7 @@ class Player extends Entity {
     constructor() {
         super(27, 16);
         this._prevTile = {y:0, x:0};
-        this._maxHealth = 50;
+        this._maxHealth = 100;
         this._health = this._maxHealth;
         this._currentTile = game.maze.getTile(1, 1);
         this._speed = 1;
@@ -1348,7 +1349,7 @@ class GameController{
                 let key = new Item('key', n);
                 let keyReference = this.itemGroup.push(key);
                 key.entity.spawn(nodePosition.y, nodePosition.x);
-
+                console.log(nodePosition)
                 this.maze.nodes.getNode(nodePosition).contains = keyReference;
             } else if (n % 2 !== even) {
                 let lock = new Lock(n);
