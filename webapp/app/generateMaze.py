@@ -202,7 +202,7 @@ class MazeGenerator:
         self._saveNodes = self._nodes.copy()
 
         # allows easy calculation of the nodes around any given node
-        self._adjacentCoords = ((-1, 0), (1, 0), (0, 1), (0, -1))
+        self._adjacent_coords = ((-1, 0), (1, 0), (0, 1), (0, -1))
 
         self._max_x = max_x
         self._max_y = max_y
@@ -312,7 +312,7 @@ class MazeGenerator:
             possible_coordinates = []
 
             # finding possible next nodes by comparing each position adjacent to the current node to the unused nodes
-            for dy, dx in self._adjacentCoords:
+            for dy, dx in self._adjacent_coords:
                 if [current_position[0] + dy, current_position[1] + dx] in self._nodes:
                     possible_coordinates.append(
                         [current_position[0] + dy, current_position[1] + dx])
@@ -347,7 +347,7 @@ class MazeGenerator:
                 # checking each node from the stack for possible nodes, if there are none, removing it
                 for index in range(len(stack) - 1, -1, -1):
                     check_position = stack[index]
-                    for dy, dx in self._adjacentCoords:
+                    for dy, dx in self._adjacent_coords:
                         if [check_position[0] + dy, check_position[1] + dx] in self._nodes:
                             next_position = check_position
                             break

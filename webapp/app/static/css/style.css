@@ -10,6 +10,24 @@ body {
     font-weight: bold;
 }
 
+.flex-container{
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.flex-child {
+    flex: 1;
+    width: 100px;
+    height: 25px;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    outline-style: outset;
+    outline-color: #8c3a27;
+    padding: 2px;
+    margin-right: 20px
+}
+
 .title {
     color: transparent;
     text-align: center;

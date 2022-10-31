@@ -5,7 +5,9 @@
 {% block main %}
     <div class="title" id="gamecomplete"></div>
     <div class="container">
-        <div class="maze-list">Mazes completed:</div>
+        <div class="maze-list">Mazes completed:
+        <div class="flex-container"></div>
+        </div>
         <div class="custom-maze">Custom Maze:
         <form action="/play" method="get">
             <label for="height">Height:</label>
@@ -27,14 +29,16 @@
     <script>
         let seedList = {{ mazeList | safe }};
         window.onload = function(){
-            let mazeList = document.querySelector('.maze-list');
+            let flexContainer = document.querySelector('.flex-container');
             for (const seed of seedList) {
+                let box = document.createElement('div')
+                box.className = 'flex-child'
                 let link = document.createElement('a')
                 link.href = `/play/${seed}`
                 link.textContent = `${seed}`
                 console.log(link)
-                mazeList.appendChild((document.createElement('br')))
-                mazeList.appendChild(link)
+                box.appendChild(link)
+                flexContainer.appendChild(box)
             }
         }
     </script>

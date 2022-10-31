@@ -188,7 +188,7 @@ class NodeList{
      */
     constructor() {
         this.dict = {};
-        this._keys = [];
+        this._positions = [];
     }
 
     /**
@@ -207,7 +207,7 @@ class NodeList{
     push(node){
         let position = node.position();
         this.dict[this.getKeyFromPos(position)] = node;
-        this._keys.unshift(node.position());
+        this._positions.unshift(node.position());
     }
 
     /**
@@ -216,8 +216,8 @@ class NodeList{
      * @returns The position of the first element in the array.
      */
     pop(){
-        if (this._keys){
-            let position = this._keys.shift();
+        if (this._positions){
+            let position = this._positions.shift();
             let key = this.getKeyFromPos(position);
             delete this.dict[key];
             return position;
@@ -234,7 +234,7 @@ class NodeList{
     delete(position){
         let key = this.getKeyFromPos(position);
         delete this.dict[key];
-        this._keys = this._keys.filter(function(e) { return e !== key});
+        this._positions = this._positions.filter(function(e) { return e !== position});
     }
 
     /**
@@ -243,9 +243,21 @@ class NodeList{
      * @returns A boolean value.
      */
     contains(position){
-        let key = this.getKeyFromPos(position);
-        return key in this.dict;
+        return position in this._positions;
     }
+
+    /**
+     * If the position is in the maze, return the node at that position
+     * @param position - The position of the node you want to get.
+     * @returns The node at the given position.
+     */
+    getNode(position){
+        if (this.contains(position)){
+            return this.dict[this.getKeyFromPos(position)]
+        }
+        return undefined
+    }
+
 }
 
 
@@ -321,7 +333,7 @@ class Maze {
     constructor(seed) {
         this.seed = seed;
         this._usedEdges = {};
-        this.adjacencyList = [];
+        this.nodes = new NodeList();
 
         // separating dimensions from seed and converting to binary
         let base64String = this.seed.replace(/=/g, '');
@@ -336,26 +348,30 @@ class Maze {
         console.log(binaryString,this.height, this.width);
     }
 
+
     /**
-     * If the tile is within the bounds of the maze, and it's a whole number, or if it's not a whole number and the adjacent
-     * tile does not have a wall on the bottom or right, then it's a valid tile
+     * If the coordinates are in the maze, or are within the bounds of the maze and are a valid edge, returns true
+     * if the coordinates are outside the bounds of the maze, or are not a valid edge, returns false
      * @param y - the y coordinate of the tile
      * @param x - the x coordinate of the tile
      * @returns A boolean value.
      */
-    checkTileInMaze(y, x){
-        if ((1 > x || x > this.width) || (1 > y || y > this.height)){
-            return false;
-        } else if (x % 1 === 0 && y % 1 === 0){
+    checkTileInMaze(y, x) {
+        if (this.nodes.contains({y: y, x: x})) {
             return true;
+        } else if ((1 > x || x > this.width) || (1 > y || y > this.height)){
+            // if the coordinates are outside the maze
+            return false;
         } else if (y % 1 !== 0 && x % 1 === 0){
-            let adjTile = this.adjacencyList[Math.floor(y) - 1][x - 1];
+            let adjTile = this.nodes.getNode({y: Math.floor(y), x: x});
             if (adjTile.bottom === 0){
+                // if the y coordinate .5, and the tile above has no bottom wall
                 return true;
             }
         } else if (x % 1 !== 0 && y % 1 === 0){
-            let adjTile = this.adjacencyList[y - 1][Math.floor(x) - 1];
+            let adjTile = this.nodes.getNode({ y: y, x: Math.floor(x)});
             if (adjTile.right === 0){
+                // if the x coordinate is .5 and the tile to the left has no right wall
                 return true;
             }
         }
@@ -384,10 +400,10 @@ class Maze {
      * @param x - The x coordinate of the node you want to get.
      * @returns A node or edge object.
      */
-    getNode(y, x){
+    getTile(y, x){
         if (this.checkTileInMaze(y, x)) {
             if (x % 1 === 0 && y % 1 === 0){
-                return this.adjacencyList[y - 1][x - 1];
+                return this.nodes.getNode({y: y, x: x});
             } else {
                 let edgeUsed = this._usedEdges[String(y)+String(x)];
                 if (edgeUsed !== undefined){
@@ -408,7 +424,7 @@ class Maze {
      * The output function will print out the adjacency list to the console
      */
     output(){
-        console.log(this.adjacencyList);
+        console.log(this.nodes);
     }
 }
 
@@ -460,7 +476,7 @@ class Entity {
         let x = this.roundTileCoord((this.x / mazeScale) + 1);
         let y = this.roundTileCoord((this.y / mazeScale) + 1);
 
-        this._currentTile = game.maze.getNode(y, x);
+        this._currentTile = game.maze.getTile(y, x);
         this.determineTileOrigin();
     }
 
@@ -765,7 +781,7 @@ class Enemy extends Entity {
 
             for (let row = min.y; row <= max.y; row += 0.5){
                 for (let column = min.x; column <= max.x; column += 0.5){
-                    let node = game.maze.getNode(row, column);
+                    let node = game.maze.getTile(row, column);
                     if (node){
                         nodesInRange.push(node);
                     }
@@ -914,7 +930,7 @@ class Player extends Entity {
         this._prevTile = {y:0, x:0};
         this._maxHealth = 50;
         this._health = this._maxHealth;
-        this._currentTile = game.maze.getNode(1, 1);
+        this._currentTile = game.maze.getTile(1, 1);
         this._speed = 1;
         this._attackCooldown = 200;
         this._attackDamage = 5;
@@ -1286,7 +1302,6 @@ class GameController{
         this.enemySpawnPositions = [];
 
         for (let row = 1; row <= this.maze.height; row++) {
-            let rowList = [];
             for (let column = 1; column <= this.maze.width; column++) {
 
                 let bin = this.maze.binaryString.slice(0,4);
@@ -1300,11 +1315,10 @@ class GameController{
                 let walls = {top: parseInt(bin[0]), bottom: parseInt(bin[1]), left: parseInt(bin[2]), right: parseInt(bin[3])};
                 let node = new Node(row, column, walls);
 
-                rowList.push(node);
+                this.maze.nodes.push(node);
                 this.maze.binaryString = this.maze.binaryString.slice(4);
                 index += 1;
             }
-            this.maze.adjacencyList.push(rowList);
         }
         this.maze.output();
 
@@ -1335,19 +1349,19 @@ class GameController{
                 let keyReference = this.itemGroup.push(key);
                 key.entity.spawn(nodePosition.y, nodePosition.x);
 
-                this.maze.adjacencyList[nodePosition.y - 1][nodePosition.x - 1].contains = keyReference;
+                this.maze.nodes.getNode(nodePosition).contains = keyReference;
             } else if (n % 2 !== even) {
                 let lock = new Lock(n);
                 let lockReference = this.lockGroup.push(lock);
                 lock.entity.spawn(nodePosition.y, nodePosition.x);
 
-                this.maze.adjacencyList[nodePosition.y - 1][nodePosition.x - 1].contains = lockReference;
+                this.maze.nodes.getNode(nodePosition).contains = lockReference;
             }
         }
     }
 
     /**
-     * It sets the CSS properties of the root element to the width and height of the maze
+     * It sets the CSS properties of the root element to the width and height of the maze image
      */
     defineMazeProperties(){
         // setting css properties to correct values
@@ -1422,9 +1436,7 @@ class GameController{
      * and enemies to move
      */
     gameLoop() {
-        if (this._gameOver === true){
-            return;
-        }
+
         // need to get pixel size every frame as it varies depending on how large the browser window is
         pixelSize = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--pixel-size'));
 
@@ -1449,6 +1461,9 @@ class GameController{
      * The step function calls the gameLoop function, which updates the game state, and then calls itself again
      */
     step() {
+        if (this._gameOver === true){
+            return;
+        }
         this.gameLoop();
         window.requestAnimationFrame(function () {
             game.step();
@@ -1473,7 +1488,7 @@ document.addEventListener('keydown', function (e) {
     // adds last key pressed to the start of the heldDirections array
     if (direction && game.heldDirections.indexOf(direction) === -1) {
         game.heldDirections.unshift(direction);
-    } else if (inventorySlot) {
+    } else if (inventorySlot && game.activeInventorySlot !== inventorySlot-1) {
         game.setActiveInventorySlot(inventorySlot-1);
     } else if (command){
         game.player.executeCommand(command);

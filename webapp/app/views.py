@@ -1,5 +1,5 @@
 from app import app, generateMaze
-from flask import render_template, redirect, send_from_directory, request, session
+from flask import render_template, redirect, send_from_directory, request, session, abort
 import os
 from time import time
 from PIL import Image
@@ -33,6 +33,20 @@ def add_maze_to_session(seed):
         session['maze list'] = []
     if seed not in session['maze list']:
         session['maze list'].append(seed)
+
+
+def checkSideLength(length):
+    """
+    If the length is less than 3, set it to 3. If the length is greater than 25, set it to 25. Otherwise, leave it alone.
+
+    :param length: The length of the side of the maze
+    :return: The length of the side of the maze.
+    """
+    if length < 3:
+        length = 3
+    elif length > 25:
+        length = 25
+    return length
 
 
 @app.route('/')
@@ -70,8 +84,16 @@ def play_with_size():
     if 'maxLocks' in args:
         session['max locks'] = int(args['maxLocks'])
 
-    seed_generator.height = int(args['height'])
-    seed_generator.width = int(args['width'])
+    if 'height' in args:
+        seed_generator.height = checkSideLength(int(args['height']))
+    else:
+        seed_generator.height = 3
+
+    if 'width' in args:
+        seed_generator.width = checkSideLength(int(args['width']))
+    else:
+        seed_generator.width = 3
+
     maze_image = seed_generator.create_base_64_seed()
     save_maze_image(maze_image)
     add_maze_to_session(seed_generator.seed)
@@ -88,8 +110,13 @@ def play_from_seed(seed):
     :return: The play.html template is being returned.
     """
     if seed_generator.seed != seed:
-        seed_generator.seed = seed
-        maze_image = seed_generator.draw_maze_from_seed()
+        try:
+            seed_generator.seed = seed
+            maze_image = seed_generator.draw_maze_from_seed()
+        except IndexError or KeyError or ValueError or AttributeError:
+            # called if the given seed is not valid
+            return redirect("/", 500)
+
         save_maze_image(maze_image)
         add_maze_to_session(seed)
 
@@ -117,5 +144,8 @@ def game_complete():
     :return: The gamecomplete.html page is being returned.
     """
     session['game complete'] = 1
-    print(session['maze list'])
+
+    if 'maze list' not in session:
+        abort(401)
+
     return render_template('public/gamecomplete.html', mazeList=session['maze list'])
