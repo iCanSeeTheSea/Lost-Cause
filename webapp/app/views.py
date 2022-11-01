@@ -6,7 +6,7 @@ from PIL import Image
 
 app.secret_key = os.urandom(12).hex()
 maze_image_dir = os.path.join(app.root_path, "mazeimages")
-seed_generator = generate_aze.SeedGenerator()
+seed_generator = generate_maze.SeedGenerator()
 
 
 def save_maze_image(maze_image):
