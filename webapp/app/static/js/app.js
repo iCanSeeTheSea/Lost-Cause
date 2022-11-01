@@ -227,9 +227,9 @@ class NodeList{
     }
 
     /**
-     * It deletes the key from the dictionary and removes the key from the list of keys
-     * @param position - The position of the item to be deleted.
-     * @returns The value of the key at the given position.
+     * It deletes the position from the dictionary and the list of positions
+     * @param position - The position of the object to be deleted.
+     * @returns The value of the key at the position in the array.
      */
     delete(position){
         let key = this.getKeyFromPos(position);

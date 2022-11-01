@@ -78,21 +78,24 @@ def play_with_size():
     """
 
     args = request.args.to_dict()
+    try:
+        if 'maxEnemies' in args:
+            session['max enemies'] = int(args['maxEnemies'])
+        if 'maxLocks' in args:
+            session['max locks'] = int(args['maxLocks'])
 
-    if 'maxEnemies' in args:
-        session['max enemies'] = int(args['maxEnemies'])
-    if 'maxLocks' in args:
-        session['max locks'] = int(args['maxLocks'])
+        if 'height' in args:
+            seed_generator.height = checkSideLength(int(args['height']))
+        else:
+            seed_generator.height = 3
 
-    if 'height' in args:
-        seed_generator.height = checkSideLength(int(args['height']))
-    else:
-        seed_generator.height = 3
-
-    if 'width' in args:
-        seed_generator.width = checkSideLength(int(args['width']))
-    else:
-        seed_generator.width = 3
+        if 'width' in args:
+            seed_generator.width = checkSideLength(int(args['width']))
+        else:
+            seed_generator.width = 3
+    except ValueError as err:
+        print(f"Bad request | {type(err)} {err}")
+        return redirect("/", 400)
 
     maze_image = seed_generator.create_base_64_seed()
     save_maze_image(maze_image)
@@ -113,8 +116,9 @@ def play_from_seed(seed):
         try:
             seed_generator.seed = seed
             maze_image = seed_generator.draw_maze_from_seed()
-        except IndexError or KeyError or ValueError or AttributeError:
+        except (IndexError, KeyError, ValueError, AttributeError) as err:
             # called if the given seed is not valid
+            print(f"Invalid seed | {type(err)} {err}")
             return redirect("/", 500)
 
         save_maze_image(maze_image)

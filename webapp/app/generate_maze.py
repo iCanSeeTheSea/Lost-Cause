@@ -146,7 +146,7 @@ class Maze:
         """
         self._max_x = max_x
         self._max_y = max_y
-        self._nodeList = [[None for _ in range(max_x)] for _ in range(max_y)]
+        self._node_list = [[None for _ in range(max_x)] for _ in range(max_y)]
         self._binary_list = ['' for _ in range(max_y * max_x)]
 
     def insert(self, node_object):
@@ -158,7 +158,7 @@ class Maze:
         row = node_object.row
         column = node_object.column
         # maze starts at 1,1 but list indexing starts at [0][0]
-        self._nodeList[row - 1][column - 1] = node_object
+        self._node_list[row - 1][column - 1] = node_object
         # calculates relative position
         self._binary_list[
             self._max_x * (row - 1) + (
@@ -171,7 +171,7 @@ class Maze:
         :param coord: The coordinate of the node you want to get
         :return: The node at the given coordinates.
         """
-        node = self._nodeList[coord[0] - 1][coord[1] - 1]
+        node = self._node_list[coord[0] - 1][coord[1] - 1]
         return node
 
     @property
@@ -199,7 +199,6 @@ class MazeGenerator:
         for row in range(1, max_y + 1):
             for column in range(1, max_x + 1):
                 self._nodes.append([row, column])
-        self._saveNodes = self._nodes.copy()
 
         # allows easy calculation of the nodes around any given node
         self._adjacent_coords = ((-1, 0), (1, 0), (0, 1), (0, -1))
@@ -208,14 +207,14 @@ class MazeGenerator:
         self._max_y = max_y
 
         # number corresponds to binary value of the node's key
-        self._tileNames = {'0000': 'no-walls.png', '0001': 'right-wall.png', '0010': 'left-wall.png',
-                           '0011': 'left-right-wall.png',
-                           '0100': 'bottom-wall.png', '0101': 'bottom-right-corner.png',
-                           '0110': 'bottom-left-corner.png',
-                           '0111': 'bottom-dead.png', '1000': 'top-wall.png',
-                           '1001': 'top-right-corner.png', '1010': 'top-left-corner.png', '1011': 'top-dead.png',
-                           '1100': 'top-bottom-wall.png', '1101': 'right-dead.png',
-                           '1110': 'left-dead.png', '1111': 'all-walls.png'}
+        self._tile_names = {'0000': 'no-walls.png', '0001': 'right-wall.png', '0010': 'left-wall.png',
+                            '0011': 'left-right-wall.png',
+                            '0100': 'bottom-wall.png', '0101': 'bottom-right-corner.png',
+                            '0110': 'bottom-left-corner.png',
+                            '0111': 'bottom-dead.png', '1000': 'top-wall.png',
+                            '1001': 'top-right-corner.png', '1010': 'top-left-corner.png', '1011': 'top-dead.png',
+                            '1100': 'top-bottom-wall.png', '1101': 'right-dead.png',
+                            '1110': 'left-dead.png', '1111': 'all-walls.png'}
 
     def draw_maze(self, binary_string):
         """
@@ -262,7 +261,7 @@ class MazeGenerator:
                     adjacent_nodes.append([row, column + 1])
 
                 # pasting the correct image (corresponding with the walls list) onto the main background image
-                tile = maze_path / self._tileNames[node.key]
+                tile = maze_path / self._tile_names[node.key]
                 tile_image = Image.open(tile)
 
                 img.paste(tile_image, ((column - 1) * 64, (row - 1) * 64))
