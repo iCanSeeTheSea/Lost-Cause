@@ -37,6 +37,12 @@ class Node:
         """
         return [self.__pos, (self._top, self._bottom, self._left, self._right), self.key]
 
+    def setWallsFromKey(self, key):
+        self.top = key[0]
+        self.bottom = key[1]
+        self.left = key[2]
+        self.right = key[3]
+
     @property
     def top(self):
         """
@@ -160,9 +166,7 @@ class Maze:
         # maze starts at 1,1 but list indexing starts at [0][0]
         self._node_list[row - 1][column - 1] = node_object
         # calculates relative position
-        self._binary_list[
-            self._max_x * (row - 1) + (
-                    column - 1)] = f'{node_object.top}{node_object.bottom}{node_object.left}{node_object.right}'
+        self._binary_list[(self._max_x * (row - 1)) + (column - 1)] = f'{node_object.top}{node_object.bottom}{node_object.left}{node_object.right}'
 
     def node(self, coord):
         """
@@ -230,57 +234,30 @@ class MazeGenerator:
         img = Image.open(base)
 
         # tiles are 32x32
-        img = img.resize((self._max_x * 32 * 2 - 32, self._max_y * 32 * 2 - 25))
+        img = img.resize((self._max_x * 64 - 32, self._max_y * 64 - 25))
 
         # debug = Image.open(maze_path / 'debug-tile.png')
 
-        for row in range(1, self._max_y + 1):
-            for column in range(1, self._max_x + 1):
-                if binary_string:
-                    # uses the binary_string if generating from a seed
-                    wall_string = binary_string[:4]
-                    binary_string = binary_string[4:]
-                    node = Node([row, column])
-                    node.top = wall_string[0]
-                    node.bottom = wall_string[1]
-                    node.left = wall_string[2]
-                    node.right = wall_string[3]
-                    self._maze.insert(node)
-                else:
-                    node = self._maze.node([row, column])
+        for row in range(0, self._max_y):
+            for column in range(0, self._max_x):
 
-                adjacent_nodes = []
-                # getting the list of adjacent nodes from the dictionary
-                if node.top == "0":
-                    adjacent_nodes.append([row - 1, column])
-                if node.bottom == "0":
-                    adjacent_nodes.append([row + 1, column])
-                if node.left == "0":
-                    adjacent_nodes.append([row, column - 1])
-                if node.right == "0":
-                    adjacent_nodes.append([row, column + 1])
+                key = binary_string[:4]
+                binary_string = binary_string[4:]
 
                 # pasting the correct image (corresponding with the walls list) onto the main background image
-                tile = maze_path / self._tile_names[node.key]
+                tile = maze_path / self._tile_names[key]
                 tile_image = Image.open(tile)
+                img.paste(tile_image, (column * 64, row * 64))
 
-                img.paste(tile_image, ((column - 1) * 64, (row - 1) * 64))
-
-                for adjacent_node in adjacent_nodes:
-                    # figuring out where to place adjacent corridors based
-                    join_y = ((adjacent_node[0] - node.row) / 2) + node.row
-                    join_x = ((adjacent_node[1] - node.column) / 2) + node.column
-
-                    # pasting corridors joining the nodes
-
-                    if join_y - int(join_y) != 0:
-                        tile = maze_path / 'left-right-wall.png'  # vertical corridor
-
-                    elif join_x - int(join_x) != 0:
-                        tile = maze_path / 'top-bottom-wall.png'  # horizontal corridor
-
+                if key[1] == "0":
+                    tile = maze_path / 'left-right-wall.png'  # vertical corridor
                     tile_image = Image.open(tile)
-                    img.paste(tile_image, (int((join_x - 1) * 64), int((join_y - 1) * 64)))
+                    img.paste(tile_image, (column * 64, (row * 64) + 32))
+
+                if key[3] == "0":
+                    tile = maze_path / 'top-bottom-wall.png'  # horizontal corridor
+                    tile_image = Image.open(tile)
+                    img.paste(tile_image, ((column * 64) + 32, row * 64))
 
         return img
 
@@ -484,7 +461,7 @@ class SeedGenerator:
         self._mazeGenerator = MazeGenerator(self._height, self._width)
 
         self._maze = self._mazeGenerator.recursive_backtracking()
-        image = self._mazeGenerator.draw_maze('')
+        image = self._mazeGenerator.draw_maze(self._maze.binary_string)
 
         # turns the width and height of the maze into two bytes
         size_binary = str(bin(self._height))[2:].zfill(8) + str(bin(self._width))[2:].zfill(8)
