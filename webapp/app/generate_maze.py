@@ -312,7 +312,7 @@ class MazeGenerator:
                         node.top = '0'
                     elif y_difference < 0:
                         node.bottom = '0'
-                    if x_difference > 0:
+                    elif x_difference > 0:
                         node.left = '0'
                     elif x_difference < 0:
                         node.right = '0'
