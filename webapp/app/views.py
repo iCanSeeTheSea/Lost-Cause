@@ -147,9 +147,10 @@ def game_complete():
     renders the gamecomplete.html template.
     :return: The gamecomplete.html page is being returned.
     """
-    session['game complete'] = 1
 
     if 'maze list' not in session:
         abort(401)
+
+    session['game complete'] = 1
 
     return render_template('public/gamecomplete.html', mazeList=session['maze list'])
