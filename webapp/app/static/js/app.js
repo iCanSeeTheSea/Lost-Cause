@@ -708,7 +708,7 @@ class Enemy extends Entity {
         this._maxHealth = 10;
         this._health = this._maxHealth;
         this._attackCooldown = 1000;
-        this._attackDamage = 3;
+        this._attackDamage = 1;
         this._path = [];
         this._target = {y: -1, x: -1};
         this._targetTile = {};
@@ -929,7 +929,7 @@ class Player extends Entity {
     constructor() {
         super(27, 16);
         this._prevTile = {y:0, x:0};
-        this._maxHealth = 100;
+        this._maxHealth = game.maze.height * game.maze.width;
         this._health = this._maxHealth;
         this._currentTile = game.maze.getTile(1, 1);
         this._speed = 1;
@@ -1307,6 +1307,7 @@ class GameController{
 
                 let bin = this.maze.binaryString.slice(0,4);
 
+                // checking if the node is either a dead end or a node to be used to an enemy spawn
                 if (deadEndCodes.includes(bin)){
                     this.deadEndPositions.push({y:row, x:column});
                 } else if (!corridorCodes.includes(bin) && (index%(enemySpawnSpacing-Math.floor(enemySpawnSpacing/2)) === 0) && enemyNumber !==  0){
