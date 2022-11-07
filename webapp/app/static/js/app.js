@@ -1389,7 +1389,7 @@ class GameController{
         this._gameOver = true;
         this.level.id = "hidden";
         this.endScreen.id = "shown";
-        let score = Math.floor((this.maze.height * this.maze.width)/100 * (((2 ** -((this.timeElapsed/200) - 10)) + 50) + (this.player.enemiesKilled * 10) + (this.player.locksOpened * 15)));
+        let score = Math.floor((this.maze.height + this.maze.width)/2 * (((2 ** -((this.timeElapsed/200) - 10)) + 50) + (this.player.enemiesKilled * 10) + (this.player.locksOpened * 15)));
 
         let popOut = this.endScreen.firstElementChild;
         let message = popOut.firstElementChild;
