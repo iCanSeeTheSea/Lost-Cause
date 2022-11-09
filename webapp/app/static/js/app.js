@@ -1310,7 +1310,7 @@ class GameController{
                     this.deadEndPositions.push({y:row, x:column});
                 }
 
-                if (index === (enemyCount*enemySpawnSpacing) - (enemySpawnSpacing/2) && enemyNumber !==  0){
+                if (index === enemySpawnSpacing*(enemyCount - 1/2) && enemyNumber !==  0){
                     this.enemySpawnPositions.push({y:row, x:column});
                     enemyCount += 1
                 }
