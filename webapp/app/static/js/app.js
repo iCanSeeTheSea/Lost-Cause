@@ -1298,7 +1298,7 @@ class GameController{
 
 
         this.enemySpawnPositions = [];
-        let enemyCount = 1
+        let enemyCount = 0.5
 
         for (let row = 1; row <= this.maze.height; row++) {
             for (let column = 1; column <= this.maze.width; column++) {
@@ -1310,7 +1310,7 @@ class GameController{
                     this.deadEndPositions.push({y:row, x:column});
                 }
 
-                if (index === enemySpawnSpacing*(enemyCount - 1/2) && enemyNumber !==  0){
+                if (index === enemySpawnSpacing*enemyCount && enemyNumber !==  0){
                     this.enemySpawnPositions.push({y:row, x:column});
                     enemyCount += 1
                 }
