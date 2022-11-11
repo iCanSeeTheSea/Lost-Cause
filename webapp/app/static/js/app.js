@@ -866,9 +866,7 @@ class Enemy extends Entity {
             // set player as target
             this._target.x = game.player.x;
             this._target.y = game.player.y;
-
-        } else {
-            this.pathFind();
+            this._path = [];
         }
 
         if (this._target.x !== -1 && this._target.y !== -1) {
@@ -879,11 +877,13 @@ class Enemy extends Entity {
             } else if (this.x + 2 < this._target.x) {
                 this.moveDirections.push(directions.right);
             }
+
             if (this.y - 2 > this._target.y) {
                 this.moveDirections.push(directions.up);
             } else if (this.y + 2 < this._target.y) {
                 this.moveDirections.push(directions.down);
             }
+
             if (this.moveDirections.length > 0) {
                 super.move();
             } else {
@@ -891,6 +891,14 @@ class Enemy extends Entity {
                 this._path.shift();
             }
         }
+
+        if (this._path.length === 0){
+            this._target.x = -1;
+            this._target.y = -1;
+            this.pathFind();
+        }
+
+
         if (this._path.length > 0 && this._target.x === -1 && this._target.y === -1){
             // move to next tile
             this.moveDirections = [];
@@ -1298,7 +1306,7 @@ class GameController{
 
 
         this.enemySpawnPositions = [];
-        let enemyCount = 0.5
+        let enemyCount = 0.5;
 
         for (let row = 1; row <= this.maze.height; row++) {
             for (let column = 1; column <= this.maze.width; column++) {
@@ -1308,11 +1316,12 @@ class GameController{
                 // checking if the node is a dead end and/or a node to be used to an enemy spawn
                 if (deadEndCodes.includes(bin)){
                     this.deadEndPositions.push({y:row, x:column});
+                    console.log()
                 }
 
                 if (index === enemySpawnSpacing*enemyCount && enemyNumber !==  0){
                     this.enemySpawnPositions.push({y:row, x:column});
-                    enemyCount += 1
+                    enemyCount += 1;
                 }
 
                 let walls = {top: parseInt(bin[0]), bottom: parseInt(bin[1]), left: parseInt(bin[2]), right: parseInt(bin[3])};
@@ -1324,6 +1333,7 @@ class GameController{
             }
         }
         this.maze.output();
+        console.log(this.deadEndPositions.length)
 
         this.determineLockAndKeyPositions();
     }
