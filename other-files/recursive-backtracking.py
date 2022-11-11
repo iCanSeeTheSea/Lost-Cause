@@ -4,7 +4,6 @@ import random
 import time
 
 
-
 def mazeGen(side):
     nodes = []
 
@@ -42,10 +41,9 @@ def mazeGen(side):
 
         if possible_nodes:
             # choosing a random (adjacent) node to go next
-        
+
             next_node = random.choice(possible_nodes)
             spanning_tree.append((next_node, current_node))
-
 
         else:
             # checking each node from the stack for possible nodes, if there are none, removing it
@@ -70,5 +68,6 @@ def mazeGen(side):
                 (str(end_time)[:-(len(str(end_time).split('.')[1])-2)]) + 's')
             print(spanning_tree)
             break
+
 
 mazeGen(5)
