@@ -1,0 +1,79 @@
+A subroutine to generate a random, perfect maze using recursive backtracking
+
+class properties used:
+	maze: Maze object
+	nodes: empty array
+
+SUBROUTINE recursive_backtracking
+	stack: empty array
+	next_position <- [1, 1]
+
+	WHILE true DO
+		current_position <- next_position
+		push current_position to stack
+		
+		TRY
+			remove current_position from nodes
+		IGNORE value error
+		ENDTRY
+		
+		possible_coordinates: empty array
+		
+		FOR coordinate of coordinates adajcent to current_position DO
+			IF coordinate is in nodes THEN
+				append coordinate to possible_coordinates
+			ENDIF
+		ENDFOR
+		
+		IF possible_coordinates contains items THEN
+			next_position <- random choice from possible_coordinates
+			pair <- [next_position, current_position]
+			FOR coordinate and index of coordinate in pair DO
+				IF a Node object at coordinate is not in maze THEN
+					node <- new Node object at coordinate
+				ELSE
+					node <- node object from maze at coordinate
+				adjacent_node <- pair[index-1]
+				y_difference <- coordinate[0] - adjacent_node[0]
+				x_difference <- coordinate[1] - adjacent_node[1]
+				IF y_difference > 0 THEN
+					node.top <- '0'
+				ELSE IF y_difference < 0 THEN
+					node.bottom <- '0'
+				IF x_difference > 0 THEN
+					node.left <- '0'
+				ELSE IF x_difference < 0 THEN
+					node.right <- '0'
+				ENDIF
+				
+				insert node into maze
+			ENDFOR
+				
+		ELSE
+			FOR index of each item in stack (backwards) DO
+				check_positon <- stack[index]
+				FOR coordinate of coordinates adajcent to current_position DO
+					IF coordinate is in nodes THEN
+						next_position <- check_positon
+						break for loop
+					ENDFOR
+				ELSE
+					TRY
+						pop from stack
+					IGNORE value error
+					ENDTRY
+					continue to next iteration
+				ENDIF
+				break for loop
+			ENDFOR
+		ENDIF
+		
+		IF stack LENGTH = 0 THEN
+			break while loop
+		ENDIF
+		
+	ENDWHILE
+	return maze
+ENDSUBROUTINE
+		
+	

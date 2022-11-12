@@ -1,0 +1,50 @@
+
+
+SUBROUTINE move()
+	call determineTileOrigin()
+	targetTile <- player.currentTile
+	
+	IF targetTile = currentTile THEN
+		target.x <- player.x
+		target.y <- player.y
+		path <- []
+	ENDIF
+	
+	IF target.x != -1 AND target.y != -1 THEN
+		moveDirections <- []
+		
+		IF x > target.x THEN
+			push "left" to moveDirections
+		ELSE IF x < target.x THEN
+			push "right" to moveDirections
+		
+		IF y > target.y THEN
+			push "up" to moveDirections
+		ELSE IF y < target.y THEN
+			push "down" to moveDirections
+		
+		IF moveDirections contains items THEN
+			call parent.move()
+		ELSE
+			target.x <- -1 
+			target.y <- -1
+			remove path[0] from path
+		ENDIF
+	ENDIF
+	
+	IF path contains no items THEN
+		target.x <- -1
+		target.y <- -1
+		pathFind()
+	ENDIF
+	
+	IF path contains items AND target.x = -1 AND target.y = -1 THEN
+		moveDirections <- []
+		push path[0] to moveDirections
+		call parent.move()
+		IF currentTile != previousTile THEN
+			target.x <- tileOrigin.x + 25
+			target.y <- tileOrigin.y + 25
+		ENDIF
+	ENDIF
+ENDSUBROUTINE

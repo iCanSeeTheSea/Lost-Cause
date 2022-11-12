@@ -1,0 +1,44 @@
+
+SUBROUTINE move()
+	IF moveDirections contains items THEN
+		originalX <- x
+		originalY <- y
+		
+		call determineCurrentTile
+		
+		FOR direction of moveDirections DO
+			IF direction = "right" THEN
+				x <- x + speed
+			IF direction = "left" THEN
+				x <- x - speed
+			IF direction = "down" THEN
+				y <- y + speed
+			IF direction = "up" THEN
+				y <- y - speed
+			ENDIF
+		ENDFOR
+		
+		call checkCollision(originalX, originalY)
+		
+		set HTML attribute "facing" to moveDirections[0]
+		set HTML attribute "walking" to "true"
+	ELSE
+		set HTML attribute "walking" to "false"
+	ENDIF
+ENDSUBROUTINE
+
+SUNBROUTINE attack(target)
+	IF HTML attribute "attacking" != "true" THEN
+		set HTML attribute "attacking" to "true"
+		
+		IF target.x < x THEN
+			set HTML attribute "facing" to "left"
+		ELSE IF target.x > x THEN
+			set HTML attribute "facing" to "right"
+		ENDIF
+	
+		target.damage(attackDamage)
+		WAIT attackCooldown seconds
+		set HTML attribute "attacking" to false
+	ENDIF
+ENDSUBROUTINE

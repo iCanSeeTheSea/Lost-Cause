@@ -1,0 +1,89 @@
+
+SUBROUTINE index()
+	return flask render_template("public/index.html")
+ENDSUBROUTINE
+
+
+SUBROUTINE get_maze_image(file_name)
+	return flask send_from_directory(root path for "/app/mazeimages", file_name)
+ENDSUBROUTINE	
+
+
+SUBROUTINE play_with_size()
+	args <- dictionary of flask request arguments
+	
+	TRY
+		IF key 'maxEnemies' is in args THEN
+			session['max enemies'] <- integer(args['maxEnemies'])
+		ENDIF
+		
+		IF key 'maxLocks' is in args THEN
+			session['max locks'] <- integer(args['maxLocks'])
+		ENDIF
+		
+		IF key 'height' is in args THEN
+			seed_generator.height <- checkSideLength(integer(args['height']))
+		ELSE
+			seed_generator.height <- 3
+		ENDIF
+			
+		IF key 'width' is in args THEN
+			seed_generator.width <- checkSideLength(integer(args['width']))
+		ELSE
+			seed_generator.width <- 3
+		ENDIF
+	CATCH err <- value error
+		OUTPUT "bad request", err type, err message
+		return flask redirect("/", status <- 400)
+	
+	maze_image <- seed_generator.create_base_64_seed()
+	save_maze_image(maze_image)
+	add_maze_to_session(seed_generator.seed)
+	
+	return flask redirect("/play/" + seed_generator.seed)
+ENDSUBROUTINE
+
+SUBROUTINE play_from_seed(seed)
+	IF seed_generator.seed != seed THEN
+		TRY:
+			seed_generator.seed <- seed
+			maze_image <- seed_generator.draw_maze_from_seed()
+		CATCH err <- (index error, key error, value error, attribute error)
+			OUTPUT "invalid seed", err type, err message
+			return flask redirect("/", status <- 500)
+	
+	ENDIF
+	
+	save_maze_image(maze_image)
+	add_maze_to_session(seed)
+	
+	IF key 'game complete' is not in session THEN
+		session['game complete'] <- 0
+	ENDIF
+	
+	IF session['game complete'] = true THEN
+		level <- custom
+	ELSE
+		level <- string(length of session['maze list'])
+	ENDIF
+	
+	IF 'max enemies' is not in session THEN
+		session['max enemies'] = -1
+	ENDIF
+	
+	IF 'max locks' is not in session THEN
+		session['max locks'] = -1
+	ENDIF
+	
+	return flask render_template("/public/play.html", level <- level, maxEnemies <- session[maxEnemies, maxLocks <- session['max locks'], mazeImage <- session['image name'], mazeSeed <- seed_generator.seed. gameComplete <- session['game complete'])
+ENDSUBROUTINE
+
+SUBROUTINE game_complete()
+	IF 'maze list' is not in session THEN
+		flask abort(status <- 401)
+	ENDIF
+
+	session['game complete'] <- 1
+	
+	return flask render_template('public/gamecomplete.html', mazeList <- session['maze list']
+ENDSUBROUTINE
