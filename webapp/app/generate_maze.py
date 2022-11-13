@@ -249,6 +249,7 @@ class MazeGenerator:
                 tile_image = Image.open(tile)
                 img.paste(tile_image, (column * 64, row * 64))
 
+                # only needs to check bottom and right or an edge
                 if key[1] == "0":
                     tile = maze_path / 'left-right-wall.png'  # vertical corridor
                     tile_image = Image.open(tile)

@@ -18,6 +18,7 @@ def save_maze_image(maze_image):
     """
     for file in os.scandir(maze_image_dir):
         os.remove(file)
+    # stores the name of the image currently in use
     session['image name'] = f"maze{str(time()).split('.')[0]}.png"
     maze_image.save(os.path.join(maze_image_dir, session['image name']))
 
@@ -79,6 +80,7 @@ def play_with_size():
 
     args = request.args.to_dict()
     try:
+        # takes query parameters and stores them either in the session or the seed generator
         if 'maxEnemies' in args:
             session['max enemies'] = int(args['maxEnemies'])
         else:
@@ -99,6 +101,7 @@ def play_with_size():
         else:
             seed_generator.width = 3
     except ValueError as err:
+        # called if any of the arguments are invalid
         print(f"Bad request | {type(err)} {err}")
         return redirect("/", 400)
 
@@ -137,6 +140,7 @@ def play_from_seed(seed):
     else:
         level = str(len(session['maze list']))
 
+    # do not want to keep any values set for max enemies or max locks between mazes
     if 'max enemies' in session:
         enemies = session['max enemies']
         del session['max enemies']

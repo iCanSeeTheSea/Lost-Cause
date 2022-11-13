@@ -6,7 +6,10 @@
 
 <div class='level' id="shown">
     <div class='inventory'>
+        {# contains elements for each slot that can contain an item #}
         <div class="slot" id="slot-0">
+            {# separate slot and slot sprite elements as the slot will display the active slot indicator #}
+            {# and the slot_sprite will display the image for the item that is in the slot #}
             <div class="slot_sprite"></div>
         </div>
         <div class="slot" id="slot-1">
@@ -24,19 +27,21 @@
     </div>
     <div class='camera'>
         <div class='map' style="background-image: url(/mazeimages/{{ mazeImage | safe }})">
+            {# player character will always be in the game, will start standing stationary #}
             <div class='character' id="character-1" facing='down' walking="false" attacking="false">
                 <div class="character_spritesheet"></div>
             </div>
         </div>
     </div>
     <div class="game-status">
+        {# displays game stats and controlls for the user #}
         level: {{ level | safe }}
         <div class="time-elapsed"></div>
         <div class="locks-remaining"></div>
         <div class="enemies-defeated"></div><br>
         <div class="controls">
             Controls:<br>
-            WASD> move<br>
+            WASD > move<br>
             E > pick up/use<br>
             Q > drop<br>
             R > attack<br>
@@ -45,6 +50,7 @@
     </div>
 </div>
 <div class='end-screen' id="hidden">
+{# end screen will be shown and populated with the correct elements and image when the game ends #}
     <div class="pop-out">
         <div class="message"></div>
         <div class="score"></div>
@@ -55,7 +61,7 @@
 
 {% block script %}
 <script>
-  // use with function from external js
+  // used with external js, allows jinja to interact with javascript
     let mazeSeed = "{{ mazeSeed | safe}}";
     const maxEnemies = {{ maxEnemies | safe }}
     const maxLocks = {{ maxLocks | safe }}
