@@ -81,8 +81,13 @@ def play_with_size():
     try:
         if 'maxEnemies' in args:
             session['max enemies'] = int(args['maxEnemies'])
+        else:
+            session['max enemies'] = -1
+
         if 'maxLocks' in args:
             session['max locks'] = int(args['maxLocks'])
+        else:
+            session['max locks'] = -1
 
         if 'height' in args:
             seed_generator.height = checkSideLength(int(args['height']))
@@ -132,12 +137,19 @@ def play_from_seed(seed):
     else:
         level = str(len(session['maze list']))
 
-    if 'max enemies' not in session:
-        session['max enemies'] = -1
-    if 'max locks' not in session:
-        session['max locks'] = -1
+    if 'max enemies' in session:
+        enemies = session['max enemies']
+        del session['max enemies']
+    else:
+        enemies = -1
 
-    return render_template('public/play.html', level=level, maxEnemies=session["max enemies"], maxLocks=session["max locks"], mazeImage=session['image name'], mazeSeed=seed_generator.seed, gameComplete=session['game complete'])
+    if 'max locks' in session:
+        locks = session['max locks']
+        del session['max locks']
+    else:
+        locks = -1
+
+    return render_template('public/play.html', level=level, maxEnemies=enemies, maxLocks=locks, mazeImage=session['image name'], mazeSeed=seed_generator.seed, gameComplete=session['game complete'])
 
 
 @app.route('/gamecomplete')

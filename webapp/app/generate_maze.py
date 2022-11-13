@@ -472,7 +472,7 @@ class SeedGenerator:
         while len(binary_string) % 24 != 0:
             binary_string += '0'
             padding += 1
-        padding //= 8
+        padding //= 4
 
         # splits binary_string every 6 characters for easier conversion to base 64
         binary_list = [binary_string[i:i + 6] for i in range(0, len(binary_string), 6)]

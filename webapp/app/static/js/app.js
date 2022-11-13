@@ -338,7 +338,7 @@ class Maze {
         for (let i = 0; i < base64String.length; i++){
             binaryString += toBinary[base64String[i]];
         }
-        let padding = (this.seed.length - base64String.length)*8;
+        let padding = (this.seed.length - base64String.length)*4;
         this.height = parseInt(binaryString.slice(0,8), 2);
         this.width = parseInt(binaryString.slice(8,16), 2);
         this.binaryString = binaryString.slice(16, binaryString.length - padding);
@@ -763,9 +763,9 @@ class Enemy extends Entity {
     pathFind(){
         //console.log(this.targetTile)
         let targetPosition = this._targetTile.position();
-        if (this._path.length > 0 || (targetPosition.y === this._currentTile.y && targetPosition.x === this._currentTile.x)){
-            return;
-        }
+        // if (this._path.length > 0 || (targetPosition.y === this._currentTile.y && targetPosition.x === this._currentTile.x)){
+        //     return;
+        // }
         let min = {y: this._currentTile.y - this._range/2, x: this._currentTile.x - this._range/2};
         let max = {y: this._currentTile.y + this._range/2, x: this._currentTile.x + this._range/2};
 
@@ -784,7 +784,6 @@ class Enemy extends Entity {
                 }
             }
             // recursive backtracking starts at target for better efficiency
-            // * explain in design
             let checkTile = this._targetTile;
             let checkPosition = checkTile.position();
             let visitedNodes = new NodeList();

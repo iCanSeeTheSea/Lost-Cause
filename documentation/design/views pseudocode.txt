@@ -15,10 +15,14 @@ SUBROUTINE play_with_size()
 	TRY
 		IF key 'maxEnemies' is in args THEN
 			session['max enemies'] <- integer(args['maxEnemies'])
+		ELSE THEN
+			session['max enemies'] <- -1
 		ENDIF
 		
 		IF key 'maxLocks' is in args THEN
 			session['max locks'] <- integer(args['maxLocks'])
+		ELSE THEN
+			session['max locks'] <- -1
 		ENDIF
 		
 		IF key 'height' is in args THEN
