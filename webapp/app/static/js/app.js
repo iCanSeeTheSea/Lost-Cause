@@ -1,6 +1,7 @@
 // debug
 console.log(mazeSeed);
 const mazeScale = 128;
+// defining the first instance of pixelSize for it to be used throughout the program
 let pixelSize = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--pixel-size'));
 
 // mapping keys to movement directions
@@ -332,15 +333,22 @@ class Maze {
         this._usedEdges = {};
         this.nodes = new NodeList();
 
-        // separating dimensions from seed and converting to binary
+        // removes padding from the seed, so it can be converted into binary smoothly
         let base64String = this.seed.replace(/=/g, '');
         let binaryString = '';
+        // taking each base 64 character and matching it with the corresponding 6 binary digits
         for (let i = 0; i < base64String.length; i++){
             binaryString += toBinary[base64String[i]];
         }
+
+        // works out how much padding was used in the seed
         let padding = (this.seed.length - base64String.length)*4;
+
+        // unpacking the height and width from the front of the binary string, and converting back into decimal
         this.height = parseInt(binaryString.slice(0,8), 2);
         this.width = parseInt(binaryString.slice(8,16), 2);
+
+        // removing the height, width and padding from the binary string
         this.binaryString = binaryString.slice(16, binaryString.length - padding);
         console.log(binaryString,this.height, this.width);
     }
@@ -400,12 +408,16 @@ class Maze {
     getTile(y, x){
         if (this.checkTileInMaze(y, x)) {
             if (x % 1 === 0 && y % 1 === 0){
+                // if the x and y values are whole numbers that are within the maze's bounds
+                // then those x and y values can be used to get the correct node from the node list
                 return this.nodes.getNode({y: y, x: x});
             } else {
                 let edgeUsed = this._usedEdges[String(y)+String(x)];
+                // checking if the tile to get is currently being used to store an item
                 if (edgeUsed !== undefined){
                     return edgeUsed;
                 } else {
+                    // if none of the above, then the tile will either be a horizontal or vertical edge
                     if (x % 1 !== 0) {
                         return new HorizontalEdge(y, x);
                     } else if (y % 1 !== 0) {
@@ -502,8 +514,8 @@ class Entity {
         if (this.x < this._tileOrigin.x + 3) {
             if (this._currentTile.left === 1) {
                 this.x = originalX;
+                // checking the corners on the left side of the tile if there is no left wall
             } else if (this._currentTile.left === 0 && (this.y > this._tileOrigin.y + 46 || this.y < this._tileOrigin.y + 5)) {
-                // corner correction
                 this.y = originalY;
             }
         }
@@ -511,6 +523,7 @@ class Entity {
         if (this.x > this._tileOrigin.x + 45) {
             if (this._currentTile.right === 1) {
                 this.x = originalX;
+                // checking the corners on the right side of the tile if there is no right wall
             } else if (this._currentTile.right === 0 && (this.y > this._tileOrigin.y + 46 || this.y < this._tileOrigin.y + 5)) {
                 this.y = originalY;
             }
@@ -519,6 +532,7 @@ class Entity {
         if (this.y < this._tileOrigin.y + 5) {
             if (this._currentTile.top === 1) {
                 this.y = originalY;
+                // checking the corners on the top side of the tile if there is no top wall
             } else if (this._currentTile.top === 0 && (this.x < this._tileOrigin.x + 3|| this.x > this._tileOrigin.x + 45)) {
                 this.x = originalX;
             }
@@ -527,6 +541,7 @@ class Entity {
         if (this.y > this._tileOrigin.y + 46) {
             if (this._currentTile.bottom === 1) {
                 this.y = originalY;
+                // checking the corners on the bottom side of the tile if there is no bottom wall
             } else if (this._currentTile.bottom === 0 && (this.x < this._tileOrigin.x + 3|| this.x > this._tileOrigin.x + 45)) {
                 this.x = originalX;
             }
@@ -549,15 +564,19 @@ class Entity {
 
             for (let i = 0; i < this.moveDirections.length; i++) {
                 switch (this.moveDirections[i]) {
+
                     case directions.right:
                         this.x += this._speed;
                         break;
+
                     case directions.left:
                         this.x -= this._speed;
                         break;
+
                     case directions.down:
                         this.y += this._speed;
                         break;
+
                     case directions.up:
                         this.y -= this._speed;
                         break;
@@ -588,14 +607,23 @@ class Entity {
      * @param target - The target to attack.
      */
     attack(target){
+        // can only run if the entity is not already attacking
+        // i.e. they are not in an attack cooldown
         if (this.self.getAttribute("attacking") !== "true"){
+
             this.self.setAttribute("attacking", "true");
+
+            // checks which direction the target is from the entity,to play the correct animation
             if (target.x <= this.x){
                 this.self.setAttribute("facing", "left");
             } else if (target.x > this.x) {
                 this.self.setAttribute("facing", "right");
             }
+
+            //dealing damage to the target
             target.damage(this._attackDamage)
+
+            // sets the attack cooldown - the entity won't be able to attack again until this is over
             window.setTimeout(function (self){
                 self.setAttribute("attacking", "false");
             }, this._attackCooldown, this.self);
@@ -648,6 +676,8 @@ class ItemEntity extends Entity{
     place(){
         this.y = this._tileOrigin.y+32;
         this.x = this._tileOrigin.x+24;
+
+        // adding item entity's HTML element into the document
         game.map.appendChild(this.self);
         this.updatePosition();
     }
@@ -725,6 +755,8 @@ class Enemy extends Entity {
         this.x = (tileX -1) * mazeScale + 20;
         this.y = (tileY -1) * mazeScale + 40;
         this._currentTile = {y: tileY, x: tileX};
+
+        // adding the enemy's HTML element to the document
         game.map.appendChild(this.self)
 
         let spriteSheet = document.createElement("div");
@@ -743,11 +775,18 @@ class Enemy extends Entity {
     damage(damageTaken){
         this._health -= damageTaken
         if (this._health <= 0){
+            // doesn't allow the enemy's health to drop below 0
             this._health = 0;
+
+            // removes the enemy's HTML element from the document
             this.self.outerHTML = "";
+
             game.player.enemiesKilled += 1;
+
             for (let index = 0; index < game.enemyGroup.objectList.length; index++){
                 let enemy = game.enemyGroup.objectList[index];
+                // removing the enemy from the enemy group
+                // locates correct enemy by id, then removes by index
                 if (enemy.id === this.id){
                     game.enemyGroup.objectList.splice(index, 1);
                     break;
@@ -761,11 +800,7 @@ class Enemy extends Entity {
      * The enemy finds a path to the player by checking the tiles around it and moving in the direction of the player
      */
     pathFind(){
-        //console.log(this.targetTile)
-        let targetPosition = this._targetTile.position();
-        // if (this._path.length > 0 || (targetPosition.y === this._currentTile.y && targetPosition.x === this._currentTile.x)){
-        //     return;
-        // }
+        // this._range is the diameter of the enemy's searching area
         let min = {y: this._currentTile.y - this._range/2, x: this._currentTile.x - this._range/2};
         let max = {y: this._currentTile.y + this._range/2, x: this._currentTile.x + this._range/2};
 
@@ -773,8 +808,8 @@ class Enemy extends Entity {
         if (min.y <= this._targetTile.y && this._targetTile.y <= max.y && min.x <= this._targetTile.x && this._targetTile.x <= max.x){
 
             let nodesInRange = new NodeList();
-            //console.log('search start', this.currentTile, this.targetTile.position());
 
+            // adding all the tiles (nodes and edges) that are within the enemy's range to a node list
             for (let row = min.y; row <= max.y; row += 0.5){
                 for (let column = min.x; column <= max.x; column += 0.5){
                     let node = game.maze.getTile(row, column);
@@ -783,15 +818,17 @@ class Enemy extends Entity {
                     }
                 }
             }
+
             // recursive backtracking starts at target for better efficiency
             let checkTile = this._targetTile;
+            // x and y coordinate of tile saved separately as they will need to be referenced often, and the positions
+            // will need to be compared
             let checkPosition = checkTile.position();
             let visitedNodes = new NodeList();
 
             while(true){
                 if (checkPosition.y === this._currentTile.y && checkPosition.x === this._currentTile.x){
                     // has found player
-                    //console.log('player found', this.path)
                     break;
                 }
 
@@ -835,16 +872,20 @@ class Enemy extends Entity {
                     direction = "left";
 
                 } else {
-                    // can't find player
+                    // can't find player down this route
                     if (this._path.length !== 0) {
                         this._path.shift();
+                        // nodes will be popped from list until either a new route is found, or the enemy realises it
+                        // cannot find the player
                         checkPosition = visitedNodes.pop();
                     } else {
                         break;
                     }
                 }
                 if (nodesInRange.contains(nextPosition)){
+                    // adding direction to the path as the route is followed
                     this._path.unshift(direction);
+                    // records the order in which tiles have been visited to allow backtacking
                     visitedNodes.push(checkTile);
                     checkPosition = nextPosition;
                     checkTile = nodesInRange.dict[nodesInRange.getKeyFromPos(checkPosition)];
@@ -869,14 +910,18 @@ class Enemy extends Entity {
         }
 
         if (this._target.x !== -1 && this._target.y !== -1) {
-            // move towards target
+            // moving towards a target
             this.moveDirections = [];
+
+            // horizontal and vertical movement are calculated separately so enemy can move diagonally, like the player can
+            // horizontal movement
             if (this.x - 2 > this._target.x) {
                 this.moveDirections.push(directions.left);
             } else if (this.x + 2 < this._target.x) {
                 this.moveDirections.push(directions.right);
             }
 
+            // vertical movement
             if (this.y - 2 > this._target.y) {
                 this.moveDirections.push(directions.up);
             } else if (this.y + 2 < this._target.y) {
@@ -886,12 +931,16 @@ class Enemy extends Entity {
             if (this.moveDirections.length > 0) {
                 super.move();
             } else {
+                // if the enemy has reached the target, target is removed so either:
+                // - will be in same tile as player so will not need to follow a path
+                //- will have reached the centre of a tile whilst following a path, can now continue to follow the path
                 this._target.x = this._target.y = -1;
                 this._path.shift();
             }
         }
 
         if (this._path.length === 0){
+            // if the path has been exhausted and enemy is not in the same tile as the player, the enemy should find a new path.
             this._target.x = -1;
             this._target.y = -1;
             this.pathFind();
@@ -899,11 +948,13 @@ class Enemy extends Entity {
 
 
         if (this._path.length > 0 && this._target.x === -1 && this._target.y === -1){
-            // move to next tile
+            // following path to move to next tile
             this.moveDirections = [];
             this.moveDirections.push(this._path[0]);
             super.move();
+
             if (this._currentTile.x !== this._prevTile.x || this._currentTile.y !== this._prevTile.y) {
+                // when the enemy crosses from one tile to another, moves to the centre of the new tile before continuing along path
                 this._target = {y: this._tileOrigin.y + 25, x: this._tileOrigin.x + 25};
             }
         }
@@ -914,6 +965,7 @@ class Enemy extends Entity {
      * If the distance between the player and the enemy is less than 5, then the enemy will attack the player
      */
     attack(){
+        // calculating distance between enemy and player using pythagoras
         let distance = Math.sqrt(Math.abs(this.x - game.player.x) **2 + Math.abs(this.y  - game.player.y )**2);
         if (distance < 5) {
             super.attack(game.player);
@@ -949,6 +1001,7 @@ class Player extends Entity {
      * @param command - The command to execute.
      */
     executeCommand(command){
+        // converts commands into function calls
         switch (command){
             case 'interact':
                 this.interact();
@@ -972,21 +1025,34 @@ class Player extends Entity {
     interact(){
         if (this._currentTile.contains !== undefined){
             if (this._currentTile.contains.objectType === 'lock'){
+                // getting references to both the lock and the item in the currently active inventory slot
                 let lock = this._currentTile.contains.getSelf();
                 let itemReference = this.inventory.getItemFromSlot(game.activeInventorySlot);
+
                 if (itemReference.objectType === 'key'){
+                    // if the player is holding a key, the lock is unlocked and removed from the maze
                     lock.unlock();
                     this._currentTile.contains = undefined;
+                    // the key is removed from the player's inventory
                     this.inventory.removeItem(game.activeInventorySlot);
+                    // recording the locks opening, and checking if there are no locks left to open
+                    // win condition can only occur when a lock is unlocked, so only needs to be checked in that instance
                     this.locksOpened += 1;
                     game.checkWinCondition();
                 }
+
             } else {
+                // if not interacting with a lock, the item is picked up
                 let itemReference = this._currentTile.contains;
+
+                // items can only be picked up if there is space in the inventory
                 if (this.inventory.checkSlotsAvailable()){
+                    // remove the item from the maze and add it to the player's inventory
                     this.inventory.insertItem(itemReference, game.activeInventorySlot);
                     this._currentTile.contains.getSelf().take()
                     this._currentTile.contains = undefined;
+                    // checking if the current tile is an edge, in which case it should be removed
+                    // from the list of edges that are currently in use, as it no longer contains an item
                     game.maze.checkUsedEdge(this._currentTile);
                 }
             }
@@ -997,21 +1063,36 @@ class Player extends Entity {
      * If the player is holding a sword, find the closest enemy and attack it
      */
     attack(){
+        // player can only attack if they are holding a sword
         if (this.inventory.getItemFromSlot(game.activeInventorySlot).objectType === 'sword'){
+
+            // setting the closest enemy to an arbitrary enemy to begin checking - will only be used if it
+            // is in the player's attack range and is actually the closest enemy
             let closestEnemy = game.enemyGroup.objectList[0];
+            // the first instance of closestDistance is set to the furthest distance the player should be able
+            // to reach enemies in
             let closestDistance = 10;
+            // enemyInRange determines whether an attack will occur or not
             let enemyInRange = false;
+
             for (const enemy of game.enemyGroup.objectList) {
                 let targetTile = enemy.getCurrentTile()
+                // first will check to see if the enemy is even in the same tile as the player
                 if (targetTile.x === this._currentTile.x && targetTile.y === this._currentTile.y) {
+                    // finding the distance between the player and the enemy, which is definitely in the same tile as the player,
+                    // using pythagoras
                     let distance = Math.sqrt(Math.abs(this.x - enemy.x) **2 + Math.abs(this.y  - enemy.y )**2);
+
                     if (distance < closestDistance){
+                        // replaces the closest distance with new distance and closest enemy with new enemy
+                        // if the enemy being checked is the new closest enemy
                         closestDistance = distance;
                         closestEnemy = enemy;
                         enemyInRange = true;
                     }
                 }
             }
+
             if (enemyInRange) {
                 super.attack(closestEnemy);
             }
@@ -1023,9 +1104,12 @@ class Player extends Entity {
      * the tile
      */
     drop(){
+        // will only drop an item if there is an item in the current slot and no item in the tile
         if (this.inventory.getItemFromSlot(game.activeInventorySlot) !== undefined && this._currentTile.contains === undefined){
+            // removes item from the slot and places it in the tile
             this._currentTile.contains = this.inventory.removeItem(game.activeInventorySlot);
             this._currentTile.contains.getSelf().place(this.y, this.x);
+            // if the tile is an edge, it needs to be saved as it now contains an item
             game.maze.checkUsedEdge(this._currentTile);
         }
     }
@@ -1038,7 +1122,9 @@ class Player extends Entity {
     damage(damageTaken){
         this._health -= damageTaken;
         if (this._health <= 0){
+            // prevents health from falling below 0
             this._health = 0;
+            // game ends if player drops to 0 health
             game.gameEnd(false);
         }
         this._healthBar.update(this._health);
@@ -1126,9 +1212,11 @@ class Inventory {
      * @param activeSlot - The slot that the player is currently hovering over.
      */
     insertItem(itemReference, activeSlot) {
+        // can only add items to the inventory if there are slots available
         if (this.checkSlotsAvailable()) {
             let slot = '';
             for (let index = 0; index < this._size; index++) {
+                // finds the next available inventory slot for the item being picked up to be added to
                 if (this._contents[index] === undefined) {
                     this._contents[index] = itemReference;
                     slot = 'slot-' + index.toString();
@@ -1136,6 +1224,7 @@ class Inventory {
                     break;
                 }
             }
+            // sets the inventory slot in the document to the corresponding item type
             this._setDocumentInventorySlot(slot, itemReference.objectType);
         }
     }
@@ -1164,6 +1253,7 @@ class HealthBar{
      */
     constructor(parentId, maxHealth) {
         this._maxHealth = maxHealth;
+        // finds the element the healthbar will be attacked to in the document
         let parent = document.getElementById(parentId);
         this._self = document.createElement("div");
         this._self.className = "health_bar";
@@ -1176,6 +1266,7 @@ class HealthBar{
      * @param health - The current health of the entity.
      */
     update(health){
+        // the size of a full healthbar should cover half of the entity's width
         this._self.style.width= `${(health/this._maxHealth) * 50}%`;
     }
 }
@@ -1189,23 +1280,28 @@ class GameController{
     constructor() {
         this._gameOver = false;
 
+        // initialising objects to store the main game objects in
         this.itemGroup = new ObjectGroup('item');
         this.lockGroup = new ObjectGroup('lock');
         this.enemyGroup = new ObjectGroup('enemy');
 
         this.heldDirections = [];
         this.activeInventorySlot = 0;
+        // gives the first active inventory slot the indicator image
         document.getElementById(`slot-${this.activeInventorySlot}`).style.backgroundImage = "url(/static/img/active_slot.png)";
 
+        // storing elements that will need to be referenced
         this.map = document.querySelector('.map');
         this.endScreen = document.querySelector('.end-screen');
         this.level = document.querySelector('.level');
 
+        // counts up in milliseconds from when the page loads
         this.timeElapsed = 0;
         setInterval(function(){
             game.timeElapsed += 1;
         }, 1000, );
 
+        // storing elements that will be referenced later
         this._timerStatus = document.querySelector(".time-elapsed");
         this._locksStatus = document.querySelector(".locks-remaining");
         this._enemiesStatus = document.querySelector(".enemies-defeated");
@@ -1215,6 +1311,7 @@ class GameController{
      * It updates the game status text on the screen
      */
     _updateGameStatus(){
+        // turns the millisecond count into minutes and seconds that will be displayed
         let minutes = Math.floor(this.timeElapsed /60);
         let seconds = Math.floor((this.timeElapsed/60 - minutes)*60);
         if (String(seconds).length < 2){
@@ -1232,10 +1329,14 @@ class GameController{
      */
     setActiveInventorySlot(slot){
         if (this.activeInventorySlot !== slot){
+
             let prevSlot = this.activeInventorySlot;
             this.activeInventorySlot = slot;
+
             let slotView = document.getElementById(`slot-${slot}`);
             let prevSlotView = document.getElementById(`slot-${prevSlot}`);
+
+            // swaps the new slot to the indicator image and removes the image from the old slot
             slotView.style.backgroundImage = "url(/static/img/active_slot.png)";
             prevSlotView.style.backgroundImage = "none";
         }
@@ -1263,6 +1364,7 @@ class GameController{
         let id = 0;
         for (const coord of this.enemySpawnPositions){
             id += 1;
+            // gives each enemy a unique id
             let enemy = new Enemy(id);
             this.enemyGroup.push(enemy);
             enemy.spawn(coord.y,  coord.x);
@@ -1275,6 +1377,7 @@ class GameController{
      */
     spawnPlayer(){
         this.player = new Player();
+
         let sword = new Item('sword', 1);
         let swordReference = this.itemGroup.push(sword);
         this.player.inventory.insertItem(swordReference, 0);
@@ -1295,14 +1398,10 @@ class GameController{
         // for index checking to work, enemySpawnSpacing must be even
         let enemySpawnSpacing = Math.floor((this.maze.height*this.maze.width)/enemyNumber);
         enemySpawnSpacing -= enemySpawnSpacing % 2
-        // if (enemyNumber === 0){
-        //     enemySpawnSpacing = 0;
-        // }
 
         let index = 0;
         let deadEndCodes = ['0111', '1011', '1101', '1110'];
         this.deadEndPositions = [];
-
 
         this.enemySpawnPositions = [];
         let enemyCount = 0.5;
@@ -1318,11 +1417,13 @@ class GameController{
                     console.log()
                 }
 
+                // maths behind which indexes are used to spawn enemies is explained in design
                 if (index === enemySpawnSpacing*enemyCount && enemyNumber !==  0){
                     this.enemySpawnPositions.push({y:row, x:column});
                     enemyCount += 1;
                 }
 
+                // populates maze's node list with the nodes defined in the binary string
                 let walls = {top: parseInt(bin[0]), bottom: parseInt(bin[1]), left: parseInt(bin[2]), right: parseInt(bin[3])};
                 let node = new Node(row, column, walls);
 
@@ -1332,7 +1433,6 @@ class GameController{
             }
         }
         this.maze.output();
-        console.log(this.deadEndPositions.length)
 
         this.determineLockAndKeyPositions();
     }
@@ -1360,13 +1460,22 @@ class GameController{
 
             // dead ends alternate between containing keys or locks
             if (index % 2 === even) {
+
+                // creating key object and adding it to its group
                 let key = new Item('key', index);
                 let keyReference = this.itemGroup.push(key);
+
+                // places the key in the correct place in the maze
                 key.entity.spawn(nodePosition.y, nodePosition.x);
                 this.maze.nodes.getNode(nodePosition).contains = keyReference;
+
             } else if (index % 2 !== even) {
+
+                // creating lock object and adding it to its group
                 let lock = new Lock(index);
                 let lockReference = this.lockGroup.push(lock);
+
+                // places the lock in the correct place in the maze
                 lock.entity.spawn(nodePosition.y, nodePosition.x);
                 this.maze.nodes.getNode(nodePosition).contains = lockReference;
             }
@@ -1394,14 +1503,19 @@ class GameController{
     gameEnd(hasWon){
         let continueLocation = "";
         if ((hasWon === true && game.maze.height*game.maze.width >= 625) || gameComplete === 1){
+            // continue button should redirect to gamecomplete page after maze of size 25x25 (level 10) has been completed
             continueLocation = "/gamecomplete";
         }
 
+        // replaces the maze and game with the game's end screen
         this._gameOver = true;
         this.level.id = "hidden";
         this.endScreen.id = "shown";
+
+        // calculates the score based on time elasped, the maze's area, the number of enemies defeated, and the number of locks opened
         let score = Math.floor((this.maze.height + this.maze.width)/2 * (((2 ** -((this.timeElapsed/200) - 10)) + 50) + (this.player.enemiesKilled * 10) + (this.player.locksOpened * 15)));
 
+        // getting correct references to HTML elements
         let popOut = this.endScreen.firstElementChild;
         let message = popOut.firstElementChild;
 
@@ -1412,14 +1526,18 @@ class GameController{
         popOut.appendChild(restartButton);
 
         if (hasWon === true){
+
+            // calculates whether to add 2 or 3 to the size of the maze to go to the next level
             let sizeIncrease = 2;
             if (this.maze.height % 5 === 0){
                 sizeIncrease = 3;
             }
             if (continueLocation === ""){
-            continueLocation = `/play?height=${this.maze.height + sizeIncrease}&width=${this.maze.width + sizeIncrease}`;
+                // only sets the continue location to the next largest level if the player has not completed the game
+                continueLocation = `/play?height=${this.maze.height + sizeIncrease}&width=${this.maze.width + sizeIncrease}`;
             }
 
+            // gives the user the option to try the maze they just completed again
             restartButton.textContent = "Try again?";
             restartButton.onclick = function(){
                 window.location.href = window.location.href;
@@ -1435,6 +1553,7 @@ class GameController{
             message.style.backgroundImage = "url(/static/img/levelcomplete.png)";
 
         } else {
+            // user must restart from the menu if they failed the level
             restartButton.textContent = "Restart?";
             restartButton.onclick = function(){
                 window.location.href = "/";
@@ -1460,6 +1579,7 @@ class GameController{
             enemy.attack();
         }
 
+        // items and locks need to be updated every frame in case the pixel size has changed
         for (const item of this.itemGroup.objectList){
             item.update();
         }
@@ -1467,6 +1587,7 @@ class GameController{
         for (const lock of this.lockGroup.objectList){
             lock.update();
         }
+        // updates time every frame
         this._updateGameStatus();
     }
     
@@ -1477,6 +1598,7 @@ class GameController{
         if (this._gameOver === true){
             return;
         }
+        // calls the game loop function every frame
         this.gameLoop();
         window.requestAnimationFrame(function () {
             game.step();
@@ -1495,14 +1617,17 @@ game.step();
 
 /* Listening for key presses and then adding the key to the corresponding array. */
 document.addEventListener('keydown', function (e) {
+
     let direction = directionKeys[e.key];
     let inventorySlot = inventoryKeys[e.key];
     let command = commands[e.key];
     // adds last key pressed to the start of the heldDirections array
     if (direction && game.heldDirections.indexOf(direction) === -1) {
         game.heldDirections.unshift(direction);
+
     } else if (inventorySlot && game.activeInventorySlot !== inventorySlot-1) {
         game.setActiveInventorySlot(inventorySlot-1);
+
     } else if (command){
         game.player.executeCommand(command);
     }
@@ -1510,6 +1635,7 @@ document.addEventListener('keydown', function (e) {
 
 /* Removing the direction from the heldDirections array when the key is released. */
 document.addEventListener('keyup', function (e) {
+
     let direction = directionKeys[e.key];
     let index = game.heldDirections.indexOf(direction);
     // removes key from helpDirections when it stops being pressed
