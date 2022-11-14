@@ -15,13 +15,13 @@ SUBROUTINE play_with_size()
 	TRY
 		IF key 'maxEnemies' is in args THEN
 			session['max enemies'] <- integer(args['maxEnemies'])
-		ELSE THEN
+		ELSE 
 			session['max enemies'] <- -1
 		ENDIF
 		
 		IF key 'maxLocks' is in args THEN
 			session['max locks'] <- integer(args['maxLocks'])
-		ELSE THEN
+		ELSE 
 			session['max locks'] <- -1
 		ENDIF
 		
@@ -71,15 +71,21 @@ SUBROUTINE play_from_seed(seed)
 		level <- string(length of session['maze list'])
 	ENDIF
 	
-	IF 'max enemies' is not in session THEN
-		session['max enemies'] = -1
+	IF 'max enemies' is in session THEN
+		enemies <- session['max enemies']
+		remove 'max enemies' from session
+	ELSE
+		enemies <- -1
 	ENDIF
 	
-	IF 'max locks' is not in session THEN
-		session['max locks'] = -1
+	IF 'max locks' is in session THEN
+		locks <- session['max locks']
+		remove 'max locks' from session
+	ELSE
+		locks <- -1
 	ENDIF
 	
-	return flask render_template("/public/play.html", level <- level, maxEnemies <- session[maxEnemies, maxLocks <- session['max locks'], mazeImage <- session['image name'], mazeSeed <- seed_generator.seed. gameComplete <- session['game complete'])
+	return flask render_template("/public/play.html", level <- level, maxEnemies <- enemies, maxLocks <- locks, mazeImage <- session['image name'], mazeSeed <- seed_generator.seed. gameComplete <- session['game complete'])
 ENDSUBROUTINE
 
 SUBROUTINE game_complete()

@@ -1,0 +1,70 @@
+
+SUBROUTINE pathFind()
+	targetPosition <- targetTile.position()
+	
+	min <- {y: currentTile.y - range/2, x: currentTile.x - range/2}
+	max <- {y: currentTile.y + range/2, x: currentTile.x + range/2}
+	
+	IF min.y <= targetPosition.y AND targetPosition.y <= max.y AND min.x <= targetPosition.x AND targetPosition.x <= max.x THEN
+		nodesInRange <- new NodeList object
+		
+		FOR row <- min.y to max.y, incrementing row by 0.5 DO
+			FOR column <- min.x to max.x, incrementing row by 0.5 DO
+				node <- maze.getTile(row, column)
+				IF node THEN
+					push node to nodesInRange
+				ENDIF
+			ENDFOR
+		ENDFOR
+		
+		checkTile <- targetTile
+		checkPosition <- targetPosition
+		visitedNodes <- new NodeList object
+		
+		While true DO
+			IF checkPosition = currentTile.position() THEN
+				break
+			ENDIF
+				
+			nodesInRange.delete(checkPosition)
+			nextPosition <- checkPosition
+			direction <- ""
+			
+			IF checkTile.top = 0 AND nodesInRange.contains({y: nextPosition.y - 0.5, x: nextPosition.x})) THEN
+				nextPosition.y <- nextPosition.y - 0.5;
+				direction <- "down";
+
+			ELSE IF checkTile.bottom = 0 AND nodesInRange.contains({y: nextPosition.y + 0.5, x: nextPosition.x})) THEN
+				nextPosition.y <- nextPosition + 0.5;
+				direction <- "up";
+
+			ELSE IF checkTile.left = 0 AND nodesInRange.contains({y: nextPosition.y, x: nextPosition.x - 0.5})) THEN
+				nextPosition.x <- nextPosition - 0.5;
+				direction <- "right";
+
+			ELSE IF checkTile.right = 0 AND nodesInRange.contains({y: nextPosition.y, x: nextPosition.x + 0.5})) THEN
+				nextPosition.x <- nextPosition + 0.5;
+				direction <- "left";
+			
+			ELSE
+				IF path contains items THEN
+					remove path[0] from path
+					checkPosition <- visitedNodes.pop()
+				ELSE
+					break
+				ENDIF
+			ENDIF
+			
+			IF nodesInRange.contains(nextPosition) THEN
+				remove last item from path
+				visitedNodes.push(checkPosition)
+				checkPosition <- nextPosition
+				checkTile <- nodesInRange.dict[nodesInRange.getKeyFromPos(checkPosition)]
+			ENDIF
+		ENDWHILE
+	ENDIF
+ENDSUBROUTINE
+			
+
+				
+			
