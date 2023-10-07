@@ -5,3 +5,5 @@ Lost Cause is a web game where you are tasked with navigating a series of proced
 ___
 
 Lost Cause is the project for my A level computer science NEA (non-examined assesment)
+
+final solution is located in webapp
